@@ -105,6 +105,37 @@ def writeGTF(inGTF,file_path):
                 df['attribute']=df['attribute']+c+' "'+inGTF[c].astype(str)+'"; '
     df.to_csv(file_path, sep="\t",header=None,index=None,quoting=csv.QUOTE_NONE)
 
+def GTFtoBED(inGTF,name):
+    """
+    Transform a GTF dataframe into a bed dataframe
+    
+    :param inGTF: GTF dataframe for transformation
+    :param name: field of the GTF data frame to be use for the bed 'name' positon
+
+    returns: a bed dataframe with the corresponding bed fiels: 'chrom','chromStart','chromEnd','name','score','strand'
+    """
+    if name not in inGTF.columns.tolist():
+        field=retrieve_GTF_field(name, inGTF)
+        inGTF=pd.concat([inGTF,field],axis=1)
+    bed=inGTF[['seqname','start','end',name,'score','strand']]
+    bed.columns=['chrom','chromStart','chromEnd','name','score','strand']
+    bed.drop_duplicates(inplace=True)
+    bed.reset_index(inplace=True,drop=True)
+    return bed
+
+def writeBED(inBED, file_path):
+    """
+    Writes a bed dataframe into a bed file.
+   
+    :param inBED: bed dataframe to be written.
+    :param file_path: /path/to/file.bed
+    
+    :returns: nothing    
+
+    """
+    inBED.to_csv(file_path,index=None,sep="\t",header=None)
+
+
 
 if __name__ == '__main__':
     print "AGEpy"
