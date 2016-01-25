@@ -2,10 +2,17 @@
 
 This python package contains Bioinformatics tools developed at the Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
+___
+
 Max Planck Institute for Biology of Ageing
+
 Joseph-Stelzmann-Str. 9b
+
 D-50931 Cologne
+
 Germany
+
+___
 
 We are currently on beta and will introduce the needed documention asap.
 
