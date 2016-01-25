@@ -42,7 +42,7 @@ def attributesGTF(inGTF):
     """
     List the type of attributes in a the attribute section of a GTF file
 
-    :param inGTF: GTF file to be analysed
+    :param inGTF: GTF dataframe to be analysed
     :returns: a list of attributes present in the attribute section
 
     """
@@ -71,7 +71,7 @@ def parseGTF(inGTF):
     """
     Reads an extracts all attributes in the attributes section of a GTF and constructs a new dataframe wiht one collumn per attribute instead of the attributes column
 
-    :param inGTF: GTF to be parsed
+    :param inGTF: GTF dataframe to be parsed
     :returns: a dataframe of the orignal input GTF with attributes parsed.
     
     """
