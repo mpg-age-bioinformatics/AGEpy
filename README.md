@@ -75,4 +75,14 @@ In python:
 help("AGEpy.AGEpy")  
 ```
 
+#### Example usage
+
+```python
+import AGEpy.AGEpy as age
+
+gtf=age.readGTF("/path/to/file.gtf")
+
+gtf.head()
+```
+
 
