@@ -48,7 +48,11 @@ If you have pip installed you can get the current pip version over pip:
 pip install --user AGEpy
 ```
 
+and upgrade whenever required with:
 
+```bash
+pip install --user AGEpy --upgrade
+```
 
 
 
