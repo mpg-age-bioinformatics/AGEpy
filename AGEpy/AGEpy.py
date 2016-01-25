@@ -87,7 +87,7 @@ def writeGTF(inGTF,file_path):
     """
     Write a GTF dataframe into a file
 
-    :param inGTF: GTF dataframe to be written. It should either have 9 columns with the last one being the "attributes" section of more than 9 columns where all columns after the 8th will be colapsed into one.
+    :param inGTF: GTF dataframe to be written. It should either have 9 columns with the last one being the "attributes" section or more than 9 columns where all columns after the 8th will be colapsed into one.
     :param file_path: path/to/the/file.gtf
     :returns: nothing
     """
