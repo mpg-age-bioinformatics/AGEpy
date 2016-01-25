@@ -61,5 +61,18 @@ and upgrade whenever required with:
 pip install --user AGEpy --upgrade
 ```
 
+#### Help
+
+In bash:
+
+```bash
+pydoc AGEpy.AGEpy
+```
+
+In python:
+
+```python
+help("AGEpy.AGEpy")  
+```
 
 
