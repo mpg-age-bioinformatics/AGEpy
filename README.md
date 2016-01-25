@@ -21,21 +21,21 @@ git clone https://github.com/mpg-age-bioinformatics/AGEpy
 
 Install:
 
-'''bash
+'''
 cd AGEpy
 python setup.py install 
 '''
 
 Alternatively you can also install the package with a symlink, so that changes to the source files will be immediately available to users of the package on our system:
 
-'''bash
+'''
 cd AGEpy
 python setup.py develop
 '''
 
 and then update to latest release whenever required with:
 
-'''bash
+'''
 cd AGEpy
 git pull
 '''
@@ -44,7 +44,7 @@ git pull
 
 If you have pip installed you can get the current pip version over pip:
 
-'''bash
+'''
 pip install --user AGEpy
 '''
 
