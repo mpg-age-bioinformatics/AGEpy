@@ -22,6 +22,7 @@ def readGTF(infile):
     """
     df=pd.read_table(infile, sep='\t', comment="#", header=None, dtype=str)
     df.columns=['seqname','source','feature','start','end','score','strand','frame','attribute']
+    #df = df.astype(str) # from DTC
     return df
 
 def retrieve_GTF_field(field,gtf):
@@ -252,6 +253,57 @@ def pandas_DAVID(report):
     df.append(line)
   pdf = pd.DataFrame(df)
   return pdf
+
+
+def getFileFormat (path):
+  
+  """
+  Return the file format
+
+  :params path: The path to the file
+  
+  :returns: None, if file is missing, else one of the strings 'xlsx', 'xls', 'txt'
+  """
+
+  xlsx_sign = b'\x50\x4B\x05\06'
+  xls_sign = b'\x09\x08\x10\x00\x00\x06\x05\x00'
+  ret = None
+  signs = [(0, 512, 8), (2, -22, 4)] # whence, offset, size
+  for w, o, s in signs:
+    with open(path, 'rb') as f:
+      f.seek(o, w)
+      b = f.read(s)
+      if b == xls_sig:
+        ret = 'xls'
+      elif b == xlsx_sig:
+        ret = 'xlsx'
+      else
+        ret = 'txt'
+  return ret
+
+
+def readDataFrame (path, sheet = None, sep = '\t'):
+
+  """
+  Returns a pandas data frame
+
+  :params path: The path to the file
+  :params sheet: Sheet name or integer 0-based index for xls[x] files, None for all
+  :params sep: A separator for text format
+
+  :returns: A pandas data frame
+  """
+
+  ff = file_format(path)
+  if ff is None:
+    print 'error: file not matching format xls[x]/txt'
+    sys.exit()
+  if ff in ['xls', 'xlsx']:
+    df = pd.read_excel(path, sheetname = sheet)
+  else
+    df = pd.read_table(path, sep = sep)
+  return df
+
 
 
 if __name__ == '__main__':
