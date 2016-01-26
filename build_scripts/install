@@ -1,8 +1,0 @@
-#!/bin/bash
-
-d=$(readlink -f $0)
-d=$(dirname $d)
-p=$1
-[[ -z $1 ]] && p=~/.local
-cd $d/../
-python setup.py install --prefix=$p --force
