@@ -7,6 +7,9 @@ import numpy as np
 import os
 import csv
 import sys
+from suds.client import Client as sudsclient
+import os
+import ssl
 
 def readGTF(infile):
     """
@@ -135,6 +138,120 @@ def writeBED(inBED, file_path):
     """
     inBED.to_csv(file_path,index=None,sep="\t",header=None)
 
+
+david_categories = [
+  'GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT', 'KEGG_PATHWAY',
+  'BIOCARTA', 'PFAM', 'PROSITE' ]
+
+david_fields = [
+  'categoryName', 'termName', 'listHits', 'percent',
+  'ease', 'geneIds', 'listTotals', 'popHits', 'popTotals',
+  'foldEnrichment', 'bonferroni', 'benjamini', 'afdr']
+# include:
+# 'fisher'
+# 'termName' to 'term' and 'term_name'
+
+
+def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2):
+
+    """
+    Queries the DAVID database for an enrichment analysis
+
+    :param database: A string for the database to query, e.g. 'WORMBASE_GENE_ID'
+    :param categories: A comma separated string with databases
+    :param user: A user ID registered at DAVID for querying
+    :param ids: A list with identifiers
+    :param name: A string with the name for the query set
+    :param ids_bg: A list with the background identifiers to enrich against,
+      'None' for whole set
+    :param name_bg: A string with the name for the background set
+    :param p: Maximum p value for enrichment of a term
+    :param n: Minimum number of genes within a term
+    :param ct: Maybe another threshold
+
+    :returns: None if no ids match the queried database, or a list with results
+    """
+
+    ids = ','.join(ids)
+    use_bg = 0
+    if ids_bg is not None:
+      ids_bg = ','.join(ids_bg)
+    ssl._create_default_https_context = ssl._create_unverified_context
+    client = sudsclient('https://david.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl')
+    client.wsdl.services[0].setlocation('https://david.ncifcrf.gov/webservice/services/DAVIDWebService.DAVIDWebServiceHttpSoap11Endpoint/')
+    client_auth = client.service.authenticate(user)
+    if verbose:
+      print 'User Authentication:', client_auth
+      sys.stdout.flush()
+    size = client.service.addList(ids, database, name, 0) #| inputListIds,idType,listName,listType)
+    if verbose:
+      print 'Mapping rate of ids: ', str(size)
+      sys.stdout.flush()
+    if not float(size) > float(0):
+      return None
+    if ids_bg is not None:
+      size_bg = cliet.service.addList(ids, database, name_bg, 1)
+      if verbose:
+        print 'Mapping rate of background ids: ', str(size_bg)
+        sys.stdout.flush()
+    client_categories = client.service.setCategories(categories)
+    if verbose:
+      print 'Categories used: ', client_categories
+      sys.stdout.flush()
+    client_report = client.service.getChartReport(p, n)
+    size_report = len(client_report)
+    if verbose:
+      print 'Records reported: ', str(size_report)
+      sys.stdout.flush()
+    return client_report
+
+
+def write_DAVID(report, path, sep = '\t'):
+
+  """
+  Write the DAVIDenrich list to a file
+
+  :param report: A report list as returned from DAVIDenrich
+  :param path: A file path to write to
+  :param sep: A character used as separator
+
+  :returns: None
+  """
+
+  n = len(report)
+  if n < 1:
+    print 'warning: report of length 0'
+    #sys.exit()
+  with open(path, 'w') as out:
+    out.write(sep.join(david_fields) + '\n')
+    for r in report:
+      d = dict(r)
+      line = []
+      for f in david_fields:
+        line.append(str(d[f]))
+      out.write(sep.join(line) + '\n')
+
+
+def pandas_DAVID(report):
+
+  """
+  Return a pandas data frame from a DAVIDenrich
+
+  :param report: A report list as returned from DAVIDenrich
+
+  :returns: A pandas data frame
+  """
+
+  df = []
+  df.append(david_fields)
+  for r in report:
+    d = dict(r)
+    line = []
+    for f in david_fields:
+      line.append(str(d[f]))
+    df.append(line)
+  pdf = pd.DataFrame(df)
+  return pdf
 
 
 if __name__ == '__main__':
