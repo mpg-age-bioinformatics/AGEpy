@@ -1,0 +1,18 @@
+#!/bin/env python
+
+# test script for AGEpy functions
+
+### import
+
+from AGEpy.AGEpy import *
+
+### *DAVID*
+
+i = ['WBGene00015153', 'WBGene00197333']
+c = ','.join(david_categories)
+d = DAVIDenrich('WORMBASE_GENE_ID', c, 'valid@david.id', i, name = 'foo', verbose = True, p = 1, n = 0)
+df = pandas_DAVID(d)
+
+write_DAVID(d, 'build_scripts/test_david.out')
+
+###
