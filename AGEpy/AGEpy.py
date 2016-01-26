@@ -273,11 +273,11 @@ def getFileFormat (path):
     with open(path, 'rb') as f:
       f.seek(o, w)
       b = f.read(s)
-      if b == xls_sig:
+      if b == xls_sign:
         ret = 'xls'
-      elif b == xlsx_sig:
+      elif b == xlsx_sign:
         ret = 'xlsx'
-      else
+      else:
         ret = 'txt'
   return ret
 
@@ -294,13 +294,13 @@ def readDataFrame (path, sheet = None, sep = '\t'):
   :returns: A pandas data frame
   """
 
-  ff = file_format(path)
+  ff = getFileFormat(path)
   if ff is None:
     print 'error: file not matching format xls[x]/txt'
     sys.exit()
   if ff in ['xls', 'xlsx']:
     df = pd.read_excel(path, sheetname = sheet)
-  else
+  else:
     df = pd.read_table(path, sep = sep)
   return df
 
