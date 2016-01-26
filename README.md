@@ -1,18 +1,12 @@
 ## AGEpy
 
-This python package contains Bioinformatics tools developed at the Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
+This python package contains Bioinformatics tools developed at the
+Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
-___
-
-Max Planck Institute for Biology of Ageing
-
-Joseph-Stelzmann-Str. 9b
-
-D-50931 Cologne
-
-Germany
-
-___
+> Max Planck Institute for Biology of Ageing
+> Joseph-Stelzmann-Str. 9b
+> D-50931 Cologne
+> Germany
 
 We are currently on beta and will introduce the needed documention asap.
 
@@ -22,7 +16,7 @@ We are currently on beta and will introduce the needed documention asap.
 
 Get the latest release from github:
 
-```bash 
+```bash
 git clone https://github.com/mpg-age-bioinformatics/AGEpy
 ```
 
@@ -30,10 +24,15 @@ Install:
 
 ````bash
 cd AGEpy
-python setup.py install 
+python setup.py install
+# or add a prefix to install into a
+# prefix/lib/pythonX.X/site-libraries and prefix/bin folder:
+python setup.py install --prefix=~/.local
 ```
 
-Alternatively you can also install the package with a symlink, so that changes to the source files will be immediately available to users of the package on your system:
+Alternatively you can also install the package with a symlink, so that changes
+to the source files will be immediately available to users of the package on
+your system:
 
 ````bash
 cd AGEpy
@@ -72,7 +71,7 @@ pydoc AGEpy.AGEpy
 In python:
 
 ```python
-help("AGEpy.AGEpy")  
+help("AGEpy.AGEpy")
 ```
 
 #### Example usage
