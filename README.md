@@ -24,10 +24,7 @@ Install:
 
 ````bash
 cd AGEpy
-python setup.py install
-# or add a prefix to install into a
-# prefix/lib/pythonX.X/site-libraries and prefix/bin folder:
-python setup.py install --prefix=~/.local
+python setup.py install --user
 ```
 
 Alternatively you can also install the package with a symlink, so that changes
@@ -36,7 +33,7 @@ your system:
 
 ````bash
 cd AGEpy
-python setup.py develop
+python setup.py develop --user
 ```
 
 and then update to the latest release whenever required with:
