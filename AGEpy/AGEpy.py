@@ -130,7 +130,8 @@ def GTFtoBED(inGTF,name):
 def writeBED(inBED, file_path):
     """
     Writes a bed dataframe into a bed file.
-   
+    Bed format: 'chrom','chromStart','chromEnd','name','score','strand'
+ 
     :param inBED: bed dataframe to be written.
     :param file_path: /path/to/file.bed
     
