@@ -12,6 +12,7 @@ import os
 import ssl
 from biomart import BiomartServer
 
+
 def readGTF(infile):
     """
     Reads a GTF file and labels the respective columns in agreement with GTF file standards:
@@ -312,6 +313,238 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
         df=None
     
     return df
+
+
+def organismsKEGG():
+    """
+    Lists all organisms present in the KEGG database.
+
+    :returns: nothing
+
+    """
+    organisms=urlopen("http://rest.kegg.jp/list/organism").read()
+    organisms=organisms.split("\n")
+    for o in organisms:
+        o=o.split("\t")
+        print str(o[1]), str(o[2])
+        sys.stdout.flush()
+
+
+def databasesKEGG(organism,ens_ids):
+    """
+    Finds KEGG database identifiers for a respective organism given example ensembl ids.
+    
+
+    :param organism: an organism as listed in organismsKEGG()
+    :param ens_ids: a list of ensenbl ids of the respective organism
+
+    :returns: nothing
+
+    """
+    all_genes=urlopen("http://rest.kegg.jp/list/"+organism).read()
+    all_genes=all_genes.split("\n")
+    dbs=[]
+    while len(dbs) == 0:
+        for g in all_genes:
+            if len(dbs) == 0:
+                kid = g.split("\t")[0]
+                gene=urlopen("http://rest.kegg.jp/get/"+kid).read()
+                DBLINKS=gene.split("\n")
+                DBLINKS=[ s for s in DBLINKS if ":" in s ]
+                for d in DBLINKS:
+                    test=d.split(" ")
+                    test=test[len(test)-1]
+                    if test in ens_ids:
+                        DBLINK=[ s for s in DBLINKS if test in s ]
+                        DBLINK=DBLINK[0].split(":")
+                        DBLINK=DBLINK[len(DBLINK)-2]
+                        dbs.append(DBLINK)
+            else:
+                break
+    ens_db=dbs[0].split(" ")
+    ens_db=ens_db[len(ens_db)-1]
+    test_db=urlopen("http://rest.genome.jp/link/"+ens_db+"/"+organism).read()
+    test_db=test_db.split("\n")
+    if len(test_db) == 1:
+        print "For "+organism+" the following db was found: "+ens_db
+        print "This database does not seem to be valid KEGG-linked database identifier"
+        print "For \n'hsa' use 'ensembl-hsa'\n'mmu' use 'ensembl-mmu'\n'cel' use 'EnsemblGenomes-Gn'\n'dme' use 'FlyBase'" 
+        sys.stdout.flush()
+    else:
+        print "For "+organism+" the following db was found: "+ens_db
+        sys.stdout.flush()
+    return ens_db
+
+
+def ensembl_to_kegg(organism,kegg_db):
+    """
+    Looks up KEGG mappings of KEGG ids to ensembl ids
+
+    :param organism: an organisms as listed in organismsKEGG()
+    :param kegg_db: a matching KEGG db as reported in databasesKEGG
+
+    :returns: a Pandas dataframe of with 'KEGGid' and 'ENSid'.
+
+    """
+    #print "KEGG API: http://rest.genome.jp/link/"+ens_db+"/"+organism
+    #sys.stdout.flush()
+    kegg_ens=urlopen("http://rest.genome.jp/link/"+kegg_db+"/"+organism).read()
+    kegg_ens=kegg_ens.split("\n")
+    final=[]
+    for i in kegg_ens:
+        final.append(i.split("\t"))
+    df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
+    ens_id=pd.DataFrame(df[1].str.split(":").tolist())[1]
+    df=pd.concat([df,ens_id],axis=1)
+    df.columns=['KEGGid','ensDB','ENSid']
+    df=df[['KEGGid','ENSid']]
+    return df
+
+def ecs_idsKEGG(organism):
+    """
+    Uses KEGG to retrieve all ids and respective ecs for a given KEGG organism
+
+    :param organism: an organisms as listed in organismsKEGG()
+
+    :returns: a Pandas dataframe of with 'ec' and 'KEGGid'.
+
+    """
+    kegg_ec=urlopen("http://rest.kegg.jp/link/"+organism+"/enzyme").read()
+    kegg_ec=kegg_ec.split("\n")
+    final=[]
+    for k in kegg_ec:
+        final.append(k.split("\t"))
+    df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
+    df.columns=['ec','KEGGid']
+    return df
+
+
+def idsKEGG(organism):
+    """
+    Uses KEGG to retrieve all ids for a given KEGG organism
+
+    :param organism: an organisms as listed in organismsKEGG()
+
+    :returns: a Pandas dataframe of with 'gene_name' and 'KEGGid'.
+
+    """
+    ORG=urlopen("http://rest.kegg.jp/list/"+organism).read()
+    ORG=ORG.split("\n")
+    final=[]
+    for k in ORG:
+        final.append(k.split("\t"))
+    df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
+    df.columns=['KEGGid','description']
+    field = pd.DataFrame(df['description'].str.split(';',1).tolist())[0]
+    field = pd.DataFrame(field)
+    df = pd.concat([df[['KEGGid']],field],axis=1)
+    df.columns=['KEGGid','gene_name']
+    df=df[['gene_name','KEGGid']]
+    return df
+    
+
+###########
+def pathwaysKEGG(organism):
+    """
+    Gets all KEGG pathways for an organism
+
+    :param organism: an organism as listed in organismsKEGG()
+
+    :returns: a Pandas dataframe with 'KEGGid','pathIDs', and 'pathName'
+
+    """
+
+    #print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
+    #sys.stdout.flush()
+    kegg_paths=urlopen("http://rest.kegg.jp/list/pathway/"+organism).read()
+    kegg_paths=kegg_paths.split("\n")
+    final=[]
+    for k in kegg_paths:
+        final.append(k.split("\t"))
+    df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
+    df.columns=['pathID','pathName']
+    print "Collecting genes for pathways"
+    sys.stdout.flush()
+    df_pg=pd.DataFrame()
+    for i in df['pathID'].tolist():
+        print i
+        sys.stdout.flush()
+        path_genes=urlopen("http://rest.kegg.jp/link/genes/"+i).read()
+        path_genes=path_genes.split("\n")
+        final=[]
+        for k in path_genes:
+            final.append(k.split("\t"))
+        df_tmp=pd.DataFrame(final[0:len(final)-1])[[0,1]]
+        df_tmp.columns=['pathID','KEGGid']
+        df_pg=pd.concat([df_pg,df_tmp])
+    df=pd.merge(df,df_pg,on=["pathID"], how="outer")
+    KEGGids=list(set(df['KEGGid'].tolist()))
+    print "Merging final table"
+    sys.stdout.flush()
+    df_final=pd.DataFrame()
+    for k in KEGGids:
+        df_tmp=df[df['KEGGid']==k]
+        pathIDs=", ".join(df_tmp['pathID'].tolist())
+        pathName=", ".join(df_tmp['pathName'].tolist())
+        d={'KEGGid':k,'pathIDs':pathIDs,'pathName':pathName}
+        df_tmp=pd.DataFrame(d,index=[0])
+        df_final=pd.concat([df_final,df_tmp])
+    df_final=df_final.dropna()
+    return df_final
+###### 
+
+def pathwaysKEGG(organism,names_KEGGids):
+    """
+    Gets all KEGG pathways for an organism
+
+    :param organism: an organism as listed in organismsKEGG()
+    :param names_KEGGids: a Pandas dataframe with the columns 'gene_name' and  'KEGGid' as reported from idsKEGG(organism) (or a subset of it).
+
+    :returns df: a Pandas dataframe with 'KEGGid','pathID(1):pathNAME(1)', 'pathID(n):pathNAME(n)'
+    :returns paths: a list of retrieved KEGG pathways
+    """
+    #print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
+    #sys.stdout.flush()
+    kegg_paths=urlopen("http://rest.kegg.jp/list/pathway/"+organism).read()
+    kegg_paths=kegg_paths.split("\n")
+    final=[]
+    for k in kegg_paths:
+        final.append(k.split("\t"))
+    df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
+
+    df.columns=['pathID','pathName']
+    print "Collecting genes for pathways"
+    sys.stdout.flush()
+    df_pg=pd.DataFrame()
+    for i in df['pathID'].tolist():
+        print i
+        sys.stdout.flush()
+        path_genes=urlopen("http://rest.kegg.jp/link/genes/"+i).read()
+        path_genes=path_genes.split("\n")
+        final=[]
+        for k in path_genes:
+            final.append(k.split("\t"))
+        if len(final[0]) > 1:
+            df_tmp=pd.DataFrame(final[0:len(final)-1])[[0,1]]
+            df_tmp.columns=['pathID','KEGGid']
+            df_pg=pd.concat([df_pg,df_tmp])
+    df=pd.merge(df,df_pg,on=["pathID"], how="outer")
+    df=df[df['KEGGid'].isin(names_KEGGids['KEGGid'].tolist())]
+    df=pd.merge(df,names_KEGGids,how='left',on=['KEGGid'])
+    df_fA=pd.DataFrame(columns=['KEGGid'])
+    paths=[]
+    for k in df[['pathID']].drop_duplicates()['pathID'].tolist():
+        df_tmp=df[df['pathID']==k]
+        pathName=df_tmp['pathName'].tolist()[0]
+        pathName=" : ".join([k,pathName])
+        keggIDs_in_path=df_tmp[['KEGGid']].drop_duplicates()['KEGGid'].tolist()
+        a={pathName:keggIDs_in_path}
+        a=pd.DataFrame(a,index=range(len(keggIDs_in_path)))
+        a['KEGGid']=a[pathName].copy()
+        df_fA=pd.merge(df_fA,a,how='outer',on=['KEGGid'])
+        paths.append(pathName)
+
+    return df_fA, paths
 
 
 def getFileFormat (path):
