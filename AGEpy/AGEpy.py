@@ -198,7 +198,7 @@ def attributesBM(dataset,host="http://www.ensembl.org/biomart"):
     d.show_attributes()
 
 
-def queryBM(filters,items,querydic="no",attributes,dataset,host="http://www.ensembl.org/biomart"):
+def queryBM(filters,items,querydic=None,attributes,dataset,host="http://www.ensembl.org/biomart"):
     """
     Queries BioMart.
 
@@ -215,7 +215,7 @@ def queryBM(filters,items,querydic="no",attributes,dataset,host="http://www.ense
     server = BiomartServer(host)
     d=server.datasets[dataset]
     res=[]
-    if querydic == "no"
+    if querydic is None:
         chunks=[query[x:x+350] for x in xrange(0, len(query), 350)]
         for c in chunks:
             response=dataset.search({'filters':{filters:items},'attributes':attributes})
