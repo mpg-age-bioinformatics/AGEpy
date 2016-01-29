@@ -142,19 +142,6 @@ def writeBED(inBED, file_path):
     inBED.to_csv(file_path,index=None,sep="\t",header=None)
 
 
-david_categories = [
-  'GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT', 'KEGG_PATHWAY',
-  'BIOCARTA', 'PFAM', 'PROSITE' ]
-
-david_fields = [
-  'categoryName', 'termName', 'listHits', 'percent',
-  'ease', 'geneIds', 'listTotals', 'popHits', 'popTotals',
-  'foldEnrichment', 'bonferroni', 'benjamini', 'afdr']
-# include:
-# 'fisher'
-# 'termName' to 'term' and 'term_name'
-
-
 def databasesBM(host="http://www.ensembl.org/biomart"):
     """
     Lists BioMart datasets.
@@ -262,6 +249,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
 
     """
     Queries the DAVID database for an enrichment analysis
+    Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == "type" tag and categories ==  "annot" tag.
 
     :param database: A string for the database to query, e.g. 'WORMBASE_GENE_ID'
     :param categories: A comma separated string with databases
@@ -275,7 +263,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     :param n: Minimum number of genes within a term
     :param ct: Maybe another threshold
 
-    :returns: None if no ids match the queried database, or a list with results
+    :returns: None if no ids match the queried database, or a pandas data frame with results
     """
 
     ids = ','.join(ids)
@@ -309,55 +297,17 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     if verbose:
       print 'Records reported: ', str(size_report)
       sys.stdout.flush()
-    return client_report
 
-
-def write_DAVID(report, path, sep = '\t'):
-
-  """
-  Write the DAVIDenrich list to a file
-
-  :param report: A report list as returned from DAVIDenrich
-  :param path: A file path to write to
-  :param sep: A character used as separator
-
-  :returns: None
-  """
-
-  n = len(report)
-  if n < 1:
-    print 'warning: report of length 0'
-    #sys.exit()
-  with open(path, 'w') as out:
-    out.write(sep.join(david_fields) + '\n')
-    for r in report:
-      d = dict(r)
-      line = []
-      for f in david_fields:
-        line.append(str(d[f]))
-      out.write(sep.join(line) + '\n')
-
-
-def pandas_DAVID(report):
-
-  """
-  Return a pandas data frame from a DAVIDenrich
-
-  :param report: A report list as returned from DAVIDenrich
-
-  :returns: A pandas data frame
-  """
-
-  df = []
-  df.append(david_fields)
-  for r in report:
-    d = dict(r)
-    line = []
-    for f in david_fields:
-      line.append(str(d[f]))
-    df.append(line)
-  pdf = pd.DataFrame(df)
-  return pdf
+    df = []
+    df.append(david_fields)
+    for r in client_report:
+        d = dict(r)
+        line = []
+        for f in david_fields:
+            line.append(str(d[f]))
+            df.append(line)
+    df = pd.DataFrame(df)
+    return df
 
 
 def getFileFormat (path):
