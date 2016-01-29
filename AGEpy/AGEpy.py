@@ -10,6 +10,7 @@ import sys
 from suds.client import Client as sudsclient
 import os
 import ssl
+from biomart import BiomartServer
 
 def readGTF(infile):
     """
@@ -153,6 +154,109 @@ david_fields = [
 # 'fisher'
 # 'termName' to 'term' and 'term_name'
 
+
+def databasesBM(host="http://www.ensembl.org/biomart"):
+    """
+    Lists BioMart datasets.
+    
+    :param host: address of the host server, default='http://www.ensembl.org/biomart'
+
+    :returns: nothing
+
+    """
+    server = BiomartServer(host) 
+    server.show_databases()
+
+
+def datasetsBM(host="http://www.ensembl.org/biomart"):
+    """
+    Lists BioMart datasets.
+    
+    :param host: address of the host server, default='http://www.ensembl.org/biomart'
+
+    :returns: nothing
+
+    """
+    server = BiomartServer(host)
+    server.show_datasets()
+
+
+def filtersBM(dataset,host="http://www.ensembl.org/biomart"):
+    """
+    Lists BioMart filters for a specific dataset.
+    
+    :param dataset: dataset to list filters of.
+    :param host: address of the host server, default='http://www.ensembl.org/biomart'
+
+    :returns: nothing
+
+    """
+    server = BiomartServer(host)
+    d=server.datasets[dataset]
+    d.show_filters()
+
+
+def attributesBM(dataset,host="http://www.ensembl.org/biomart"):
+    """
+    Lists BioMart attributes for a specific dataset.
+    
+    :param dataset: dataset to list attributes of.
+    :param host: address of the host server, default='http://www.ensembl.org/biomart'
+
+    :returns: nothing
+
+    """
+    server = BiomartServer(host)
+    d=server.datasets[dataset]
+    d.show_attributes()
+
+
+def queryBM(filters,items,querydic="no",attributes,dataset,host="http://www.ensembl.org/biomart"):
+    """
+    Queries BioMart.
+
+    :param filters: one BioMart filter associated with the items being queried
+    :param items: list of items to be queried (must assoiate with given filter)
+    :param querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once. 
+    :param attributes: list of attributes to recover from BioMart  
+    :param dataset: dataset to query
+    :param host: address of the host server, default='http://www.ensembl.org/biomart'
+
+    :returns: a Pandas dataframe of the queried attributes
+
+    """
+    server = BiomartServer(host)
+    d=server.datasets[dataset]
+    res=[]
+    if querydic == "no"
+        chunks=[query[x:x+350] for x in xrange(0, len(query), 350)]
+        for c in chunks:
+            response=dataset.search({'filters':{filters:items},'attributes':attributes})
+            for line in response.iter_lines():
+                line = line.decode('utf-8')
+                res=res.append(line)
+    else:
+        response=dataset.search({'filters':querydic,'attributes':attributes})
+        for line in response.iter_lines():
+            line = line.decode('utf-8')
+            res=res.append(line)
+    res=pd.DataFrame(res)
+    res.columns=attributes
+    return res
+ 
+
+
+david_categories = [
+  'GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT', 'KEGG_PATHWAY',
+  'BIOCARTA', 'PFAM', 'PROSITE' ]
+
+david_fields = [
+  'categoryName', 'termName', 'listHits', 'percent',
+  'ease', 'geneIds', 'listTotals', 'popHits', 'popTotals',
+  'foldEnrichment', 'bonferroni', 'benjamini', 'afdr']
+# include:
+# 'fisher'
+# 'termName' to 'term' and 'term_name'
 
 def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2):
 
