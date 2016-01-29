@@ -142,8 +142,9 @@ def writeBED(inBED, file_path):
     """
     inBED.to_csv(file_path,index=None,sep="\t",header=None)
 
+biomart_host="http://www.ensembl.org/biomart"
 
-def databasesBM(host="http://www.ensembl.org/biomart"):
+def databasesBM(host=biomart_host):
     """
     Lists BioMart datasets.
     
@@ -156,7 +157,7 @@ def databasesBM(host="http://www.ensembl.org/biomart"):
     server.show_databases()
 
 
-def datasetsBM(host="http://www.ensembl.org/biomart"):
+def datasetsBM(host=biomart_host):
     """
     Lists BioMart datasets.
     
@@ -169,7 +170,7 @@ def datasetsBM(host="http://www.ensembl.org/biomart"):
     server.show_datasets()
 
 
-def filtersBM(dataset,host="http://www.ensembl.org/biomart"):
+def filtersBM(dataset,host=biomart_host):
     """
     Lists BioMart filters for a specific dataset.
     
@@ -184,7 +185,7 @@ def filtersBM(dataset,host="http://www.ensembl.org/biomart"):
     d.show_filters()
 
 
-def attributesBM(dataset,host="http://www.ensembl.org/biomart"):
+def attributesBM(dataset,host=biomart_host):
     """
     Lists BioMart attributes for a specific dataset.
     
@@ -199,7 +200,7 @@ def attributesBM(dataset,host="http://www.ensembl.org/biomart"):
     d.show_attributes()
 
 
-def queryBM(filters,items,querydic=None,attributes,dataset,host="http://www.ensembl.org/biomart"):
+def queryBM(filters,items,attributes,dataset,querydic=None,host=biomart_host):
     """
     Queries BioMart.
 
