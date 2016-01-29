@@ -298,15 +298,19 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
       print 'Records reported: ', str(size_report)
       sys.stdout.flush()
 
-    df = []
-    df.append(david_fields)
-    for r in client_report:
-        d = dict(r)
-        line = []
-        for f in david_fields:
-            line.append(str(d[f]))
-            df.append(line)
-    df = pd.DataFrame(df)
+    if size_report > 0:
+        df = []
+        df.append(david_fields)
+        for r in client_report:
+            d = dict(r)
+            line = []
+            for f in david_fields:
+                line.append(str(d[f]))
+                df.append(line)
+        df = pd.DataFrame(df)
+    else:
+        df=None
+    
     return df
 
 
