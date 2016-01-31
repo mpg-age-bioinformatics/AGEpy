@@ -200,37 +200,38 @@ def attributesBM(dataset,host=biomart_host):
     d.show_attributes()
 
 
-def queryBM(filters,items,attributes,dataset,querydic=None,host=biomart_host):
+def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=None,host=biomart_host):
     """
     Queries BioMart.
 
-    :param filters: one BioMart filter associated with the items being queried
-    :param items: list of items to be queried (must assoiate with given filter)
-    :param querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once. 
-    :param attributes: list of attributes to recover from BioMart  
-    :param dataset: dataset to query
+    :param query_filtery: one BioMart filter associated with the items being queried
+    :param query_items: list of items to be queried (must assoiate with given filter)
+    :param query_querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once. 
+    :param query_attributes: list of attributes to recover from BioMart  
+    :param query_dataset: dataset to query
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
     :returns: a Pandas dataframe of the queried attributes
 
     """
     server = BiomartServer(host)
-    d=server.datasets[dataset]
+    d=server.datasets[query_dataset]
     res=[]
-    if querydic is None:
-        chunks=[query[x:x+350] for x in xrange(0, len(query), 350)]
+    
+    if query_dic is None:
+        chunks=[query_items[x:x+350] for x in xrange(0, len(query_items), 350)]
         for c in chunks:
-            response=dataset.search({'filters':{filters:items},'attributes':attributes})
+            response=d.search({'filters':{query_filter:c},'attributes':query_attributes})
             for line in response.iter_lines():
                 line = line.decode('utf-8')
-                res=res.append(line)
+                res.append(line.split("\t")) 
     else:
-        response=dataset.search({'filters':querydic,'attributes':attributes})
+        response=d.search({'filters':query_dic,'attributes':query_attributes})
         for line in response.iter_lines():
             line = line.decode('utf-8')
-            res=res.append(line)
+            res.append(line.split("\t"))
     res=pd.DataFrame(res)
-    res.columns=attributes
+    res.columns=query_attributes
     return res
  
 
