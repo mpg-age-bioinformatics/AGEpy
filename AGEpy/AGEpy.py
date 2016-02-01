@@ -304,7 +304,6 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
 
     if size_report > 0:
         df = []
-        df.append(david_fields)
         for r in client_report:
             d = dict(r)
             line = []
@@ -312,6 +311,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
                 line.append(str(d[f]))
                 df.append(line)
         df = pd.DataFrame(df)
+        df.columns=david_fields
     else:
         df=None
     
