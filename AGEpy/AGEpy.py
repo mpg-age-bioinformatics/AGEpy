@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-""" Bioinformatics tools developed at the Max Planck Institute for Biology of Ageing"""
+"""Bioinformatics tools developed at the Max Planck Institute for Biology of Ageing"""
 
 import pandas as pd
 import numpy as np
@@ -11,6 +11,7 @@ from suds.client import Client as sudsclient
 import os
 import ssl
 from biomart import BiomartServer
+from urllib import urlopen
 
 
 def readGTF(infile):
@@ -287,7 +288,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     if not float(size) > float(0):
       return None
     if ids_bg is not None:
-      size_bg = cliet.service.addList(ids, database, name_bg, 1)
+      size_bg = client.service.addList(ids_bg, database, name_bg, 1)
       if verbose:
         print 'Mapping rate of background ids: ', str(size_bg)
         sys.stdout.flush()
