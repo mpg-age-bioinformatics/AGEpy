@@ -318,19 +318,54 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     return df
 
 
+def id_nameDAVID(df,GTF=None,name_id=None):
+    """
+    Given a DAVIDenrich output it converts ensembl gene ids to genes names and adds this column to the output
+
+    :param df: a dataframe output from DAVIDenrich
+    :param GTF: a GTF dataframe from readGTF()
+    :param name_id: instead of a gtf dataframe a dataframe with the columns 'gene_name' and 'gene_id' can be given as input
+    
+    :returns: a pandas dataframe with a gene name column added to it.
+    """
+    if name_id is None:
+        gene_name=retrieve_GTF_field('gene_name',GTF)
+        gene_id=retrieve_GTF_field('gene_id', GTF)
+        GTF=pd.concat([gene_name,gene_id],axis=1)
+    else:
+        GTF=name_id.copy()
+    df['Gene_names']="genes"
+    terms=df['termName'].tolist()
+    enrichN=pd.DataFrame()
+    for term in terms:
+        tmp=df[df['termName']==term]
+        tmp=tmp.reset_index(drop=True)
+        ids=tmp.xs(0)['geneIds']
+        ids=pd.DataFrame(data=ids.split(", "))
+        ids.columns=['geneIds']
+        ids['geneIds']=ids['geneIds'].map(str.lower)
+        GTF['gene_id']=GTF['gene_id'].map(str.lower)
+        ids=pd.merge(ids, GTF, how='left', left_on='geneIds', right_on='gene_id')
+        names=ids['gene_name'].tolist()
+        names= ', '.join(names)
+        tmp=tmp.replace(to_replace=tmp.xs(0)['Gene_names'], value=names)
+        enrichN=pd.concat([enrichN, tmp])
+    enrichN=enrichN.reset_index(drop=True)
+    return enrichN
+
+
 def organismsKEGG():
     """
     Lists all organisms present in the KEGG database.
 
-    :returns: nothing
+    :returns: a list of lists containing one organism per list.
 
     """
     organisms=urlopen("http://rest.kegg.jp/list/organism").read()
     organisms=organisms.split("\n")
-    for o in organisms:
-        o=o.split("\t")
-        print str(o[1]), str(o[2])
-        sys.stdout.flush()
+    print organisms
+    sys.stdout.flush()
+    return organisms
 
 
 def databasesKEGG(organism,ens_ids):
@@ -341,7 +376,7 @@ def databasesKEGG(organism,ens_ids):
     :param organism: an organism as listed in organismsKEGG()
     :param ens_ids: a list of ensenbl ids of the respective organism
 
-    :returns: nothing
+    :returns: nothing if no database was found, or a string if a database was found
 
     """
     all_genes=urlopen("http://rest.kegg.jp/list/"+organism).read()
@@ -373,6 +408,7 @@ def databasesKEGG(organism,ens_ids):
         print "This database does not seem to be valid KEGG-linked database identifier"
         print "For \n'hsa' use 'ensembl-hsa'\n'mmu' use 'ensembl-mmu'\n'cel' use 'EnsemblGenomes-Gn'\n'dme' use 'FlyBase'" 
         sys.stdout.flush()
+        ens_db = None
     else:
         print "For "+organism+" the following db was found: "+ens_db
         sys.stdout.flush()
