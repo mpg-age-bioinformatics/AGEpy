@@ -309,7 +309,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
             line = []
             for f in david_fields:
                 line.append(str(d[f]))
-                df.append(line)
+            df.append(line)
         df = pd.DataFrame(df)
         df.columns=david_fields
     else:
