@@ -8,6 +8,6 @@ setup(name = 'AGEpy',
       author_email = 'jorge.boucas@age.mpg.de',
       license = 'MIT',
       packages = [ 'AGEpy' ],
-      install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2', 'suds', 'xlrd', 'csv','ssl','biomart'],
+      install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2', 'suds', 'xlrd', 'csv','biomart'],
       zip_safe = False
       )
