@@ -12,7 +12,8 @@ import os
 import ssl
 from biomart import BiomartServer
 from urllib import urlopen
-
+import rpy2.robjects as robjects
+from rpy2.robjects.packages import importr
 
 def readGTF(infile):
     """
@@ -144,10 +145,11 @@ def writeBED(inBED, file_path):
     inBED.to_csv(file_path,index=None,sep="\t",header=None)
 
 biomart_host="http://www.ensembl.org/biomart"
+rbiomart_host="www.ensembl.org"
 
 def databasesBM(host=biomart_host):
     """
-    Lists BioMart datasets.
+    Lists BioMart databases.
     
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
@@ -156,6 +158,18 @@ def databasesBM(host=biomart_host):
     """
     server = BiomartServer(host) 
     server.show_databases()
+
+def RdatabasesBM(host=rbiomart_host):
+    """
+    Lists BioMart databases through a RPY2 connection.
+    
+    :param host: address of the host server, default='www.ensembl.org'
+
+    :returns: nothing
+
+    """
+    biomaRt = importr("biomaRt")
+    print(biomaRt.listMarts(host=host))
 
 
 def datasetsBM(host=biomart_host):
@@ -170,6 +184,19 @@ def datasetsBM(host=biomart_host):
     server = BiomartServer(host)
     server.show_datasets()
 
+def RdatasetsBM(database,host=rbiomart_host):
+    """
+    Lists BioMart datasets through a RPY2 connection.
+    
+    :param database: a database listed in RdatabasesBM()
+    :param host: address of the host server, default='www.ensembl.org'
+
+    :returns: nothing
+
+    """
+    biomaRt = importr("biomaRt")
+    ensemblMart=biomaRt.useMart(database, host=host)
+    print(biomaRt.listDatasets(ensemblMart))
 
 def filtersBM(dataset,host=biomart_host):
     """
@@ -185,6 +212,21 @@ def filtersBM(dataset,host=biomart_host):
     d=server.datasets[dataset]
     d.show_filters()
 
+def RfiltersBM(dataset,database,host=rbiomart_host):
+    """
+    Lists BioMart filters through a RPY2 connection.
+    
+    :param dataset: a dataset listed in RdatasetsBM()
+    :param database: a database listed in RdatabasesBM()
+    :param host: address of the host server, default='www.ensembl.org'
+
+    :returns: nothing
+
+    """
+    biomaRt = importr("biomaRt")
+    ensemblMart=biomaRt.useMart(database, host=host)
+    ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
+    print(biomaRt.listFilters(ensembl))
 
 def attributesBM(dataset,host=biomart_host):
     """
@@ -200,6 +242,21 @@ def attributesBM(dataset,host=biomart_host):
     d=server.datasets[dataset]
     d.show_attributes()
 
+def RattributesBM(dataset,database,host=rbiomart_host):
+    """
+    Lists BioMart attributes through a RPY2 connection.
+    
+    :param dataset: a dataset listed in RdatasetsBM()
+    :param database: a database listed in RdatabasesBM()
+    :param host: address of the host server, default='www.ensembl.org'
+    
+    :returns: nothing
+
+    """
+    biomaRt = importr("biomaRt")
+    ensemblMart=biomaRt.useMart(database, host=rbiomart_host)
+    ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
+    print(biomaRt.listAttributes(ensembl))
 
 def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=None,host=biomart_host):
     """
@@ -235,6 +292,29 @@ def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=No
     res.columns=query_attributes
     return res
  
+def RqueryBM(query_filter,query_items,query_attributes,dataset,database,host=rbiomart_host):
+    """
+    Queries BioMart.
+
+    :param query_filtery: one BioMart filter associated with the items being queried
+    :param query_items: list of items to be queried (must assoiate with given filter)
+    :param query_attributes: list of attributes to recover from BioMart  
+    :param dataset: dataset to query
+    :param database: database to query
+    :param host: address of the host server, default='www.ensembl.org'
+
+    return: a Pandas dataframe of the queried attributes
+
+    """
+ 
+    biomaRt = importr("biomaRt")
+    ensemblMart=biomaRt.useMart(database, host=rbiomart_host)
+    ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
+    df=biomaRt.getBM(attributes=query_attributes, filters=query_filter, values=query_items, mart=ensembl)
+    output = [tuple([df[j][i] for j in range(df.ncol)]) for i in range(df.nrow)]
+    output = pd.DataFrame(output)
+    output.columns = query_attributes
+    return output
 
 
 david_categories = [
