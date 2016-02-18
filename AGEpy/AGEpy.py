@@ -787,7 +787,8 @@ def rewriteFasta(sequence, sequence_name, fasta_in, fasta_out):
     f=open(fasta_in, 'r+')
     f2=open(fasta_out,'w')
     lines = f.readlines()
-    for i in range(0, len(lines)):
+    i=0
+    while i < len(lines):
         line = lines[i]
         if line[0] == ">":
             f2.write(line)
@@ -803,9 +804,11 @@ def rewriteFasta(sequence, sequence_name, fasta_in, fasta_out):
                 while s <= len(sequence):
                     f2.write(sequence[s:s+60]+"\n")
                     s=s+60                
-                f2.write("\n") 
+            else:
+                i=i+1 
         else:
             f2.write(line)
+            i=i+1
 
     f2.close
     f.close
