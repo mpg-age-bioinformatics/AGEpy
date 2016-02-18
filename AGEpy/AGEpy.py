@@ -818,18 +818,18 @@ def readSAM(SAMfile):
     :returns: a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL'
 
     """
-    sam=pd.read_table(SAMfile,sep=" ", header=None)
+    sam=pd.read_table(SAMfile,sep="this_gives_one_column", header=None)
     sam=pd.DataFrame(sam[0].str.split("\t").tolist())
-    acols=[0,1,2,3,4,5,6,7,8,9,10]
+    acols=[0,1,2,3,4,5,6,7,8,9]
     sam_=sam[acols]
     samcols=sam.columns.tolist()
     bcols=[ s for s in samcols if s not in acols ]
-    sam_[11]=sam[bcols[0]]
+    sam_[10]=sam[bcols[0]]
     if len(bcols) > 1:
         for c in bcols[1:]:
-            sam_[11]=sam_[11].astype(str)
+            sam_[10]=sam_[10].astype(str)
             sam[c]=sam[c].astype(str)
-            sam_[11]=sam_[11]+"\t"+sam[c]
+            sam_[10]=sam_[10]+"\t"+sam[c]
 
     sam_.columns=['QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL']
     return sam_
@@ -849,7 +849,6 @@ def writeSAM(sam,SAMfile):
     sam=sam.drop(['QUAL'],axis=1)
     sam=pd.concat([sam,QUAL],axis=1)
     sam.to_csv(SAMfile,index=None,sep="\t",header=None)
-
 
 
 if __name__ == '__main__':
