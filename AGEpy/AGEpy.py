@@ -676,7 +676,7 @@ def getFileFormat (path):
   """
   Return the file format
 
-  :params path: The path to the file
+  :param path: The path to the file
   
   :returns: None, if file is missing, else one of the strings 'xlsx', 'xls', 'txt'
   """
@@ -703,9 +703,9 @@ def readDataFrame (path, sheet = None, sep = '\t'):
   """
   Returns a pandas data frame
 
-  :params path: The path to the file
-  :params sheet: Sheet name or integer 0-based index for xls[x] files, None for all
-  :params sep: A separator for text format
+  :param path: The path to the file
+  :param sheet: Sheet name or integer 0-based index for xls[x] files, None for all
+  :param sep: A separator for text format
 
   :returns: A pandas data frame
   """
@@ -724,20 +724,20 @@ def getFasta(opened_file, sequence_name):
     """
     Retrieves a sequence from an opened multifasta file
 
-    :params opened_file: an opened multifasta file eg. opened_file=open("/path/to/file.fa",'r+')
-    :params sequence_name: the name of the sequence to be retrieved eg. for '>2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)
+    :param opened_file: an opened multifasta file eg. opened_file=open("/path/to/file.fa",'r+')
+    :param sequence_name: the name of the sequence to be retrieved eg. for '>2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)
 
     returns: a string with the sequence of interest
     """
 
     lines = opened_file.readlines()
+    seq=str("")
     for i in range(0, len(lines)):
         line = lines[i]
         if line[0] == ">":
             fChr=line.split(" ")[0]
             fChr=fChr[1:]
             if fChr == sequence_name:
-                seq=str("")
                 s=i
                 code=['N','A','C','T','G']
                 firstbase=lines[s+1][0]
@@ -745,17 +745,23 @@ def getFasta(opened_file, sequence_name):
                     s=s + 1
                     seq=seq+lines[s]
                     firstbase=lines[s+1][0]
-    seq=seq.split("\n")
-    seq="".join(seq)
+    
+    if len(seq)==0:
+        seq=None
+    else:        
+        seq=seq.split("\n")
+        seq="".join(seq)
+    
     return seq  
+
 
 def writeFasta(sequence, sequence_name, output_file):
     """
     Writes a fasta sequence into a file.
 
-    :params sequence: a string with the sequence to be written
-    :params sequence_name: name of the the fasta sequence
-    :params output_file: /path/to/file.fa to be written
+    :param sequence: a string with the sequence to be written
+    :param sequence_name: name of the the fasta sequence
+    :param output_file: /path/to/file.fa to be written
 
     :returns: nothing
     """
@@ -771,10 +777,10 @@ def rewriteFasta(sequence, sequence_name, fasta_in, fasta_out):
     """
     Rewrites a specific sequence in a multifasta file while keeping the sequence header.
 
-    :params sequence: a string with the sequence to be written  
-    :params sequence_name: the name of the sequence to be retrieved eg. for '>2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)
-    :params fasta_in: /path/to/original.fa
-    :params fasta_out: /path/to/destination.fa
+    :param sequence: a string with the sequence to be written  
+    :param sequence_name: the name of the sequence to be retrieved eg. for '>2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)
+    :param fasta_in: /path/to/original.fa
+    :param fasta_out: /path/to/destination.fa
     
     :returns: nothing
     """
@@ -784,6 +790,7 @@ def rewriteFasta(sequence, sequence_name, fasta_in, fasta_out):
     for i in range(0, len(lines)):
         line = lines[i]
         if line[0] == ">":
+            f2.write(line)
             fChr=line.split(" ")[0]
             fChr=fChr[1:]
             if fChr == sequence_name:
@@ -792,32 +799,56 @@ def rewriteFasta(sequence, sequence_name, fasta_in, fasta_out):
                 while firstbase in code:
                     i=i+1
                     firstbase=lines[i][0]
-
-                f2.write(line)
                 s=0
                 while s <= len(sequence):
                     f2.write(sequence[s:s+60]+"\n")
-                    s=s+60
-
-            else:
-                f2.write(line)
+                    s=s+60                
+                f2.write("\n") 
         else:
             f2.write(line)
 
     f2.close
     f.close
 
-    
+def readSAM(SAMfile):
+    """
+    Reads and parses a sam file.
+
+    :param SAMfile: /path/to/file.sam
+    :returns: a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL'
+
+    """
+    sam=pd.read_table(SAMfile,sep=" ", header=None)
+    sam=pd.DataFrame(sam[0].str.split("\t").tolist())
+    acols=[0,1,2,3,4,5,6,7,8,9,10]
+    sam_=sam[acols]
+    samcols=sam.columns.tolist()
+    bcols=[ s for s in samcols if s not in acols ]
+    sam_[11]=sam[bcols[0]]
+    if len(bcols) > 1:
+        for c in bcols[1:]:
+            sam_[11]=sam_[11].astype(str)
+            sam[c]=sam[c].astype(str)
+            sam_[11]=sam_[11]+"\t"+sam[c]
+
+    sam_.columns=['QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL']
+    return sam_
 
 
+def writeSAM(sam,SAMfile):
+    """
+    Writes a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' into a sam file
 
+    :param sam: pandas dataframe to be writen
+    :param SAMfile: /path/to/file.sam
 
+    :returns: nothing
+    """
 
-
-
-    
-
-
+    QUAL=pd.DataFrame(sam['QUAL'].str.split("\t").tolist())
+    sam=sam.drop(['QUAL'],axis=1)
+    sam=pd.concat([sam,QUAL],axis=1)
+    sam.to_csv(SAMfile,index=None,sep="\t",header=None)
 
 
 
