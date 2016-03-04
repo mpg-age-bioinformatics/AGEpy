@@ -736,7 +736,7 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
     :returns df: a Pandas dataframe with the 'KEGGid','pathsIDs','pathName','ensembl_gene_id','kegg_enzyme'
     :returns df_: a matrix with a column for each KEGG pathway for a given organism and the expression values in the respective dfexp in parameter
     :returns fullmatrix: a matrix with a column for each KEGG pathway for a given organism
-    :returns df_links: a dataframe with links for each pathway and the links in the dfexp highlighted red. 
+    :returns df_links: a dataframe with links for each pathway and the links in the dfexp highlighted red (if df_links. 
     
     """
 
@@ -750,7 +750,7 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
     biomaRt_output.columns = ['ensembl_gene_id','kegg_enzyme']
     biomaRt_output = biomaRt_output[biomaRt_output['kegg_enzyme']!='']
     biomaRt_output.reset_index(inplace=True,drop=True)
-    biomaRt_output=age.biomaRtTOkegg(biomaRt_output)
+    biomaRt_output=biomaRtTOkegg(biomaRt_output)
 
 
     # Gett all pathways
