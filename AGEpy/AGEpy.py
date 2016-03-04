@@ -721,7 +721,7 @@ def expKEGG(organism,names_KEGGids):
 
 
 
-def KEGGmatrix(dfexp, organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=rbiomart_host,links=True):
+def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=rbiomart_host,links=True,dfexp=None):
     """
     This looks for all KEGG annotatios of an organism in biomaRt and the respective pathways in KEGG.
     
@@ -754,54 +754,57 @@ def KEGGmatrix(dfexp, organism, dataset, database, query_attributes=['ensembl_ge
 
 
     # Gett all pathways
-    df, df_=age.pathwaysKEGG(organism)
+    df, df_=pathwaysKEGG(organism)
     fullmatrix=df_.copy()
 
     # Get all KEGG ecs from KEGG
-    ecs=age.ecs_idsKEGG(organism)
+    ecs=ecs_idsKEGG(organism)
 
     biomaRt_output=pd.merge(biomaRt_output,ecs,left_on=['kegg_enzyme'],right_on=['ec'],how="outer")
     biomaRt_output=biomaRt_output.drop(['ec'],axis=1)
 
     df=pd.merge(df, biomaRt_output, how="outer",on=['KEGGid']).drop_duplicates()
-    dfexp=pd.merge(biomaRt_output, dfexp, how="right",on=['ensembl_gene_id'])
-    
-    expDic=dfexp[['KEGGid','log2FC']].dropna()
-    expDic=expDic.set_index(['KEGGid'])
-    expDic=expDic.to_dict().get("log2FC")
-
-    cols=df_.columns.tolist()
-    cols=[ s for s in cols if "KEGGid" not in s ]
-    for c in cols:
-        df_[c]=df_[c].apply(lambda x: expDic.get(x))
-
-    df_=pd.merge(dfexp,df_,on=['KEGGid'],how="left")
-    df_=df_.dropna(subset=['KEGGid','ensembl_gene_id'])
-    df_=df_.sort(columns=cols)
-
-    if links==True:
-        df_links=pd.DataFrame()
-        for p in cols:
-            dfT=df_.dropna(subset=[p])
-            dfT=dfT.dropna(subset=['kegg_enzyme'])
-            dfT=dfT.drop_duplicates(subset=['kegg_enzyme'])
-            if len(dfT) > 0:
-                pathway=p.split(":")[1]
-                URL="http://www.kegg.jp/kegg-bin/show_pathway?"+pathway
-                for i in dfT['kegg_enzyme'].tolist():
-                    gKEGG=i
-                    color="red"
-                    text="/"+gKEGG+"%09"+color
-                    URL=URL+text
-                print URL
-                d={"pathway":pathway, "URL":URL}
-                d=pd.DataFrame(d,index=[0])
-                df_links=pd.concat([df_links,d])
-        df_links.reset_index(inplace=True, drop=True)
-    
-        return df, df_, fullmatrix, df_links
+    if dfexp == None:
+        return df
     else:
-        return df, df_, fullmatrix
+        dfexp=pd.merge(biomaRt_output, dfexp, how="right",on=['ensembl_gene_id'])
+    
+        expDic=dfexp[['KEGGid','log2FC']].dropna()
+        expDic=expDic.set_index(['KEGGid'])
+        expDic=expDic.to_dict().get("log2FC")
+
+        cols=df_.columns.tolist()
+        cols=[ s for s in cols if "KEGGid" not in s ]
+        for c in cols:
+            df_[c]=df_[c].apply(lambda x: expDic.get(x))
+
+        df_=pd.merge(dfexp,df_,on=['KEGGid'],how="left")
+        df_=df_.dropna(subset=['KEGGid','ensembl_gene_id'])
+        df_=df_.sort(columns=cols)
+
+        if links==True:
+            df_links=pd.DataFrame()
+            for p in cols:
+                dfT=df_.dropna(subset=[p])
+                dfT=dfT.dropna(subset=['kegg_enzyme'])
+                dfT=dfT.drop_duplicates(subset=['kegg_enzyme'])
+                if len(dfT) > 0:
+                    pathway=p.split(":")[1]
+                    URL="http://www.kegg.jp/kegg-bin/show_pathway?"+pathway
+                    for i in dfT['kegg_enzyme'].tolist():
+                        gKEGG=i
+                        color="red"
+                        text="/"+gKEGG+"%09"+color
+                        URL=URL+text
+                    print URL
+                    d={"pathway":pathway, "URL":URL}
+                    d=pd.DataFrame(d,index=[0])
+                    df_links=pd.concat([df_links,d])
+            df_links.reset_index(inplace=True, drop=True)
+    
+            return df, df_, fullmatrix, df_links
+        else:
+            return df, df_, fullmatrix
 
 
 def getFileFormat (path):
