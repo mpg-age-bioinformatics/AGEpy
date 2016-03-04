@@ -567,8 +567,8 @@ def pathwaysKEGG(organism):
 
     :param organism: an organism as listed in organismsKEGG()
 
-    :returns: a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.
-    
+    :returns df: a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.
+    :returns df_: a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below 
     """
 
     #print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
@@ -612,8 +612,57 @@ def pathwaysKEGG(organism):
         df_tmp=pd.DataFrame(d,index=[0])
         df_final=pd.concat([df_final,df_tmp])
     df_final=df_final.dropna()
-    return df_final
 
+    df_=df[['KEGGid']].drop_duplicates()
+    for i in list(set(df['pathID'].tolist())):
+        tmp=df[df['pathID']==i]
+        N=": ".join([i,tmp["pathName"].tolist()[0]])
+        tmp=tmp[['KEGGid']]
+        tmp.columns=[N]
+        df_=pd.merge(df_,tmp,left_on=['KEGGid'],right_on=[N],how="outer")
+
+    return df_final, df_
+
+
+def biomaRtTOkegg(df):
+    """
+    Transforms a pandas dataframe with the columns 'ensembl_gene_id','kegg_enzyme' 
+    to dataframe ready for use in ...
+    
+    :param df: a pandas dataframe with the following columns: 'ensembl_gene_id','kegg_enzyme' 
+
+    :returns: a pandas dataframe with the following columns: 'ensembl_gene_id','kegg_enzyme' 
+    """
+    df=df.dropna()
+    ECcols=df.columns.tolist()
+    df.reset_index(inplace=True,drop=True)
+    # field = ECsb[['kegg_enzyme']]
+    field = pd.DataFrame(df['kegg_enzyme'].str.split('+',1).tolist())[1]
+    field = pd.DataFrame(field)
+    df=pd.concat([df[['ensembl_gene_id']],field],axis=1)
+    df.columns=ECcols
+    df.drop_duplicates(inplace=True)
+    df.reset_index(inplace=True,drop=True)
+    plus=df['kegg_enzyme'].tolist()
+    plus=[ s for s in plus if "+" in s ]
+    noPlus=df[~df['kegg_enzyme'].isin(plus)]
+    plus=df[df['kegg_enzyme'].isin(plus)]
+    noPlus.reset_index(inplace=True, drop=True)
+    plus.reset_index(inplace=True, drop=True)
+    for p in range(0,len(plus)):
+        enz=plus.ix[p]['kegg_enzyme']
+        enz=enz.split("+")
+        enz=pd.DataFrame(enz)
+        enz.colums=['kegg_enzyme']
+        enz['ensembl_gene_id']=plus.ix[p]['kegg_enzyme']
+        noPlus=pd.concat([noPlus,enz])
+    noPlus=noPlus.drop_duplicates()
+    noPlus=noPlus[['ensembl_gene_id','kegg_enzyme']]
+    noPlus['fake']='ec:'
+    noPlus['kegg_enzyme']=noPlus['fake']+noPlus['kegg_enzyme']
+    noPlus=noPlus[['ensembl_gene_id','kegg_enzyme']]
+    
+    return noPlus
 
 
 
@@ -622,7 +671,7 @@ def expKEGG(organism,names_KEGGids):
     Gets all KEGG pathways for an organism
 
     :param organism: an organism as listed in organismsKEGG()
-    :param names_KEGGids: a Pandas dataframe with the columns 'gene_name' and  'KEGGid' as reported from idsKEGG(organism) (or a subset of it).
+    :param names_KEGGids: a Pandas dataframe with the columns 'gene_name': and  'KEGGid' as reported from idsKEGG(organism) (or a subset of it).
 
     :returns df: a Pandas dataframe with 'KEGGid','pathID(1):pathNAME(1)', 'pathID(n):pathNAME(n)'
     :returns paths: a list of retrieved KEGG pathways
@@ -669,6 +718,90 @@ def expKEGG(organism,names_KEGGids):
         paths.append(pathName)
 
     return df_fA, paths
+
+
+
+def KEGGmatrix(dfexp, organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=rbiomart_host,links=True):
+    """
+    This looks for all KEGG annotatios of an organism in biomaRt and the respective pathways in KEGG.
+    
+    :param dfexp: a Pandas dataframe with the following columns: 'ensembl_gene_id', 'log2FC'
+    :param organism: a KEGG organism identifier
+    :param dataset: a biomaRt dataset
+    :param database: a biomaRt database
+    :param query_attributes: biomaRt query attributes, the name can change but the output should stay in the same order ie. 'ensembl_gene_id','kegg_enzyme' 
+    :param host: biomaRt_host
+    :param links: if True, returns df_links
+    
+    :returns df: a Pandas dataframe with the 'KEGGid','pathsIDs','pathName','ensembl_gene_id','kegg_enzyme'
+    :returns df_: a matrix with a column for each KEGG pathway for a given organism and the expression values in the respective dfexp in parameter
+    :returns fullmatrix: a matrix with a column for each KEGG pathway for a given organism
+    :returns df_links: a dataframe with links for each pathway and the links in the dfexp highlighted red. 
+    
+    """
+
+    # Get all ensembl gene ids and keeg enzyme labels from biomaRt
+    biomaRt = importr("biomaRt")
+    ensemblMart=biomaRt.useMart(database, host=host)
+    ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
+    biomaRt_output=biomaRt.getBM(attributes=query_attributes,mart=ensembl)
+    biomaRt_output = [tuple([biomaRt_output[j][i] for j in range(biomaRt_output.ncol)]) for i in range(biomaRt_output.nrow)]
+    biomaRt_output = pd.DataFrame(biomaRt_output)
+    biomaRt_output.columns = ['ensembl_gene_id','kegg_enzyme']
+    biomaRt_output = biomaRt_output[biomaRt_output['kegg_enzyme']!='']
+    biomaRt_output.reset_index(inplace=True,drop=True)
+    biomaRt_output=age.biomaRtTOkegg(biomaRt_output)
+
+
+    # Gett all pathways
+    df, df_=age.pathwaysKEGG(organism)
+    fullmatrix=df_.copy()
+
+    # Get all KEGG ecs from KEGG
+    ecs=age.ecs_idsKEGG(organism)
+
+    biomaRt_output=pd.merge(biomaRt_output,ecs,left_on=['kegg_enzyme'],right_on=['ec'],how="outer")
+    biomaRt_output=biomaRt_output.drop(['ec'],axis=1)
+
+    df=pd.merge(df, biomaRt_output, how="outer",on=['KEGGid']).drop_duplicates()
+    dfexp=pd.merge(biomaRt_output, dfexp, how="right",on=['ensembl_gene_id'])
+    
+    expDic=dfexp[['KEGGid','log2FC']].dropna()
+    expDic=expDic.set_index(['KEGGid'])
+    expDic=expDic.to_dict().get("log2FC")
+
+    cols=df_.columns.tolist()
+    cols=[ s for s in cols if "KEGGid" not in s ]
+    for c in cols:
+        df_[c]=df_[c].apply(lambda x: expDic.get(x))
+
+    df_=pd.merge(dfexp,df_,on=['KEGGid'],how="left")
+    df_=df_.dropna(subset=['KEGGid','ensembl_gene_id'])
+    df_=df_.sort(columns=cols)
+
+    if links==True:
+        df_links=pd.DataFrame()
+        for p in cols:
+            dfT=df_.dropna(subset=[p])
+            dfT=dfT.dropna(subset=['kegg_enzyme'])
+            dfT=dfT.drop_duplicates(subset=['kegg_enzyme'])
+            if len(dfT) > 0:
+                pathway=p.split(":")[1]
+                URL="http://www.kegg.jp/kegg-bin/show_pathway?"+pathway
+                for i in dfT['kegg_enzyme'].tolist():
+                    gKEGG=i
+                    color="red"
+                    text="/"+gKEGG+"%09"+color
+                    URL=URL+text
+                print URL
+                d={"pathway":pathway, "URL":URL}
+                d=pd.DataFrame(d,index=[0])
+                df_links=pd.concat([df_links,d])
+        df_links.reset_index(inplace=True, drop=True)
+    
+        return df, df_, fullmatrix, df_links
+    else:
+        return df, df_, fullmatrix
 
 
 def getFileFormat (path):
