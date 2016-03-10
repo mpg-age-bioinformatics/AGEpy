@@ -871,7 +871,7 @@ def getFasta(opened_file, sequence_name):
     for i in range(0, len(lines)):
         line = lines[i]
         if line[0] == ">":
-            fChr=line.split(" ")[0]
+            fChr=line.split(" ")[0].split("\n")[0]
             fChr=fChr[1:]
             if fChr == sequence_name:
                 s=i
