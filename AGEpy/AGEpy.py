@@ -14,6 +14,11 @@ from biomart import BiomartServer
 from urllib import urlopen
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib import gridspec
+
 
 def readGTF(infile):
     """
@@ -1113,6 +1118,225 @@ def SAMflags(x):
 
     return flags
 
+def CellPlot(df,output_file=None):
+    """
+    Python implementation of the CellPlot from the CellPlot package for R.
+
+    :param df: pandas dataframe with the following columns - 'Enrichment', 'Term', and 'log2fc'.
+               For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
+               eg. '-Inf,-1,2,3.4,3.66,Inf'
+    :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png 
+    
+    :returns: Nothing
+    """    
+    limits=pd.DataFrame(df['log2fc'].str.split(",").tolist())
+    limits=limits.as_matrix().flatten()
+    limits=pd.DataFrame(limits)
+    limits[0]=limits[0].astype(str)
+    limits=limits[limits[0]!="None"][limits[0]!=""]
+    
+    try:
+        limits=[float(x) for x in limits[0].tolist()]
+        
+    except ValueError,e:
+        print "error",e,"on line"
+ 
+    maxFC=max(limits)
+    minFC=min(limits)
+
+    maxFC=np.percentile(limits,90)
+    minFC=np.percentile(limits,10)
+
+    cmap = matplotlib.cm.get_cmap('Spectral')
+    norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
+
+    siz=len(df)*3/10
+    
+    fig = plt.figure(figsize=(8, siz))
+    ax1 = fig.add_axes([0.05, 3.5/len(df), 0.9, 2])
+    ax2 = fig.add_axes([0.05, 1.5/len(df), 0.9, 1.5/len(df)])
+    arrangment=np.arange(len(df))+.5
+    m=max(df['Enrichment'].tolist())
+    
+    def getINFs(x,maxFC=maxFC,minFC=minFC):
+        if x == "Inf":
+            return maxFC
+        elif x == "-Inf":
+            return minFC
+        else:
+            return x
+
+    ax1.barh(arrangment, df['Enrichment'].tolist(), color='white', edgecolor='black')#range(0,len(test))
+    for i,pos in zip(df.index.tolist(),arrangment):
+        fcs=df.ix[i,'log2fc'].split(",")
+        fcs=pd.DataFrame(fcs)
+        fcs[0]=fcs[0].astype(str)
+        fcs[0]=fcs[0].apply(lambda x: getINFs(x))
+        
+        fcs=fcs[fcs[0]!=""].astype(float)[0].tolist()
+        try:
+            w=float(df.ix[i,'Enrichment'])/float(len(fcs))
+        except:
+            print df.ix[i,]
+        p=0
+        fcs.sort(key=float)
+        for f in fcs:
+            ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor='black')
+            p=p+w
+        ax1.text(df.ix[i,'Enrichment']+m*.02, pos+0.25, len(fcs), ha='left', va='bottom')
+
+    ax1.set_yticks(arrangment+0.4)
+    ax1.set_yticklabels(df['Term'].tolist())
+
+    ax1.tick_params(
+        axis='y',          
+        which='both',      
+        left='off',      
+        right='off',         
+        labelleft='on')
+
+    ax1.tick_params(
+        axis='x',          
+        which='both',     
+        bottom='off',      
+        top='on',         
+        labelbottom='off',
+        labeltop='on') 
+    
+    ax1.set_ylim(ymax = max(arrangment)+1.5)
+    ax1.set_xlabel("GO Term Enrichment")
+    ax1.xaxis.set_label_position('top') 
+
+    ax1.spines['right'].set_visible(False)
+    ax1.spines['bottom'].set_visible(False)
+
+    cb1 = matplotlib.colorbar.ColorbarBase(ax2, cmap=cmap,norm=norm, orientation='horizontal')
+    cb1.set_label('Differential expression (0.1-0.9 percentiles)')
+    if output_file:
+        plt.savefig(output_file+".CellPlot.png",dpi=300,bbox_inches='tight', pad_inches=0.1,format='png')
+        plt.savefig(output_file+".CellPlot.svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
+
+    return fig
+
+def SymPlot(df,output_file):
+    """
+    Python implementation of the SymPlot from the CellPlot package for R.
+
+    :param df: pandas dataframe with the following columns - 'Enrichment', 'Significant', 'Annotated', 'Term', and 'log2fc'.
+               For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
+               eg. '-Inf,-1,2,3.4,3.66,Inf'
+    :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png 
+    
+    :returns: Nothing
+    """
+    maxAn=df['Annotated'].max()
+
+    arrangment=np.arange(len(df))+.5
+
+    def getINFs(x):
+        if x == "Inf":
+            return 1
+        elif x == "-Inf":
+            return -1
+        else:
+            return x
+
+    limits=df['Enrichment'].tolist()
+    maxFC=np.percentile(limits,90)
+    minFC=np.percentile(limits,10)
+
+    cmap = matplotlib.cm.get_cmap('Spectral')
+    norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
+
+    siz=len(df)*4/10
+
+    fig = plt.figure(figsize=(8, siz))
+    gs = gridspec.GridSpec(1, 3, width_ratios=[2,0.75,2])
+    ax1 = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1])
+    ax3 = plt.subplot(gs[2])
+    ax4 = fig.add_axes([0.125, 0.11/100*len(df), 0.775, 0.075*10/len(df)])#/100.0075
+
+    alldown=[]
+    allup=[]
+
+    for i,pos in zip(df.index.tolist(),arrangment):
+        f=df.ix[i,'Enrichment']
+        sigN=df.ix[i,'Significant']
+        ann=float(df.ix[i,'Annotated'])
+
+        if ann!=maxAn:
+            p=float(maxAn-ann)/2
+        else:
+            p=0
+        ax2.barh(pos, ann, left=p, color=cmap(norm(float(f))),edgecolor='black')#
+
+        fcs=df.ix[i,'log2fc'].split(",")
+        fcs=pd.DataFrame(fcs)
+        fcs[0]=fcs[0].astype(str)
+        fcs[0]=fcs[0].apply(lambda x: getINFs(x))
+        fcs=fcs[fcs[0]!=""].astype(float)     
+        down=len(fcs[fcs[0]<0])/ann*100
+        up=len(fcs[fcs[0]>0])/ann*100
+        alldown.append(down)
+        allup.append(up)
+
+        ax1.barh(pos, down, color="blue",edgecolor='blue')
+        ax3.barh(pos, up, color="red",edgecolor='red')
+
+    ax1.spines['top'].set_visible(True)
+    ax1.spines['bottom'].set_visible(False)
+    ax1.spines['left'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+
+    ax1.tick_params(axis='x',which='both',bottom='off', top='on',labelbottom='off',labeltop='on')
+    ax1.tick_params(axis='y',which='both',left='off',right='off',labelleft='on')
+
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['bottom'].set_visible(False)
+    ax2.spines['left'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
+
+    ax2.tick_params(axis='x',which='both',bottom='off',top='off',labelbottom='off',labeltop='off')
+    ax2.tick_params(axis='y',which='both',left='off',right='off',labelleft='off')
+
+    ax3.spines['top'].set_visible(True)
+    ax3.spines['bottom'].set_visible(False)
+    ax3.spines['left'].set_visible(False)
+    ax3.spines['right'].set_visible(False)
+
+    ax3.tick_params(axis='x',which='both',bottom='off',top='on',labelbottom='off',labeltop='on')
+    ax3.tick_params(axis='y',which='both',left='off',right='off',labelleft='off')
+
+    fa=10*0.1/len(df)+1
+    fb=10*0.08/len(df)+1
+    
+    ax1.set_title('Downregulated (%)',y=fa)#
+    ax2.set_title('Annotated\n(max=%s)' %str(maxAn),y=fb)#
+    ax3.set_title('Upregulated (%)',y=fa)
+
+    ax1.set_xlim(max(max(alldown),max(allup)), 0)
+    ax2.set_xlim(0, maxAn)
+    ax3.set_xlim(0, max(max(alldown),max(allup)))
+
+    ax1.set_ylim(ymax = max(arrangment)+1.5)
+    ax2.set_ylim(ymax = max(arrangment)+1.5)
+    ax3.set_ylim(ymax = max(arrangment)+1.5)
+    
+    
+    ax1.set_yticks(arrangment+0.4)
+    ax1.set_yticklabels(df['Term'].tolist())
+
+    cb1 = matplotlib.colorbar.ColorbarBase(ax4, cmap=cmap,norm=norm, orientation='horizontal')
+    cb1.set_label('GO Term Enrichment (0.1-0.9 percentiles)')
+    
+    fig.subplots_adjust(wspace=0)
+
+    if output_file:
+        plt.savefig(output_file+".SymPlot.png",dpi=300,bbox_inches='tight', pad_inches=0.1,format='png')
+        plt.savefig(output_file+".SymPlot.svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
+    
+    return fig
 
 
 if __name__ == '__main__':
