@@ -1127,7 +1127,7 @@ def CellPlot(df,output_file=None):
                eg. '-Inf,-1,2,3.4,3.66,Inf'
     :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png 
     
-    :returns: Nothing
+    :returns: a matplotlib figure
     """    
     limits=pd.DataFrame(df['log2fc'].str.split(",").tolist())
     limits=limits.as_matrix().flatten()
@@ -1227,7 +1227,7 @@ def SymPlot(df,output_file):
                eg. '-Inf,-1,2,3.4,3.66,Inf'
     :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png 
     
-    :returns: Nothing
+    :returns: a matplotlib figure
     """
     maxAn=df['Annotated'].max()
 
