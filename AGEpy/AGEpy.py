@@ -1118,13 +1118,14 @@ def SAMflags(x):
 
     return flags
 
-def CellPlot(df,output_file=None):
+def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot"):
     """
     Python implementation of the CellPlot from the CellPlot package for R.
+    -inf or inf enrichments will come out as min found float or max found float, respectively.
 
     :param df: pandas dataframe with the following columns - 'Enrichment', 'Term', and 'log2fc'.
                For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
-               eg. '-Inf,-1,2,3.4,3.66,Inf'
+               eg. '-inf,-1,2,3.4,3.66,inf'
     :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png 
     
     :returns: a matplotlib figure
@@ -1153,18 +1154,38 @@ def CellPlot(df,output_file=None):
     siz=len(df)*3/10
     
     fig = plt.figure(figsize=(8, siz))
+    #fig.suptitle(figure_title, fontsize=24, fontweight='bold')
+
     ax1 = fig.add_axes([0.05, 3.5/len(df), 0.9, 2])
     ax2 = fig.add_axes([0.05, 1.5/len(df), 0.9, 1.5/len(df)])
     arrangment=np.arange(len(df))+.5
-    m=max(df['Enrichment'].tolist())
+    enr=df['Enrichment'].tolist()
+    enr=[x for x in enr if str(x) != str(float("inf"))]
+    enr=[x for x in enr if str(x) != str(float("-inf"))]
+
+    m=max(enr)
     
+    maxE=max(enr)
+    minE=min(enr)
+
     def getINFs(x,maxFC=maxFC,minFC=minFC):
-        if x == "Inf":
+        if x == str(float("inf")):
             return maxFC
-        elif x == "-Inf":
+        elif x == str(float("-inf")):
             return minFC
         else:
             return x
+
+    def fix_enrichment(x,minE=minE,maxE=maxE):
+        if str(x) == str(float("inf")):
+            return maxE
+        elif str(x) == str(float("-inf")):
+            return minE
+        else:
+            return x
+
+    df['Enrichment']=df['Enrichment'].apply(lambda x: fix_enrichment(x))
+
 
     ax1.barh(arrangment, df['Enrichment'].tolist(), color='white', edgecolor='black')#range(0,len(test))
     for i,pos in zip(df.index.tolist(),arrangment):
@@ -1173,7 +1194,9 @@ def CellPlot(df,output_file=None):
         fcs[0]=fcs[0].astype(str)
         fcs[0]=fcs[0].apply(lambda x: getINFs(x))
         
-        fcs=fcs[fcs[0]!=""].astype(float)[0].tolist()
+        #fcs=fcs[fcs[0]!=""].astype(float)[0].tolist()
+        fcs=fcs.astype(float)[0].tolist()        
+
         try:
             w=float(df.ix[i,'Enrichment'])/float(len(fcs))
         except:
@@ -1211,20 +1234,31 @@ def CellPlot(df,output_file=None):
     ax1.spines['bottom'].set_visible(False)
 
     cb1 = matplotlib.colorbar.ColorbarBase(ax2, cmap=cmap,norm=norm, orientation='horizontal')
-    cb1.set_label('Differential expression (0.1-0.9 percentiles)')
+    cb1.set_label(gene_expression+'\n(0.1-0.9 percentiles)\n\n\n'+figure_title)
+
+    #plt.subplots_adjust(top=8.5)
+
+    #ax1.annotate('a fractional title', xy=(.025, .975), xycoords='figure fraction', horizontalalignment='center', verticalalignment='top', fontsize=20)
+    #plt.subplots_adjust(top=500)
+    #ax1.text(2, 2, 'right bottom',
+    #    horizontalalignment='center',
+    #    verticalalignment='center',
+    #    transform=ax1.transAxes)
+
     if output_file:
         plt.savefig(output_file+".CellPlot.png",dpi=300,bbox_inches='tight', pad_inches=0.1,format='png')
         plt.savefig(output_file+".CellPlot.svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
 
     return fig
 
-def SymPlot(df,output_file):
+def SymPlot(df,output_file=None,figure_title="SymPlot"):
     """
     Python implementation of the SymPlot from the CellPlot package for R.
+    -inf or inf enrichments will come out as min found float or max found float, respectively.    
 
     :param df: pandas dataframe with the following columns - 'Enrichment', 'Significant', 'Annotated', 'Term', and 'log2fc'.
                For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
-               eg. '-Inf,-1,2,3.4,3.66,Inf'
+               eg. '-inf,-1,2,3.4,3.66,inf'
     :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png 
     
     :returns: a matplotlib figure
@@ -1234,12 +1268,29 @@ def SymPlot(df,output_file):
     arrangment=np.arange(len(df))+.5
 
     def getINFs(x):
-        if x == "Inf":
+        if x == str(float("inf")):
             return 1
-        elif x == "-Inf":
+        elif x == str(float("-inf")):
             return -1
         else:
             return x
+
+    enr=df['Enrichment'].tolist()
+    enr=[x for x in enr if str(x) != str(float("inf"))]
+    enr=[x for x in enr if str(x) != str(float("-inf"))]
+
+    maxE=max(enr)
+    minE=min(enr)
+
+    def fix_enrichment(x,minE=minE,maxE=maxE):
+        if str(x) == str(float("inf")):
+            return maxE
+        elif str(x) == str(float("-inf")):
+            return minE
+        else:
+            return x
+
+    df['Enrichment']=df['Enrichment'].apply(lambda x: fix_enrichment(x))
 
     limits=df['Enrichment'].tolist()
     maxFC=np.percentile(limits,90)
@@ -1251,6 +1302,7 @@ def SymPlot(df,output_file):
     siz=len(df)*4/10
 
     fig = plt.figure(figsize=(8, siz))
+    #fig.suptitle(figure_title, fontsize=24, fontweight='bold')
     gs = gridspec.GridSpec(1, 3, width_ratios=[2,0.75,2])
     ax1 = plt.subplot(gs[0])
     ax2 = plt.subplot(gs[1])
@@ -1275,7 +1327,8 @@ def SymPlot(df,output_file):
         fcs=pd.DataFrame(fcs)
         fcs[0]=fcs[0].astype(str)
         fcs[0]=fcs[0].apply(lambda x: getINFs(x))
-        fcs=fcs[fcs[0]!=""].astype(float)     
+        #fcs=fcs[fcs[0]!=""].astype(float)     
+        fcs=fcs.astype(float)  
         down=len(fcs[fcs[0]<0])/ann*100
         up=len(fcs[fcs[0]>0])/ann*100
         alldown.append(down)
@@ -1328,7 +1381,7 @@ def SymPlot(df,output_file):
     ax1.set_yticklabels(df['Term'].tolist())
 
     cb1 = matplotlib.colorbar.ColorbarBase(ax4, cmap=cmap,norm=norm, orientation='horizontal')
-    cb1.set_label('GO Term Enrichment (0.1-0.9 percentiles)')
+    cb1.set_label('GO Term Enrichment (0.1-0.9 percentiles)\n\n\n'+figure_title)
     
     fig.subplots_adjust(wspace=0)
 
