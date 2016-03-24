@@ -1118,7 +1118,7 @@ def SAMflags(x):
 
     return flags
 
-def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot"):
+def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot",pvalCol="elimFisher.adj"):
     """
     Python implementation of the CellPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.
@@ -1127,7 +1127,9 @@ def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot
                For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
                eg. '-inf,-1,2,3.4,3.66,inf'
     :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png 
-    
+    :param gene_expression: label for the color gradiant bar.
+    :param figure_title: Figure title.
+    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant     
     :returns: a matplotlib figure
     """    
     limits=pd.DataFrame(df['log2fc'].str.split(",").tolist())
@@ -1206,7 +1208,11 @@ def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot
         for f in fcs:
             ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor='black')
             p=p+w
-        ax1.text(df.ix[i,'Enrichment']+m*.02, pos+0.25, len(fcs), ha='left', va='bottom')
+        if df.ix[i,pvalCol] < 0.05:
+            barAn=len(fcs)
+        else:
+            barAn=str(len(fcs))+" (NS)"
+        ax1.text(df.ix[i,'Enrichment']+m*.02, pos+0.25, barAn, ha='left', va='bottom')
 
     ax1.set_yticks(arrangment+0.4)
     ax1.set_yticklabels(df['Term'].tolist())
@@ -1251,7 +1257,7 @@ def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot
 
     return fig
 
-def SymPlot(df,output_file=None,figure_title="SymPlot"):
+def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher.adj"):
     """
     Python implementation of the SymPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.    
@@ -1260,7 +1266,8 @@ def SymPlot(df,output_file=None,figure_title="SymPlot"):
                For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
                eg. '-inf,-1,2,3.4,3.66,inf'
     :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png 
-    
+    :param figure_title: Figure title.
+    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant 
     :returns: a matplotlib figure
     """
     maxAn=df['Annotated'].max()
@@ -1378,7 +1385,17 @@ def SymPlot(df,output_file=None,figure_title="SymPlot"):
     
     
     ax1.set_yticks(arrangment+0.4)
-    ax1.set_yticklabels(df['Term'].tolist())
+    def get_label_with_sig (df):
+        termLabel=df['Term']
+        pvalue=df[pvalCol]
+        if pvalue > 0.05:
+            return "(NS) "+termLabel
+        else:
+            return termLabel
+
+    df['newLabels']=df.apply(get_label_with_sig, axis=1)  
+
+    ax1.set_yticklabels(df['newLabels'].tolist())
 
     cb1 = matplotlib.colorbar.ColorbarBase(ax4, cmap=cmap,norm=norm, orientation='horizontal')
     cb1.set_label('GO Term Enrichment (0.1-0.9 percentiles)\n\n\n'+figure_title)
