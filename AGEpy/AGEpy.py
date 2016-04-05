@@ -1133,7 +1133,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png 
     :param gene_expression: label for the color gradiant bar.
     :param figure_title: Figure title.
-    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant     
+    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking      
     :param lowerLimit: lower limit for the heatmap bar (default is the 0.1 percentile)
     :param upperLimit: upper limit for the heatmap bar (default is the 0.9 percentile)      
     :param colorBarType: type of heatmap, 'Spectral' is dafault, alternative eg. 'seismic'
@@ -1152,14 +1152,14 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         print "error",e,"on line"
  
     if upperLimit:
-        maxFC=lowerLimit
+        maxFC=upperLimit
     else:
         maxFC=np.percentile(limits,90)
     
     if lowerLimit:
+        minFC=lowerLimit
+    else:
         minFC=np.percentile(limits,10)
-    else:    
-        minFC=min(limits)
 
     #maxFC=np.percentile(limits,90)
     #minFC=np.percentile(limits,10)
@@ -1220,12 +1220,19 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         p=0
         fcs.sort(key=float)
         for f in fcs:
+            #if float(f) > maxFC:
+            #    f=maxFC
+            #if float(f) < minFC:
+            #    f=minFC
             ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor='black')
             p=p+w
-        if df.ix[i,pvalCol] < 0.05:
-            barAn=len(fcs)
+        if pvcalCol:
+            if df.ix[i,pvalCol] < 0.05:
+                barAn=len(fcs)
+            else:
+                barAn=str(len(fcs))+" (NS)"
         else:
-            barAn=str(len(fcs))+" (NS)"
+            barAn=len(fcs)
         ax1.text(df.ix[i,'Enrichment']+m*.02, pos+0.25, barAn, ha='left', va='bottom')
 
     ax1.set_yticks(arrangment+0.4)
@@ -1277,7 +1284,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
 
     return fig
 
-def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher.adj"):
+def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     """
     Python implementation of the SymPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.    
@@ -1287,7 +1294,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher.adj")
                eg. '-inf,-1,2,3.4,3.66,inf'
     :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png 
     :param figure_title: Figure title.
-    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant 
+    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking 
     :returns: a matplotlib figure
     """
     maxAn=df['Annotated'].max()
@@ -1407,9 +1414,12 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher.adj")
     ax1.set_yticks(arrangment+0.4)
     def get_label_with_sig (df):
         termLabel=df['Term']
-        pvalue=df[pvalCol]
-        if pvalue > 0.05:
-            return "(NS) "+termLabel
+        if pvalCol:
+            pvalue=df[pvalCol]
+            if pvalue > 0.05:
+                return "(NS) "+termLabel
+            else:
+                return termLabel
         else:
             return termLabel
 
