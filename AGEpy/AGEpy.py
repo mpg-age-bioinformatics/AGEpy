@@ -448,8 +448,9 @@ def organismsKEGG():
     """
     organisms=urlopen("http://rest.kegg.jp/list/organism").read()
     organisms=organisms.split("\n")
-    print organisms
-    sys.stdout.flush()
+    #for o in organisms:
+    #    print o
+    #    sys.stdout.flush()
     return organisms
 
 
@@ -770,7 +771,9 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
 
     df=pd.merge(df, biomaRt_output, how="outer",on=['KEGGid']).drop_duplicates()
     if dfexp == None:
-        return df
+        print "Returning df and fullmatrix"
+        sys.stdout.flush()
+        return df, fullmatrix
     else:
         dfexp=pd.merge(biomaRt_output, dfexp, how="right",on=['ensembl_gene_id'])
     
@@ -808,6 +811,7 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
             df_links.reset_index(inplace=True, drop=True)
     
             return df, df_, fullmatrix, df_links
+
         else:
             return df, df_, fullmatrix
 
@@ -1118,7 +1122,7 @@ def SAMflags(x):
 
     return flags
 
-def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot",pvalCol="elimFisher.adj"):
+def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellPlot", pvalCol="elimFisher", lowerLimit=None, upperLimit=None, colorBarType='Spectral'):
     """
     Python implementation of the CellPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.
@@ -1130,6 +1134,9 @@ def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot
     :param gene_expression: label for the color gradiant bar.
     :param figure_title: Figure title.
     :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant     
+    :param lowerLimit: lower limit for the heatmap bar (default is the 0.1 percentile)
+    :param upperLimit: upper limit for the heatmap bar (default is the 0.9 percentile)      
+    :param colorBarType: type of heatmap, 'Spectral' is dafault, alternative eg. 'seismic'
     :returns: a matplotlib figure
     """    
     limits=pd.DataFrame(df['log2fc'].str.split(",").tolist())
@@ -1144,13 +1151,20 @@ def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot
     except ValueError,e:
         print "error",e,"on line"
  
-    maxFC=max(limits)
-    minFC=min(limits)
+    if upperLimit:
+        maxFC=lowerLimit
+    else:
+        maxFC=np.percentile(limits,90)
+    
+    if lowerLimit:
+        minFC=np.percentile(limits,10)
+    else:    
+        minFC=min(limits)
 
-    maxFC=np.percentile(limits,90)
-    minFC=np.percentile(limits,10)
+    #maxFC=np.percentile(limits,90)
+    #minFC=np.percentile(limits,10)
 
-    cmap = matplotlib.cm.get_cmap('Spectral')
+    cmap = matplotlib.cm.get_cmap(colorBarType)
     norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
 
     siz=len(df)*3/10
@@ -1240,7 +1254,13 @@ def CellPlot(df,output_file=None,gene_expression="log2FC",figure_title="CellPlot
     ax1.spines['bottom'].set_visible(False)
 
     cb1 = matplotlib.colorbar.ColorbarBase(ax2, cmap=cmap,norm=norm, orientation='horizontal')
-    cb1.set_label(gene_expression+'\n(0.1-0.9 percentiles)\n\n\n'+figure_title)
+    if not lowerLimit:
+        if not upperLimit:
+            cb1.set_label(gene_expression+'\n(0.1-0.9 percentiles)\n\n\n'+figure_title)
+        else:
+            cb1.set_label(gene_expression+'\n\n\n'+figure_title)
+    else:
+        cb1.set_label(gene_expression+'\n\n\n'+figure_title)
 
     #plt.subplots_adjust(top=8.5)
 
