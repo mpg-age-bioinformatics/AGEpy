@@ -1226,7 +1226,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
             #    f=minFC
             ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor='black')
             p=p+w
-        if pvcalCol:
+        if pvalCol:
             if df.ix[i,pvalCol] < 0.05:
                 barAn=len(fcs)
             else:
