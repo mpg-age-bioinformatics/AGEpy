@@ -360,7 +360,8 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     if ids_bg is not None:
       ids_bg = ','.join(ids_bg)
     ssl._create_default_https_context = ssl._create_unverified_context
-    client = sudsclient('https://david.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl')
+    url = 'https://david.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl'
+    client = sudsclient(url)
     client.wsdl.services[0].setlocation('https://david.ncifcrf.gov/webservice/services/DAVIDWebService.DAVIDWebServiceHttpSoap11Endpoint/')
     client_auth = client.service.authenticate(user)
     if verbose:
@@ -433,9 +434,17 @@ def id_nameDAVID(df,GTF=None,name_id=None):
         ids=pd.merge(ids, GTF, how='left', left_on='geneIds', right_on='gene_id')
         names=ids['gene_name'].tolist()
         names= ', '.join(names)
-        tmp=tmp.replace(to_replace=tmp.xs(0)['Gene_names'], value=names)
+        tmp["Gene_names"]=names
+        #tmp=tmp.replace(to_replace=tmp.xs(0)['Gene_names'], value=names)
         enrichN=pd.concat([enrichN, tmp])
     enrichN=enrichN.reset_index(drop=True)
+    
+    gene_names=enrichN[['Gene_names']]
+    gpos=enrichN.columns.get_loc("geneIds")
+    enrichN=enrichN.drop(['Gene_names'],axis=1)
+    cols=enrichN.columns.tolist()
+    enrichN=pd.concat([enrichN[cols[:gpos+1]],gene_names,enrichN[cols[gpos+1:]]],axis=1)   
+
     return enrichN
 
 
@@ -727,7 +736,7 @@ def expKEGG(organism,names_KEGGids):
 
 
 
-def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=rbiomart_host,links=True,dfexp=None):
+def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=rbiomart_host,links=True,dfexp=None,kegg_db=None ):
     """
     This looks for all KEGG annotatios of an organism in biomaRt and the respective pathways in KEGG.
     
@@ -738,25 +747,36 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
     :param query_attributes: biomaRt query attributes, the name can change but the output should stay in the same order ie. 'ensembl_gene_id','kegg_enzyme' 
     :param host: biomaRt_host
     :param links: if True, returns df_links
-    
+    :param dfexp: a Pandas dataframe with the folowing columns 'KEGGid' and 'log2FC'
+    :param kegg_db: a KEGG database as recovered by the databasesKEGG function   
+
+ 
     :returns df: a Pandas dataframe with the 'KEGGid','pathsIDs','pathName','ensembl_gene_id','kegg_enzyme'
     :returns df_: a matrix with a column for each KEGG pathway for a given organism and the expression values in the respective dfexp in parameter
     :returns fullmatrix: a matrix with a column for each KEGG pathway for a given organism
     :returns df_links: a dataframe with links for each pathway and the links in the dfexp highlighted red (if df_links. 
     
     """
-
-    # Get all ensembl gene ids and keeg enzyme labels from biomaRt
-    biomaRt = importr("biomaRt")
-    ensemblMart=biomaRt.useMart(database, host=host)
-    ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
-    biomaRt_output=biomaRt.getBM(attributes=query_attributes,mart=ensembl)
-    biomaRt_output = [tuple([biomaRt_output[j][i] for j in range(biomaRt_output.ncol)]) for i in range(biomaRt_output.nrow)]
-    biomaRt_output = pd.DataFrame(biomaRt_output)
-    biomaRt_output.columns = ['ensembl_gene_id','kegg_enzyme']
-    biomaRt_output = biomaRt_output[biomaRt_output['kegg_enzyme']!='']
-    biomaRt_output.reset_index(inplace=True,drop=True)
-    biomaRt_output=biomaRtTOkegg(biomaRt_output)
+    try:
+        # Get all ensembl gene ids and keeg enzyme labels from biomaRt
+        biomaRt = importr("biomaRt")
+        ensemblMart=biomaRt.useMart(database, host=host)
+        ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
+        biomaRt_output=biomaRt.getBM(attributes=query_attributes,mart=ensembl)
+        biomaRt_output = [tuple([biomaRt_output[j][i] for j in range(biomaRt_output.ncol)]) for i in range(biomaRt_output.nrow)]
+        biomaRt_output = pd.DataFrame(biomaRt_output)
+        biomaRt_output.columns = ['ensembl_gene_id','kegg_enzyme']
+        biomaRt_output = biomaRt_output[biomaRt_output['kegg_enzyme']!='']
+        biomaRt_output.reset_index(inplace=True,drop=True)
+        biomaRt_output=biomaRtTOkegg(biomaRt_output)
+    except:
+        # Do it wiht KEGG
+        ec_KEGGid=ecs_idsKEGG(organism)
+        KEGGid_ENSid=ensembl_to_kegg(organism,kegg_db)  
+        biomaRt_output=pd.merge(ec_KEGGid,KEGGid_ENSid,on=['KEGGid'],how="outer")
+        biomaRt_output=biomaRt_output.drop(['KEGGid'],axis=1)
+        biomaRt_output=biomaRt_output[['ENSid','ec']]
+        biomaRt_output.columns=['ensembl_gene_id','kegg_enzyme']
 
 
     # Gett all pathways
@@ -770,31 +790,52 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
     biomaRt_output=biomaRt_output.drop(['ec'],axis=1)
 
     df=pd.merge(df, biomaRt_output, how="outer",on=['KEGGid']).drop_duplicates()
-    if dfexp == None:
+    df=df[df['KEGGid'].astype(str)!="nan"]
+    df=df.sort('ensembl_gene_id')
+    df=df.drop_duplicates(subset=['KEGGid','pathIDs','pathName','kegg_enzyme' ])
+    df=df.reset_index()
+    if not isinstance(dfexp, pd.DataFrame):
         print "Returning df and fullmatrix"
         sys.stdout.flush()
         return df, fullmatrix
     else:
-        dfexp=pd.merge(biomaRt_output, dfexp, how="right",on=['ensembl_gene_id'])
-    
-        expDic=dfexp[['KEGGid','log2FC']].dropna()
-        expDic=expDic.set_index(['KEGGid'])
+        expDic=dfexp[['ensembl_gene_id','log2FC']].dropna()
+        expDic=expDic.set_index(['ensembl_gene_id'])
         expDic=expDic.to_dict().get("log2FC")
+
+        dfexp=pd.merge(biomaRt_output, dfexp, how="right",on=['ensembl_gene_id'])
+
+        #expDic=dfexp[['KEGGid','log2FC']].dropna()
+        #expDic=expDic.set_index(['KEGGid'])
+        #expDic=expDic.to_dict().get("log2FC")
 
         cols=df_.columns.tolist()
         cols=[ s for s in cols if "KEGGid" not in s ]
-        for c in cols:
-            df_[c]=df_[c].apply(lambda x: expDic.get(x))
+        #for c in cols:
+        #    df_[c]=df_[c].apply(lambda x: expDic.get(x))
 
         df_=pd.merge(dfexp,df_,on=['KEGGid'],how="left")
         df_=df_.dropna(subset=['KEGGid','ensembl_gene_id'])
         df_=df_.sort(columns=cols)
+
+        def get_expression(df_,col,expDic=expDic):
+            v=df_[col]
+            if str(v) != "nan":
+                eID=df_['ensembl_gene_id']
+                ex=expDic.get(eID)
+            else:
+                ex=v
+            return ex
+
+        for c in cols:
+            df_[c]=df_.apply(get_expression, args=(c,),axis=1)        
 
         if links==True:
             df_links=pd.DataFrame()
             for p in cols:
                 dfT=df_.dropna(subset=[p])
                 dfT=dfT.dropna(subset=['kegg_enzyme'])
+                print dfT.head()
                 dfT=dfT.drop_duplicates(subset=['kegg_enzyme'])
                 if len(dfT) > 0:
                     pathway=p.split(":")[1]
@@ -1167,13 +1208,21 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     cmap = matplotlib.cm.get_cmap(colorBarType)
     norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
 
-    siz=len(df)*3/10
+    if len(df)>10:
+        siz=len(df)*3/10
+    elif len(df)==1:
+        siz=1
+    elif len(df)==2:
+        siz=2
+    else:
+        siz=3
+
     
     fig = plt.figure(figsize=(8, siz))
     #fig.suptitle(figure_title, fontsize=24, fontweight='bold')
 
-    ax1 = fig.add_axes([0.05, 3.5/len(df), 0.9, 2])
-    ax2 = fig.add_axes([0.05, 1.5/len(df), 0.9, 1.5/len(df)])
+    ax1 = fig.add_axes([0.05, 3.5/( float(siz)*float(10)/float(3) ), 0.9, 2])
+    ax2 = fig.add_axes([0.05, 1.5/( float(siz)*float(10)/float(3) ), 0.9, 1.5/( float(siz)*float(10)/float(3) )])
     arrangment=np.arange(len(df))+.5
     enr=df['Enrichment'].tolist()
     enr=[x for x in enr if str(x) != str(float("inf"))]
@@ -1253,7 +1302,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         labelbottom='off',
         labeltop='on') 
     
-    ax1.set_ylim(ymax = max(arrangment)+1.5)
+    ax1.set_ylim(ymax = max(arrangment) + 1.5 ) #1.5
     ax1.set_xlabel("GO Term Enrichment")
     ax1.xaxis.set_label_position('top') 
 
@@ -1333,7 +1382,11 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     cmap = matplotlib.cm.get_cmap('Spectral')
     norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
 
-    siz=len(df)*4/10
+    if len(df) >= 5:
+        siz=len(df)*4/10
+    else:
+        size=5*4/10
+
 
     fig = plt.figure(figsize=(8, siz))
     #fig.suptitle(figure_title, fontsize=24, fontweight='bold')
@@ -1437,6 +1490,10 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
         plt.savefig(output_file+".SymPlot.svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
     
     return fig
+
+DNAcode={'CTT': 'L', 'ATG': 'M', 'ACA': 'T', 'ACG': 'T', 'ATC': 'I', 'AAC': 'N', 'ATA': 'I', 'AGG': 'R', 'CCT': 'P', 'ACT': 'T', 'AGC': 'S', 'AAG': 'K', 'AGA': 'R', 'CAT': 'H', 'AAT': 'N', 'ATT': 'I', 'CTG': 'L', 'CTA': 'L', 'CTC': 'L', 'CAC': 'H', 'AAA': 'K', 'CCG': 'P', 'AGT': 'S', 'CCA': 'P', 'CAA': 'Q', 'CCC': 'P', 'TAT': 'Y', 'GGT': 'G', 'TGT': 'C', 'CGA': 'R', 'CAG': 'Q', 'TCT': 'S', 'GAT': 'D', 'CGG': 'R', 'TTT': 'F', 'TGC': 'C', 'GGG': 'G', 'TAG': 'STOP', 'GGA': 'G', 'TAA': 'STOP', 'GGC': 'G', 'TAC': 'Y', 'TTC': 'F', 'TCG': 'S', 'TTA': 'L', 'TTG': 'L', 'TCC': 'S', 'ACC': 'T', 'TCA': 'S', 'GCA': 'A', 'GTA': 'V', 'GCC': 'A', 'GTC': 'V', 'GCG': 'A', 'GTG': 'V', 'GAG': 'E', 'GTT': 'V', 'GCT': 'A', 'TGA': 'STOP', 'GAC': 'D', 'CGT': 'R', 'TGG': 'W', 'GAA': 'E', 'CGC': 'R'}
+
+
 
 
 if __name__ == '__main__':
