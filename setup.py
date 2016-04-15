@@ -9,5 +9,6 @@ setup(name = 'AGEpy',
       license = 'MIT',
       packages = [ 'AGEpy' ],
       install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2', 'suds', 'xlrd','biomart','rpy2','matplotlib' ],
-      zip_safe = False
+      zip_safe = False,
+      scripts=['bin/david']
       )

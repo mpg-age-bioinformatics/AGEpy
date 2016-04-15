@@ -1,0 +1,200 @@
+#!/usr/bin/env python
+
+# david - perform DAVID enrichments
+#
+# This program is part of AGEpy
+#
+# Author: Sven E. Templer <sven.templer@gmail.com>
+#
+# Copyright (c) 2016 - Bioinformatics Core Facility at the
+#                      Max Planck Institute for Biology of Ageing,
+#                      Cologne, Germany
+
+import argparse
+
+# set
+parser = argparse.ArgumentParser(formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+# input file
+parser.add_argument("table", help= "Input file[s], format is text or xls[x], same for each file and auto-detected.", nargs = '+')
+# query
+parser.add_argument("-t", "--DAVIDtypes", metavar = "LIST", help = "DAVID category types to enrich for. Comma separated string.",
+    default = 'GOTERM_BP_FAT,GOTERM_CC_FAT,GOTERM_MF_FAT,KEGG_PATHWAY,BIOCARTA,PFAM,PROSITE')
+parser.add_argument("-i", "--DAVIDid", metavar = "ID", help = "DAVID data format id.", 
+    default = 'ENSEMBL_GENE_ID')
+parser.add_argument("-u", "--DAVIDuser", metavar = "USER", help = "DAVID user (email).",
+    default = None)
+parser.add_argument("-p", "--min-pvalue", metavar = "P", help = "Minimum p-value for enrichment", default = 0.05)
+parser.add_argument("-n", "--min-genes", metavar = "N", help = "Minimum number of genes in term", default = 2) 
+# input
+parser.add_argument("-d", "--delimiter", help = "For text input files, the column separator", default = '\t')
+#parser.add_argument("-b", "--background_table", help="Optional background table.Excel file with one sheet. Each column has the name of the set on the column header and the gene names for the genes as in the respective GTF file ", default='NONE')
+#parser.add_argument("-e", "--gene_expression", help="Optional gene expression table.", default='NONE')
+parser.add_argument("-c", "--column", metavar = 'N', help = "Select a column index (0-based) with ids to query. None means all.", default = None, type = int)
+#parser.add_argument("-c", "--column", metavar = 'N', help = "Select a column index (0-based) with ids to query. None means all.", default = None, type = int, nargs='+')
+parser.add_argument("-s", "--sheet", help="If input is an xls[x] file, select a sheet. None means all.", default = None, nargs = '+')
+parser.add_argument("-g", "--gtf-table", help="A gtf file to convert the ids in the input tables from gene_name to gene_id (as in ENSEMBL gtf files).", default = None)
+# output
+parser.add_argument("-o", "--output_folder", help = "Output folder", default = 'david_output')
+parser.add_argument("-v", "--verbose", help = "Be verbose", action = "store_true")
+# parse
+args=parser.parse_args()
+
+
+import time
+import codecs
+from datetime import datetime
+import pandas
+import os
+import sys
+import AGEpy.AGEpy as AGEpy
+
+
+sheets = args.sheet
+if sheets is None:
+  sheets = [""]
+
+if not os.path.exists(args.output_folder):
+  os.makedirs(args.output_folder)
+
+gtf = args.gtf_table
+if gtf is not None:
+  if args.verbose:
+    print "Reading gtf '" + gtf + "'"
+  gtf = AGEpy.readGTF(gtf)
+  if args.verbose:
+    print "* fetching attributes"
+  gname = AGEpy.retrieve_GTF_field('gene_name', gtf)
+  gid = AGEpy.retrieve_GTF_field('gene_id', gtf)
+  gname.columns = ['2']
+  gtf = pandas.concat([gname, gid], axis = 1).drop_duplicates().dropna()
+  gtf.columns = ['gene_name','gene_id']
+  if args.verbose:
+    print gtf.head()
+
+for f in args.table:
+  if args.verbose:
+    print "Reading table '" + f + "'"
+  f_name, f_suffix = os.path.splitext(os.path.basename(f))
+  f_fmt = AGEpy.getFileFormat(f)
+  for s in sheets:
+    s_name = s
+    if s is "":
+      s = None
+    if args.verbose and s is not None:
+      print "* getting sheet '" + s_name + "'"
+    d = AGEpy.readDataFrame(f, sheet = s, sep = args.delimiter)
+    #if args.verbose:
+    #  print d.head()
+    cols = d.columns.values.tolist()
+    if args.column is not None:
+      #cols = list(cols[i] for i in args.column) # for nargs='+'
+      cols = [cols[args.column]]
+    if args.verbose:
+      print "* using columns: " + ', '.join(cols)
+    for c in cols:
+      dc = d[[c]]
+      dc_col = 'gene_name'
+      dc.columns = [dc_col]
+      c_name = str(c) # take first row/header?
+      if gtf is not None:
+        if args.verbose:
+          print "* translating ids"
+        dc = pandas.merge(dc, gtf, left_on = [dc_col], right_on = ['gene_name'], how = 'left').dropna()
+        dc_col = 'gene_id'
+        dc = dc[[dc_col]].drop_duplicates()
+      if args.verbose:
+        dc_n = str(len(dc))
+        dc_head = dc[dc_col].head().tolist()
+        dc_head = map(str, dc_head)
+        print "* querying for colum '" + c + "' n = " + dc_n
+        print ', '.join(dc_head) + ', ...'
+        sys.stdout.flush()
+      dc = dc[dc_col].tolist()
+      dc_david = AGEpy.DAVIDenrich(args.DAVIDid, args.DAVIDtypes, args.DAVIDuser, 
+          dc, p = args.min_pvalue, n = args.min_genes, verbose = args.verbose)
+      if dc_david is None:
+        print "* no results, no output"
+        continue
+      #print dc_david.head()
+      if gtf is not None:
+        dc_david = AGEpy.id_nameDAVID(dc_david, name_id = gtf)
+      out_name = args.output_folder + '/' + f_name + '_' + s_name + '_' + c_name + ".xlsx" #f_suffix
+      print "* writing " + out_name
+      writer = pandas.ExcelWriter(out_name)
+      terms = list(set(dc_david['categoryName'].tolist()))
+      for t in terms:
+        dc_david_t = dc_david[dc_david['categoryName']==t]
+        dc_david_t.to_excel(writer, t, index = False)
+      writer.save()
+
+print "Done"
+
+def DAVIDit(in_table,GTF_file,background_table,gene_expression_table="NONE"):
+    print "Importing GTF file"
+    sys.stdout.flush()
+    gtf = pd.read_table(GTF_file, sep='\t', comment="#", header=None, dtype=str)
+    gtf = gtf.astype(str)
+    gene_name = retrieve_GTF_field('gene_name',gtf)
+    gene_id = retrieve_GTF_field('gene_id',gtf)
+    gene_name.columns = ['2']
+    name_id = pd.concat([gene_name, gene_id], axis=1).drop_duplicates()
+    name_id.columns=['g_name','g_id']
+    print "Finished mapping names to ids"
+    sys.stdout.flush()
+    for s in in_table:
+      in_table_sheet = in_table[s]
+      cols = in_table_sheet.columns.tolist()
+      if args.column_index is not None:
+        cols = [cols[args.column_index]]
+      for c in cols:
+          targets=in_table_sheet[[c]]
+          targets.columns=['gene']
+          if len(background_table) > 1:
+              background=background_table[[c]]
+              background.columns=['gene']
+          else:
+              background='N'
+  #         targets=pd.merge(targets,name_id,left_on=['gene'],right_on=['g_name'],how='left')
+  #         print targets.head()
+  #         sys.stdout.flush()
+          enrichN=DAVID_get(categories_of_interest,targets,name_id,background=background)
+  
+          if len(enrichN) > 0:
+              writer = pd.ExcelWriter(output_folder + '/' + os.path.basename(args.input_table) + '__' + s + '__' + c + '.xlsx')
+              #enrichN.to_csv(c+"_DAVID.tsv",sep="\t",index=False)
+              for term in list(set(enrichN['Category'].tolist())):
+                  tmp=enrichN[enrichN['Category']==term]
+                  if gene_expression_table != "NONE":
+                      pre_cellplot(tmp, gene_expression_table, c+"_"+term,c+"_"+term,output_folder)
+                  tmp.to_excel(writer, term, index=False)
+              writer.save()
+
+
+def pre_cellplot(in_DAVID,in_DGE,out_DAVID,out_DGE,output_folder):
+    output_folder_cellplot=output_folder+"/cellplot/"
+    if not os.path.exists(output_folder_cellplot):
+        os.makedirs(output_folder_cellplot)
+    df_f=pd.DataFrame()
+    for t in in_DAVID['Term'].tolist():
+        tmp=in_DAVID[in_DAVID['Term']==t]
+        genes=tmp['Genes'].tolist()[0]
+        genes=genes.split(",")
+        ngenes=[genes[0]]
+        genes=genes[1:len(genes)]
+        for g in genes:
+            g=g.split(' ')
+            g=g[1]
+            ngenes.append(g)
+        genes=in_DGE[in_DGE['gene'].isin(ngenes)]
+        genes=genes[['log2(fold_change)']]
+        genes.columns=[t]
+        genes.reset_index(inplace=True,drop=True)
+        df_f=pd.merge(df_f,genes, how='outer',right_index=True,left_index=True)
+    df_f.to_csv(output_folder_cellplot+out_DGE+"_DGE.tsv",sep='\t',index=None)
+    in_DAVID[['Term','Fold Enrichment','Pvalue']].to_csv(output_folder_cellplot+out_DAVID+"_DAVID.tsv",sep='\t',index=None)
+    
+# fix this for the skip rows
+
+# RUN IT
+#DAVIDit(in_table,GTF_file,background_table,gene_expression_table)
+
