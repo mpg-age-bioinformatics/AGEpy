@@ -24,7 +24,7 @@ Install:
 
 ````bash
 cd AGEpy
-python setup.py install --user
+python setup.py install --user --install-scripts
 ```
 
 Alternatively you can also install the package with a symlink, so that changes
@@ -33,15 +33,24 @@ your system:
 
 ````bash
 cd AGEpy
-python setup.py develop --user
+python setup.py develop --user --install-scripts
 ```
 
 and then update to the latest release whenever required with:
 
-````bash
+```bash
 cd AGEpy
 git pull
 ```
+
+and 
+
+```bash
+python setup.py develop --user --install-scripts
+```
+
+if new scripts have been added.
+
 
 ###### pip
 
@@ -81,11 +90,9 @@ gtf=age.readGTF("/path/to/file.gtf")
 gtf.head()
 ```
 
-Programs:
+#### Scripts
 
 * `david` a script to perform enrichment analysis from the DAVID database.
-It is installed with the package, see the help of `python setup.py install --help`
-on the argument `--install-scripts`. The usage is described in the scripts
-help output called via `david --help`.
+The usage is described in the script's help output called via `david --help`.
 
 
