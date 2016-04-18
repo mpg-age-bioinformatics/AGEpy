@@ -24,7 +24,16 @@ Install:
 
 ````bash
 cd AGEpy
-python setup.py install --user --install-scripts
+python setup.py install --user
+```
+
+and then update to the latest release whenever required with:
+
+```bash
+cd AGEpy
+git pull
+python setup.py install --user --force
+
 ```
 
 Alternatively you can also install the package with a symlink, so that changes
@@ -33,24 +42,10 @@ your system:
 
 ````bash
 cd AGEpy
-python setup.py develop --user --install-scripts
+python setup.py develop --user
 ```
 
-and then update to the latest release whenever required with:
-
-```bash
-cd AGEpy
-git pull
-```
-
-and 
-
-```bash
-python setup.py develop --user --install-scripts
-```
-
-if new scripts have been added.
-
+Be aware that his the develop option you won't be able to properly update once new scripts are added.
 
 ###### pip
 
@@ -95,4 +90,5 @@ gtf.head()
 * `david` a script to perform enrichment analysis from the DAVID database.
 The usage is described in the script's help output called via `david --help`.
 
-
+* `bit` The [b]ermuda [i]nformation [t]riangle is a git-like code and data manager.
+Check out https://github.com/mpg-age-bioinformatics/AGEpy/wiki/bit
