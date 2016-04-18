@@ -3,7 +3,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(description="bit, [b]ermunda [i]nformation [t]riangle.\
- bit is a git like management tool for code and data. It uses git for code versioning\
+ bit is a git-based tool for the management of code and data. It uses git for code versioning\
  and ownCloud for storing and exchanging data. It saves storage by avoiding versioning\
  of data while logging changes in associated git wikis.",\
 formatter_class = argparse.ArgumentDefaultsHelpFormatter)

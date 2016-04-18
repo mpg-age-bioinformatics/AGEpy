@@ -90,5 +90,5 @@ gtf.head()
 * `david` a script to perform enrichment analysis from the DAVID database.
 The usage is described in the script's help output called via `david --help`.
 
-* `bit` The [b]ermuda [i]nformation [t]riangle is a git-like code and data manager.
+* `bit` The [b]ermuda [i]nformation [t]riangle is a git-based tool for the management of code and data.
 Check out https://github.com/mpg-age-bioinformatics/AGEpy/wiki/bit
