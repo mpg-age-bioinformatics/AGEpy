@@ -23,8 +23,8 @@ parser.add_argument("-i", "--DAVIDid", metavar = "ID", help = "DAVID data format
     default = 'ENSEMBL_GENE_ID')
 parser.add_argument("-u", "--DAVIDuser", metavar = "USER", help = "DAVID user (email).",
     default = None)
-parser.add_argument("-p", "--max-pvalue", metavar = "P", help = "Maximum p-value for enrichment", default = 0.05)
-parser.add_argument("-n", "--min-genes", metavar = "N", help = "Minimum number of genes in term", default = 2) 
+parser.add_argument("-p", "--max-pvalue", metavar = "P", help = "Maximum p-value for enrichment", default = 0.05, type = float)
+parser.add_argument("-n", "--min-genes", metavar = "N", help = "Minimum number of genes in term", default = 2, type = int) 
 # input
 parser.add_argument("-d", "--delimiter", help = "For text input files, the column separator", default = '\t')
 #parser.add_argument("-b", "--background_table", help="Optional background table.Excel file with one sheet. Each column has the name of the set on the column header and the gene names for the genes as in the respective GTF file ", default='NONE')
@@ -56,6 +56,10 @@ if sheets is None:
 if not os.path.exists(args.output_folder):
   os.makedirs(args.output_folder)
 
+if args.DAVIDuser is None:
+  print "error: missing david user id"
+  sys.exit(1)
+
 gtf = args.gtf_table
 if gtf is not None:
   if args.verbose:
@@ -76,6 +80,8 @@ for f in args.table:
     print "Reading table '" + f + "'"
   f_name, f_suffix = os.path.splitext(os.path.basename(f))
   f_fmt = AGEpy.getFileFormat(f)
+  if f_fmt in ["xls", "xlsx"] and args.sheet is None:
+    sheets = pandas.ExcelFile(f).sheet_names
   for s in sheets:
     s_name = s
     if s is "":
@@ -109,7 +115,9 @@ for f in args.table:
         print "* querying for colum '" + c + "' n = " + dc_n
         print ', '.join(dc_head) + ', ...'
         sys.stdout.flush()
-      dc = dc[dc_col].tolist()
+      dc_nmissing = dc[dc_col].isnull().sum()
+      print "* missing values: " + str(dc_nmissing)
+      dc = dc[dc_col].dropna().tolist()
       dc_david = AGEpy.DAVIDenrich(args.DAVIDid, args.DAVIDtypes, args.DAVIDuser, 
           dc, p = args.max_pvalue, n = args.min_genes, verbose = args.verbose)
       if dc_david is None:
