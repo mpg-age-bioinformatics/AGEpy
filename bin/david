@@ -137,6 +137,3 @@ for f in args.table:
 
 print "Done"
 
-# RUN IT
-#DAVIDit(in_table,GTF_file,background_table,gene_expression_table)
-
