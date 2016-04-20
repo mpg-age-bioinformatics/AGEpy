@@ -23,7 +23,7 @@ parser.add_argument("-i", "--DAVIDid", metavar = "ID", help = "DAVID data format
     default = 'ENSEMBL_GENE_ID')
 parser.add_argument("-u", "--DAVIDuser", metavar = "USER", help = "DAVID user (email).",
     default = None)
-parser.add_argument("-p", "--min-pvalue", metavar = "P", help = "Minimum p-value for enrichment", default = 0.05)
+parser.add_argument("-p", "--max-pvalue", metavar = "P", help = "Maximum p-value for enrichment", default = 0.05)
 parser.add_argument("-n", "--min-genes", metavar = "N", help = "Minimum number of genes in term", default = 2) 
 # input
 parser.add_argument("-d", "--delimiter", help = "For text input files, the column separator", default = '\t')
@@ -111,7 +111,7 @@ for f in args.table:
         sys.stdout.flush()
       dc = dc[dc_col].tolist()
       dc_david = AGEpy.DAVIDenrich(args.DAVIDid, args.DAVIDtypes, args.DAVIDuser, 
-          dc, p = args.min_pvalue, n = args.min_genes, verbose = args.verbose)
+          dc, p = args.max_pvalue, n = args.min_genes, verbose = args.verbose)
       if dc_david is None:
         print "* no results, no output"
         continue
