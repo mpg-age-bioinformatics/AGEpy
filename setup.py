@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name = 'AGEpy',
-      version = '0.2.1',
+      version = '0.2.2',
       description = 'Bioinformatics tools for Python developed at the MPI for Biology of Ageing',
       url = 'https://github.com/mpg-age-bioinformatics/AGEpy',
       author = 'Jorge Boucas, Sven E. Templer',
