@@ -262,7 +262,7 @@ FUNCTIONS
         
         :param query_filtery: one BioMart filter associated with the items being queried
         :param query_items: list of items to be queried (must assoiate with given filter)
-        :param query_querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once. 
+        :param query_querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, do not query more than 350 items at once. 
         :param query_attributes: list of attributes to recover from BioMart  
         :param query_dataset: dataset to query
         :param host: address of the host server, default='http://www.ensembl.org/biomart'
