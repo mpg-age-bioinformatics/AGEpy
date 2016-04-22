@@ -8,7 +8,10 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 > D-50931 Cologne  
 > Germany
 
-We are currently on beta and will introduce the needed documention asap.
+#### Read the Docs
+
+We have started introducing some documentation [here](http://agepy.readthedocs.org).
+
 
 #### Installation
 
