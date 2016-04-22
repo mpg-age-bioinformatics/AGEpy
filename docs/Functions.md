@@ -343,11 +343,15 @@ FUNCTIONS
         :returns: nothing
 
 DATA
+
     DNAcode = {'AAA': 'K', 'AAC': 'N', 'AAG': 'K', 'AAT': 'N', 'ACA': 'T',...
-    __warningregistry__ = {("Not importing directory 'pandas': missing __i...
+
     biomart_host = 'http://www.ensembl.org/biomart'
+
     david_categories = ['GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT',...
+
     david_fields = ['categoryName', 'termName', 'listHits', 'percent', 'ea...
+
     rbiomart_host = 'www.ensembl.org'
 
 
