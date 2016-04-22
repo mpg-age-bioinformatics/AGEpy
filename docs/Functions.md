@@ -4,6 +4,7 @@ NAME
     AGEpy.AGEpy - Bioinformatics tools developed at the Max Planck Institute for Biology of Ageing
 
 FUNCTIONS
+
     CellPlot(df, output_file=None, gene_expression='log2FC', figure_title='CellPlot', pvalCol='elimFisher', lowerLimit=None, upperLimit=None, colorBarType='Spectral')
         Python implementation of the CellPlot from the CellPlot package for R.
         -inf or inf enrichments will come out as min found float or max found float, respectively.
