@@ -20,7 +20,7 @@ git clone https://github.com/mpg-age-bioinformatics/AGEpy
 
 Install:
 
-````bash
+```bash
 cd AGEpy
 python setup.py install --user
 ```
