@@ -30,6 +30,7 @@ parser.add_argument("-d", "--delimiter", help = "For text input files, the colum
 #parser.add_argument("-b", "--background_table", help="Optional background table.Excel file with one sheet. Each column has the name of the set on the column header and the gene names for the genes as in the respective GTF file ", default='NONE')
 #parser.add_argument("-e", "--gene_expression", help="Optional gene expression table.", default='NONE')
 parser.add_argument("-c", "--column", metavar = 'N', help = "Select a column index (0-based) with ids to query. None means all.", default = None, type = int)
+parser.add_argument("-e", "--expression-column", metavar = 'N', help = "Select a column index (0-based) with gene expression values", default = None, type = int)
 #parser.add_argument("-c", "--column", metavar = 'N', help = "Select a column index (0-based) with ids to query. None means all.", default = None, type = int, nargs='+')
 parser.add_argument("-s", "--sheet", help="If input is an xls[x] file, select a sheet. None means all.", default = None, nargs = '+')
 parser.add_argument("-g", "--gtf-table", help="A gtf file to convert the ids in the input tables from gene_name to gene_id (as in ENSEMBL gtf files).", default = None)
@@ -60,6 +61,10 @@ if args.DAVIDuser is None:
   print "error: missing david user id"
   sys.exit(1)
 
+if args.column is None and args.expression_column is not None:
+  print "error: expression column (-e) can only be specified when a single column (-c) is used"
+  sys.exit(65)
+
 gtf = args.gtf_table
 if gtf is not None:
   if args.verbose:
@@ -74,6 +79,48 @@ if gtf is not None:
   gtf.columns = ['gene_name','gene_id']
   if args.verbose:
     print gtf.head()
+
+
+def DAVIDannotate(d, q = None):
+  """
+  Map gene symbols from gtf, and stats to DAVIDenrich tables
+
+  :param d: A pandas data frame, returned from DAVIDenrich
+  :param q: A pandas data frame, with the query ids in column 'gene_id' used in DAVIDenrich,
+            optionally a column 'gene_expression' for gene expression values, and
+            optionally a column 'gene_name' for gene id to name conversion.
+            If None or both columns 'gene_expression' and 'gene_name' are missing,
+            no changes are made to d.
+  """
+  add = pandas.DataFrame()
+  q.loc[:, 'gene_id'] = q['gene_id'].map(str) # from unicode
+  q.loc[:, 'gene_id'] = q['gene_id'].map(str.lower)
+  terms = d['termName'].tolist()
+  if not 'gene_name' in q.columns and not 'gene_expression' in q.columns:
+    return d
+  for t in terms:
+    #print t # DEVPRINT
+    ti = d[d['termName'] == t].copy()
+    ti.reset_index(drop = True, inplace = True)
+    #print ti # DEVPRINT
+    tm = ti.xs(0)['geneIds']
+    tm = pandas.DataFrame(data = tm.split(', '))
+    tm.columns = ['geneIds']
+    tm.loc[:, 'geneIds'] = tm['geneIds'].map(str)
+    tm.loc[:, 'geneIds'] = tm['geneIds'].map(str.lower)
+    tm = pandas.merge(tm, q, how = 'left', left_on = 'geneIds', right_on = 'gene_id')
+    if 'gene_name' in q.columns:
+      tg = tm['gene_name'].tolist()
+      tg = map(str, tg)
+      ti.loc[0, 'geneNames'] = ', '.join(tg)
+    if 'gene_expression' in q.columns:
+      te = tm['gene_expression'].tolist()
+      te = map(str, te)
+      ti.loc[0, 'geneExpression'] = ', '.join(te)
+    add = pandas.concat([add, ti])
+    #print add # DEVPRINT
+  add.reset_index(drop = True)
+  return add
 
 for f in args.table:
   if args.verbose:
@@ -91,49 +138,57 @@ for f in args.table:
     d = AGEpy.readDataFrame(f, sheet = s, sep = args.delimiter)
     #if args.verbose:
     #  print d.head()
-    cols = d.columns.values.tolist()
+    d_names = list(d)
+    ecol = [None]
     if args.column is not None:
       #cols = list(cols[i] for i in args.column) # for nargs='+'
-      cols = [cols[args.column]]
+      cols = [d_names[args.column]]
+      if args.expression_column is not None:
+        ecol = [d_names[args.expression_column]]
+    else:
+      cols = d_names
     if args.verbose:
       print "* using columns: " + ', '.join(cols)
-    for c in cols:
+    for c, e in zip(cols, ecol):
       dc = d[[c]]
-      dc_col = 'gene_name'
-      dc.columns = [dc_col]
-      c_name = str(c) # take first row/header?
+      dc.rename(columns = { c : 'gene_id' }, inplace = True)
+      if e is not None:
+        dc.loc[:,e] = d[[e]]
+        dc.rename(columns = { e : 'gene_expression' }, inplace = True)
       if gtf is not None:
         if args.verbose:
           print "* translating ids"
-        dc = pandas.merge(dc, gtf, left_on = [dc_col], right_on = ['gene_name'], how = 'left').dropna()
-        dc_col = 'gene_id'
-        dc = dc[[dc_col]].drop_duplicates()
+        dc.rename(columns = { 'gene_id' : 'gene_name' }, inplace = True)
+        dc = pandas.merge(dc, gtf, left_on = ['gene_name'], right_on = ['gene_name'], how = 'left').dropna()
+      i = dc[['gene_id']].drop_duplicates()
       if args.verbose:
-        dc_n = str(len(dc))
-        dc_head = dc[dc_col].head().tolist()
-        dc_head = map(str, dc_head)
-        print "* querying for colum '" + c + "' n = " + dc_n
-        print ', '.join(dc_head) + ', ...'
+        i_n = str(len(i))
+        i_nmissing = str(i['gene_id'].isnull().sum())
+        i_head = i['gene_id'].head().tolist()
+        i_head = map(str, i_head)
+        i_head = ', '.join(i_head)
+        print "* querying for colum '" + c + "' (missing/total = " + i_nmissing + "/" + i_n + ")"
+        print i_head + ', ...'
         sys.stdout.flush()
-      dc_nmissing = dc[dc_col].isnull().sum()
-      print "* missing values: " + str(dc_nmissing)
-      dc = dc[dc_col].dropna().tolist()
+      i = i['gene_id'].dropna().tolist()
       dc_david = AGEpy.DAVIDenrich(args.DAVIDid, args.DAVIDtypes, args.DAVIDuser, 
-          dc, p = args.max_pvalue, n = args.min_genes, verbose = args.verbose)
+          i, p = args.max_pvalue, n = args.min_genes, verbose = args.verbose)
       if dc_david is None:
         print "* no results, no output"
         continue
       #print dc_david.head()
-      if gtf is not None:
-        dc_david = AGEpy.id_nameDAVID(dc_david, name_id = gtf)
-      out_name = args.output_folder + '/' + f_name + '_' + s_name + '_' + c_name + ".xlsx" #f_suffix
+      dc_david = DAVIDannotate(dc_david, dc)
+      #if gtf is not None:
+      #  dc_david = AGEpy.id_nameDAVID(dc_david, name_id = gtf)
+      out_name = args.output_folder + '/' + f_name + '_' + s_name + '_' + str(c) + ".xlsx" #f_suffix
       print "* writing " + out_name
       writer = pandas.ExcelWriter(out_name)
-      terms = list(set(dc_david['categoryName'].tolist()))
-      for t in terms:
-        dc_david_t = dc_david[dc_david['categoryName']==t]
-        dc_david_t.to_excel(writer, t, index = False)
+      cats = list(set(dc_david['categoryName'].tolist()))
+      for cat in cats:
+        dc_david_t = dc_david[dc_david['categoryName']==cat]
+        dc_david_t.to_excel(writer, cat, index = False)
       writer.save()
 
 print "Done"
+sys.stdout.flush()
 
