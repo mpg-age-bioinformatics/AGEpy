@@ -160,22 +160,36 @@ start_reqs=["github_address","github_organization",\
 "github_user","github_pass","local_path"]
 
 
-def git_target(github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh):
+def git_target(github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh,usepw=None):
     url=github_address.split("//")[-1]
     if not args.gitssh:
         git="https://%s:%s@%s/%s/%s.git" %(github_user,github_pass,url,github_organization,github_repo)
     else:
         git="git@%s:%s/%s.git" %(url,github_organization,github_repo)
-    return git
+    if usepw:
+        git2="https://%s@%s/%s/%s.git" %(github_user,url,github_organization,github_repo)
+        return git, git2
+    else:
+        return git
 
 def git_clone(local_name,github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh,print_output=True):
-    git=git_target(github_address,github_organization,github_repo,github_user=github_user,github_pass=github_pass,gitssh=gitssh)
-    call=["git","clone",git, local_name]
+    git, git2 =git_target(github_address,github_organization,github_repo,github_user=github_user,github_pass=github_pass,gitssh=gitssh,usepw=True)
+    call=["git","clone", git, local_name]
+    call2 = ['git', 'remote', 'set-url', 'origin', git2]
+    cwd = os.getcwd()
     if print_output:
         out=Popen(call, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
         print out.communicate()[0].rstrip()
+        os.chdir(local_name)
+        out=Popen(call2, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+        print out.communicate()[0].rstrip()
+        os.chdir(cwd)
     else:
         out=sb.call(['git','clone', git,local_name])
+        if out != 128:
+            os.chdir(local_name)
+            out2=Popen(call2, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+            os.chdir(cwd)
         return out
 
 def git_fetch(github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh):
