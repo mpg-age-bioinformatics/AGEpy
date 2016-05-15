@@ -33,7 +33,6 @@ from os.path import expanduser
 from subprocess import Popen, PIPE, STDOUT
 import subprocess as sb
 import stat
-import pexpect
 
 structure="\n\
 /file_system_a\n\
