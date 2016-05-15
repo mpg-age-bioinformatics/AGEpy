@@ -9,17 +9,17 @@ parser = argparse.ArgumentParser(description="bit, [b]ermunda [i]nformation [t]r
 formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-i", "--input", nargs='*', help="Input files")
 parser.add_argument("-s", "--subfolder", help="Subfolder to be created.", default=None)
-parser.add_argument("-m", "--message",nargs='*', help="Message to write on log file.", default=None) 
+parser.add_argument("-m", "--message",nargs='*', help="Message to write on log file.", default=None)
 parser.add_argument("-d", "--pick_a_date", help="Pick an existing date folder to transfer data to/from. Format=YYYY-MM-DD", default=None)
-parser.add_argument("-c", "--create_folder", help="Create dropbox folder for user to upload data.", action="store_true") 
-parser.add_argument("-g", "--getfolder", help="Downloads a folder as zip file. Requires --pick_a_date. Defaults --base_folder=upload:download to download", action="store_true") 
-parser.add_argument("-t", "--days_to_share", help="Number of days you wish to share this folder further.", default=21) 
+parser.add_argument("-c", "--create_folder", help="Create dropbox folder for user to upload data.", action="store_true")
+parser.add_argument("-g", "--getfolder", help="Downloads a folder as zip file. Requires --pick_a_date. Defaults --base_folder=upload:download to download", action="store_true")
+parser.add_argument("-t", "--days_to_share", help="Number of days you wish to share this folder further.", default=21)
 parser.add_argument("--scripts",help="Needs -i and -m. Simultaneously sync the scripts.user folder when uploading data.", action="store_true")
 parser.add_argument("--start", help="Project name of the format. PI_PROJECT_NAME. Initiates a project. This will create the required local folders and respective git repositories.", default=None)
 parser.add_argument("--stdfolders",nargs='*', help="Folders to be created in addition to scripts.user and and wiki.user when a project is started.", default=["tmp","slurm_logs"])
-parser.add_argument("--adduser",help="Add a user to a project creating his scripts.user and wiki.user folder",action="store_true")  
-parser.add_argument("--gitssh", help="Use your git SSH keys.",  action="store_true") 
-parser.add_argument("--config", help="Generate a config file.", action="store_true") 
+parser.add_argument("--adduser",help="Add a user to a project creating his scripts.user and wiki.user folder",action="store_true")
+parser.add_argument("--gitssh", help="Use your git SSH keys.",  action="store_true")
+parser.add_argument("--config", help="Generate a config file.", action="store_true")
 args = parser.parse_args()
 
 import json
@@ -33,6 +33,7 @@ from os.path import expanduser
 from subprocess import Popen, PIPE, STDOUT
 import subprocess as sb
 import stat
+import pexpect
 
 structure="\n\
 /file_system_a\n\
@@ -60,7 +61,7 @@ structure="\n\
 absolute path to projects =  /file_system_a/data/projects/"
 
 def get_owncloud_address():
-    owncloud_address=str(raw_input("Please give in your ownCloud address (eg. http://domain.tld/owncloud): ")) or None 
+    owncloud_address=str(raw_input("Please give in your ownCloud address (eg. http://domain.tld/owncloud): ")) or None
     return owncloud_address
 
 def get_owncloud_upload_folder():
@@ -80,7 +81,7 @@ def get_owncloud_user(config_file=None):
 
 def get_owncloud_pass(config_file=None):
     if config_file:
-        owncloud_pass=str(getpass.getpass(prompt="Please give in your ownCloud password or press Enter if you do not want to save this information on the config file: ")) or None 
+        owncloud_pass=str(getpass.getpass(prompt="Please give in your ownCloud password or press Enter if you do not want to save this information on the config file: ")) or None
     else:
         owncloud_pass=str(getpass.getpass(prompt="Please give in your ownCloud password: ")) or None
     return owncloud_pass
@@ -106,7 +107,7 @@ def get_github_user(config_file=None,gitssh=args.gitssh):
 def get_github_pass(config_file=None,gitssh=args.gitssh):
     if not gitssh:
         if config_file:
-            github_pass=str(getpass.getpass(prompt="Please give in your password for your github server or press Enter if you do not want to save this information on the config file: ")) or None 
+            github_pass=str(getpass.getpass(prompt="Please give in your password for your github server or press Enter if you do not want to save this information on the config file: ")) or None
         else:
             github_pass=str(getpass.getpass(prompt="Please give in your password for your github server: ")) or None
     else:
@@ -172,25 +173,17 @@ def git_target(github_address,github_organization,github_repo,github_user=None,g
     else:
         return git
 
-def git_clone(local_name,github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh,print_output=True):
+def git_clone(local_name,github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh):
     git, git2 =git_target(github_address,github_organization,github_repo,github_user=github_user,github_pass=github_pass,gitssh=gitssh,usepw=True)
-    call=["git","clone", git, local_name]
-    call2 = ['git', 'remote', 'set-url', 'origin', git2]
+    if not os.path.exists(local_name):
+        os.makedirs(local_name)
     cwd = os.getcwd()
-    if print_output:
-        out=Popen(call, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-        print out.communicate()[0].rstrip()
-        os.chdir(local_name)
-        out=Popen(call2, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-        print out.communicate()[0].rstrip()
-        os.chdir(cwd)
-    else:
-        out=sb.call(['git','clone', git,local_name])
-        if out != 128:
-            os.chdir(local_name)
-            out2=Popen(call2, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-            os.chdir(cwd)
-        return out
+    os.chdir(local_name)
+    out=sb.call(['git','init'])
+    out=sb.call(['git','config','remote.origin.url',git2])
+    out=sb.call(['git','pull', git])
+    os.chdir(cwd)
+    return out
 
 def git_fetch(github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh):
     git=git_target(github_address,github_organization,github_repo,github_user=github_user,github_pass=github_pass,gitssh=gitssh)
@@ -202,9 +195,9 @@ def git_merge(message):
     call=["git","merge","FETCH_HEAD","-m",message]
     out=Popen(call, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     print out.communicate()[0].rstrip()
-        
+
 def git_pull(github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh):
-    git=git_target(github_address,github_organization,github_repo,github_user=github_user,github_pass=github_pass,gitssh=gitssh) 
+    git=git_target(github_address,github_organization,github_repo,github_user=github_user,github_pass=github_pass,gitssh=gitssh)
     call=["git","pull",git]
     out=Popen(call, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     print out.communicate()[0].rstrip()
@@ -229,7 +222,7 @@ def git_push(github_address,github_organization,github_repo,github_user=None,git
     else:
         FNULL = open(os.devnull, 'w')
         out=Popen(call, stdout=FNULL, stdin=PIPE ,stderr=STDOUT) #, stdout=FNULL, stderr=subprocess.STDOUT old: stdout=PIPE, stdin=PIPE, stderr=STDOUT
-        out=Popen(["git","push"],stdout=PIPE, stdin=PIPE, stderr=STDOUT)        
+        out=Popen(["git","push"],stdout=PIPE, stdin=PIPE, stderr=STDOUT)
 
 def git_sync(files_to_add,message,github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh):
     git_add(files_to_add)
@@ -240,11 +233,11 @@ def git_sync(files_to_add,message,github_address,github_organization,github_repo
 
 def make_bitconfig(require_func=requirements,special_reqs=special_reqs):
     configdic={}
-    configdic=check_reqs(require_func,configdic,config_file=True, gitssh=None) 
+    configdic=check_reqs(require_func,configdic,config_file=True, gitssh=None)
     uhome=expanduser("~")+"/"
     configfile=open(uhome+".bit_config","w+")
     with open(uhome+".bit_config", 'w') as configfile:
-        json.dump(configdic, configfile) 
+        json.dump(configdic, configfile)
     os.chmod(uhome+".bit_config", stat.S_IRWXU )
     print "Your bit config file as been generated:"
     for c in configdic:
@@ -256,7 +249,7 @@ def make_bitconfig(require_func=requirements,special_reqs=special_reqs):
             sys.stdout.flush()
         else:
             print c, "*"
-            sys.stdout.flush()   
+            sys.stdout.flush()
 
 def read_bitconfig(showit=None):
     uhome=expanduser("~")+"/"
@@ -277,11 +270,11 @@ def read_bitconfig(showit=None):
 
 def init_user(path_to_project,github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh):
     user_name=getpass.getuser()
-    git_clone(path_to_project+"/scripts."+user_name ,github_address,github_organization,github_repo,github_user=github_user,github_pass=github_pass,gitssh=gitssh)
-    response=git_clone(path_to_project+"/wiki."+user_name ,github_address,github_organization,github_repo+".wiki",github_user=github_user,github_pass=github_pass,gitssh=gitssh,print_output=False)
-    while response == 128:
+    response=git_clone(path_to_project+"/scripts."+user_name , github_address, github_organization, github_repo, github_user=github_user, github_pass=github_pass, gitssh=gitssh)
+    response=git_clone(path_to_project+"/wiki."+user_name , github_address, github_organization, github_repo+".wiki", github_user=github_user, github_pass=github_pass, gitssh=gitssh)
+    while response == 1:
         raw_input("\n\n*************\n\nThe wiki for this project has not yet been created.\n\n Please go to %s/%s/%s/wiki and click on 'Create the first page' and then 'Save Page'.\n\nPress Enter once you have saved the first wiki page.\n\n*************\n\n" %(github_address,github_organization,github_repo) )
-        response=git_clone(path_to_project+"/wiki."+user_name ,github_address,github_organization,github_repo+".wiki",github_user=github_user,github_pass=github_pass,gitssh=gitssh,print_output=False)
+        response=git_clone(path_to_project+"/wiki."+user_name ,github_address,github_organization,github_repo+".wiki",github_user=github_user,github_pass=github_pass,gitssh=gitssh)
 
 def list_upload(base_destination,list_of_files):
     upload_dic={}
@@ -290,7 +283,7 @@ def list_upload(base_destination,list_of_files):
     for i in range(len(check)):
         c="/".join(check[:i-len(check)])
         subfolders.append(c)
-    
+
     for f in list_of_files:
         full=os.path.abspath(f)
         if os.path.isdir(full):
@@ -308,17 +301,17 @@ def list_upload(base_destination,list_of_files):
                 for filename in filenames:
                     if not any(x in filename for x in bad_dirs):
                         subfile=os.path.join(root,filename)
-                        if os.path.isfile(subfile):             
+                        if os.path.isfile(subfile):
                             upload_dic[subfile]=subfol+subfile.split(full)[-1]
-        
+
         elif os.path.isfile(full):
             upload_dic[full]=base_destination+"/"+os.path.basename(full)
-    
+
     subfolders=list(set(subfolders))
-    subfolders=[ xx for xx in subfolders if len(xx) > 0 ]    
+    subfolders=[ xx for xx in subfolders if len(xx) > 0 ]
     subfolders.sort()
-    
-    return upload_dic, subfolders        
+
+    return upload_dic, subfolders
 
 def get_ownCloud_links(link_info,http):
     link_info=str(link_info)
@@ -331,7 +324,7 @@ def get_ownCloud_links(link_info,http):
     return http+"/index.php/apps/files?dir="+store
 
 def get_owncloud_base_folder(configdic,project_name):
-    
+
     if args.getfolder:
         if not args.pick_a_date:
             print "--getfolder implies --pick_a_date.\nPlease use -d in combination with -g.\nThank you!"
@@ -339,7 +332,7 @@ def get_owncloud_base_folder(configdic,project_name):
         else:
             base_folder=configdic["owncloud_download_folder"]
     elif args.create_folder:
-        base_folder=configdic["owncloud_download_folder"]    
+        base_folder=configdic["owncloud_download_folder"]
     else:
         base_folder=configdic["owncloud_upload_folder"]
 
@@ -347,10 +340,10 @@ def get_owncloud_base_folder(configdic,project_name):
         d = str(datetime.date.today())
     else:
         d = str(args.pick_a_date)
-    
+
     if args.subfolder:
         d = d+"/"+str(args.subfolder)
-                 
+
     base_destination=base_folder+"/"+project_name+"/"+d
 
     return base_destination
@@ -374,7 +367,7 @@ def ownCloud_upload(input_files=args.input,message=args.message):
                     configdic=check_reqs([r],configdic,config_file=None, gitssh=args.gitssh)
 
     local_path=os.path.abspath(configdic["local_path"])
-    
+
     # check if files all come from the same project folder
     size_local=len(local_path.split("/"))
     parent_folder=[]
@@ -391,11 +384,11 @@ def ownCloud_upload(input_files=args.input,message=args.message):
             sys.stdout.flush()
         sys.exit(0)
     else:
-        project_name=check_project[0]    
+        project_name=check_project[0]
         parent_folder=parent_folder[0]
 
     target_project=parent_folder+"/"+project_name
-    
+
     base_destination=get_owncloud_base_folder(configdic,target_project)
 
     upload_dic, subfolders=list_upload(base_destination,input_files)
@@ -414,14 +407,14 @@ def ownCloud_upload(input_files=args.input,message=args.message):
             oc.file_info(fold)
         except:
             oc.mkdir(fold)
-    
+
     # Upload files
     if len(upload_dic)>1:
         print "Uploading %s files.." %str(len(upload_dic))
         sys.stdout.flush()
     else:
         print "Uploading %s file.." %str(len(upload_dic))
-        sys.stdout.flush()    
+        sys.stdout.flush()
 
     skipped_files=[]
     for f in upload_dic:
@@ -442,8 +435,8 @@ def ownCloud_upload(input_files=args.input,message=args.message):
             print "\t%s" %str(upload_dic[f])
             sys.stdout.flush()
             oc.put_file(upload_dic[f],f,chunked=False)
-   
-    print "Finished uploading." 
+
+    print "Finished uploading."
     # Time stamp for expiration date
     tshare = datetime.date.today()
     tshare = tshare + datetime.timedelta(days=int(args.days_to_share))
@@ -451,10 +444,10 @@ def ownCloud_upload(input_files=args.input,message=args.message):
 
     link_info = oc.share_file_with_link(base_destination,expiration=tshare)
     private_link=get_ownCloud_links(link_info,configdic["owncloud_address"])
-    
-    oc.logout()    
 
-    # Go to wiki folder and make a git sync    
+    oc.logout()
+
+    # Go to wiki folder and make a git sync
     print "Logging changes.."
     sys.stdout.flush()
     user_name=getpass.getuser()
@@ -469,7 +462,7 @@ def ownCloud_upload(input_files=args.input,message=args.message):
     else:
         skipped_files=""
     logfile="uploads.md"
-    logtext="\n\n#####["+base_destination.split("/")[3]+"\t::\t"+user_name+"]("+private_link+") : "+str(" ".join(args.message))+"\n"+str(datetime.datetime.now()).split(".")[0]+", "+str(", ".join(input_files))+skipped_files 
+    logtext="\n\n#####["+base_destination.split("/")[3]+"\t::\t"+user_name+"]("+private_link+") : "+str(" ".join(args.message))+"\n"+str(datetime.datetime.now()).split(".")[0]+", "+str(", ".join(input_files))+skipped_files
     log=open(logfile,"a")
     log.write(logtext)
     log.close()
@@ -526,15 +519,15 @@ def ownCloud_create_folder():
         while configdic[r] == None:
             configdic=check_reqs([r],configdic,config_file=None, gitssh=args.gitssh)
     local_path=os.path.abspath(configdic["local_path"])
-    
+
     size_local=len(local_path.split("/"))
-    
-    f=os.path.abspath(str(args.pick_a_date))    
+
+    f=os.path.abspath(str(args.pick_a_date))
     parent_folder=f.split("/")[size_local]
     project_name=f.split("/")[size_local+1]
 
     target_project=parent_folder+"/"+project_name
-    
+
     base_destination=get_owncloud_base_folder(configdic,target_project)
 
     # login to owncloud
@@ -544,11 +537,11 @@ def ownCloud_create_folder():
     except:
         print "Could not login to ownCloud.\nPlease make sure you are giving the right address to your owncloud and using the right login credentials."
         sys.exit(0)
- 
+
     check=base_destination.split("/")
     print check
     for i in range(len(check)+1):
-        c="/".join(check[:i]) 
+        c="/".join(check[:i])
         print c
         try:
             oc.file_info(c)
@@ -563,7 +556,7 @@ def ownCloud_create_folder():
     link_info = oc.share_file_with_link(base_destination,expiration=tshare)
     private_link=get_ownCloud_links(link_info,configdic["owncloud_address"])
 
-    oc.logout()    
+    oc.logout()
 
 if args.config:
     print "Setting up your config file."
@@ -581,13 +574,13 @@ if args.start:
     full_path=os.path.abspath(args.start)
     project_name=os.path.basename(full_path)
 
-    # check format projects_folder/group_head/project_name   
+    # check format projects_folder/group_head/project_name
     checkf=len(local_path.split("/"))
     if len(full_path.split("/")) != len(local_path.split("/"))+2:
-        print "The path (%s) to this project does not obey the structure and/or defined local path (%s). Check the reference structure:\n%s" %(full_path,local_path,structure) 
+        print "The path (%s) to this project does not obey the structure and/or defined local path (%s). Check the reference structure:\n%s" %(full_path,local_path,structure)
         sys.stdout.flush()
         sys.exit(0)
-    
+
     # have the user rechecking that the the string for the project name is really correct
     checks=None
     while checks not in ["Y","N"]:
@@ -601,18 +594,18 @@ if args.start:
     create_call=["curl","-u",configdic["github_user"]+":"+configdic["github_pass"],github_api,"-d",'{"name":"'+project_name+'","private": "true","auto_init": true }']
     p = Popen(create_call, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     print p.communicate()[0].rstrip()
-    sys.stdout.flush()    
- 
+    sys.stdout.flush()
+
     # clone the repo and the wiki by initiating this user
     raw_input("\n\n*************\n\nPlease go to %s/%s/%s/wiki and click on 'Create the first page' and then 'Save Page'.\n\nPress Enter once you have saved the first wiki page.\n\n*************\n\n" %(configdic["github_address"],configdic["github_organization"],project_name) )
 
     init_user(full_path,configdic["github_address"],configdic["github_organization"],project_name,github_user=configdic["github_user"],github_pass=configdic["github_pass"],gitssh=args.gitssh)
-  
+
     # create additional folders
     for f in args.stdfolders:
         if not os.path.exists(full_path+"/"+f):
             os.makedirs(full_path+"/"+f)
-    
+
     sys.exit(0)
 
 if args.adduser:
@@ -627,7 +620,7 @@ if args.adduser:
         full_path=os.path.abspath(os.getcwd())
     project_name=os.path.basename(full_path)
 
-    # check format projects_folder/group_head/project_name   
+    # check format projects_folder/group_head/project_name
     checkf=len(local_path.split("/"))
     if len(full_path.split("/")) != len(local_path.split("/"))+2:
         print "The path (%s) to this project does not obey the structure and/or defined local path (%s). Check the reference structure:\n%s" %(full_path,local_path,structure)
