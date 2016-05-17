@@ -35,7 +35,8 @@ parser.add_argument("-e", "--expression-column", metavar = 'N', help = "Select a
 parser.add_argument("-s", "--sheet", help="If input is an xls[x] file, select a sheet. None means all.", default = None, nargs = '+')
 parser.add_argument("-g", "--gtf-table", help="A gtf file to convert the ids in the input tables from gene_name to gene_id (as in ENSEMBL gtf files).", default = None)
 # output
-parser.add_argument("-o", "--output_folder", help = "Output folder", default = 'david_output')
+parser.add_argument("-o", "--output-folder", help = "Output folder", default = 'david_output')
+parser.add_argument("-x", "--output-xlsx", help = "Also return xlsx output files, with all categories merged into a single workbook.", action = "store_true")
 parser.add_argument("-v", "--verbose", help = "Be verbose", action = "store_true")
 # parse
 args=parser.parse_args()
@@ -49,7 +50,7 @@ import os
 import sys
 import AGEpy.AGEpy as AGEpy
 
-
+outsep = '-'
 sheets = args.sheet
 if sheets is None:
   sheets = [""]
@@ -180,14 +181,19 @@ for f in args.table:
       dc_david = DAVIDannotate(dc_david, dc)
       #if gtf is not None:
       #  dc_david = AGEpy.id_nameDAVID(dc_david, name_id = gtf)
-      out_name = args.output_folder + '/' + f_name + '_' + s_name + '_' + str(c) + ".xlsx" #f_suffix
-      print "* writing " + out_name
-      writer = pandas.ExcelWriter(out_name)
+      out_name = args.output_folder + '/' + f_name + outsep + s_name + outsep + str(c) #f_suffix
+      if args.output_xlsx:
+        print "* writing " + out_name + '.xlsx'
+        writer = pandas.ExcelWriter(out_name + '.xlsx')
       cats = list(set(dc_david['categoryName'].tolist()))
       for cat in cats:
         dc_david_t = dc_david[dc_david['categoryName']==cat]
-        dc_david_t.to_excel(writer, cat, index = False)
-      writer.save()
+        print "* writing " + out_name + outsep + cat + '.tsv'
+        dc_david_t.to_csv(out_name + outsep + cat + '.tsv', sep = '\t', index = False)
+        if args.output_xlsx:
+          dc_david_t.to_excel(writer, cat, index = False)
+      if args.output_xlsx:
+        writer.save()
 
 print "Done"
 sys.stdout.flush()
