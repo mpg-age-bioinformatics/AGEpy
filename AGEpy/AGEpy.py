@@ -520,8 +520,8 @@ def ensembl_to_kegg(organism,kegg_db):
     :returns: a Pandas dataframe of with 'KEGGid' and 'ENSid'.
 
     """
-    #print "KEGG API: http://rest.genome.jp/link/"+ens_db+"/"+organism
-    #sys.stdout.flush()
+    print "KEGG API: http://rest.genome.jp/link/"+kegg_db+"/"+organism
+    sys.stdout.flush()
     kegg_ens=urlopen("http://rest.genome.jp/link/"+kegg_db+"/"+organism).read()
     kegg_ens=kegg_ens.split("\n")
     final=[]
