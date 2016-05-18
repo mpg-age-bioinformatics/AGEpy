@@ -89,7 +89,7 @@ if args.column is None and args.expression_column is not None:
   print "error: expression column (-e) can only be specified when a single column (-c) is used"
   sys.exit(65)
 
-gtf = args.gtf_table
+gtf = args.gtf
 if gtf is not None:
   if args.verbose:
     print "Reading gtf '" + gtf + "'"
@@ -210,7 +210,7 @@ for f in args.table:
       out_name = args.output_folder + '/' + f_name + outsep + s_name + outsep + str(c) #f_suffix
       if args.output_xlsx:
         print "* writing " + out_name + '.xlsx'
-        writer = pandas.ExcelWriter(out_name + '.xlsx')
+        writer = pandas.ExcelWriter(out_name + '.xlsx', engine = 'xlsxwriter')
       cats = list(set(dc_david['categoryName'].tolist()))
       for cat in cats:
         dc_david_t = dc_david[dc_david['categoryName']==cat]
