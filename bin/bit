@@ -180,6 +180,8 @@ def git_clone(local_name,github_address,github_organization,github_repo,github_u
     os.chdir(local_name)
     out=sb.call(['git','init'])
     out=sb.call(['git','config','remote.origin.url',git2])
+    out=sb.call(['git','config','branch.master.remote','origin'])
+    out=sb.call(['git','config','branch.master.merge','refs/heads/master']) 
     out=sb.call(['git','pull', git])
     os.chdir(cwd)
     return out
