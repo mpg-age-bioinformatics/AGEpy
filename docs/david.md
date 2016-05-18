@@ -30,7 +30,7 @@ Then you can access *david* from the command line.
 To invoke the usage description of the script, call it with the help option as
 in the following:
 
-```
+```bash
 david --help
 ```
 
@@ -99,27 +99,30 @@ must be identical for all supplied files. Input files can either be
 Each table (text file, sheet of excel workbook) must be of the same format,
 containing a header row with column names and can be of one of the following
 format:
-- Containing a single column with gene ids (option `-c`) and optionally a column
-  with gene expression values (e.g. log fold changes, option `-e`), e.g.:
-  ```
-  Genes log2FC  Description
-  ABC   1.1     Nothing
-  XYZ   3.6     important
-  FOO   -0.2    for david
-  ...   ...     ...
-  BAR   0.0     in this column
-  ```
 
-- Containg one or multiple columns, each with a list of gene ids, e.g.:
-  ```
-  Wildtype Mutant_1 Mutant_2
-  ABC      ABC      FOO
-  XYZ      EFG      HIJ
-  FOO      BAR      KLM
-  BAR               NOP
-                    QRS
-                    XYZ
-  ```
+* Containing a single column with gene ids (option `-c`) and optionally a column
+  with gene expression values (e.g. log fold changes, option `-e`), e.g.:
+
+```
+Genes log2FC  Description
+ABC   1.1     Nothing
+XYZ   3.6     important
+FOO   -0.2    for david
+...   ...     ...
+BAR   0.0     in this column
+```
+
+* Containg one or multiple columns, each with a list of gene ids, e.g.:
+
+```
+Wildtype Mutant_1 Mutant_2
+ABC      ABC      FOO
+XYZ      EFG      HIJ
+FOO      BAR      KLM
+BAR               NOP
+                  QRS
+                  XYZ
+```
 
 `-d CHAR` is used to specify a character `CHAR` used as column 
 delimiter, if the input format of `TABLE` is text.
@@ -186,13 +189,15 @@ output on what is currently done.
 
 ## Legal
 
-> This program is part of the python package AGEpy.
-> 
-> Author: Sven E. Templer <sven.templer@gmail.com>
-> 
-> Copyright (c) 2016 - Bioinformatics Core Facility at the
->                      Max Planck Institute for Biology of Ageing,
->                      Cologne, Germany
+```
+This program is part of the python package AGEpy.
+
+Author: Sven E. Templer <sven.templer@gmail.com>
+
+Copyright (c) 2016 - Bioinformatics Core Facility at the
+                     Max Planck Institute for Biology of Ageing,
+                     Cologne, Germany
+```
 
 
 [agepy]: https://github.com/mpg-age-bioinformatics/AGEpy
