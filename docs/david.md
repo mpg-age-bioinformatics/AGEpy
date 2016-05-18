@@ -93,6 +93,7 @@ documentation at http://agepy.readthedocs.io/en/latest/david/
 `TABLE` is a file path to your input table, for example a differential gene
 expression result. The input file format (text or excel) is auto detected, and
 must be identical for all supplied files. Input files can either be
+
 * one or more xlsx workbook(s) with one or multiple sheets, or
 * one or more tab or other delimited file(s) (e.g. csv).
 
