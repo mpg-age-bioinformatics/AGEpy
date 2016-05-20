@@ -72,7 +72,7 @@ cd AGEpy
 python setup.py develop --user
 ```
 
-Be aware that his the develop option you won't be able to properly update once new scripts are added.
+Be aware that with the develop option you won't be able to properly update once new scripts are added.
 
 ###### pip
 
