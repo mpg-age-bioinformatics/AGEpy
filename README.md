@@ -15,6 +15,30 @@ We have started introducing some documentation [here](http://agepy.readthedocs.o
 
 #### Installation
 
+##### Dependencies
+
+AGEpy requires [R](https://www.r-project.org) and the [biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html) package for R.
+
+For installing R follow the instructions [here](https://www.r-project.org).
+
+Once you have installed R you are ready to install biomaRt
+
+```R
+
+$ R
+
+> source("http://bioconductor.org/biocLite.R") 
+
+> biocLite()
+
+> biocLite("biomaRt") 
+
+> quit()
+
+```
+
+##### AGEpy
+
 ###### github
 
 Get the latest release from github:
