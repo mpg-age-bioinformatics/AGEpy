@@ -14,7 +14,18 @@ import pandas as pd
 import numpy as np
 import multiprocessing as mp
 import sys
-import AGEpy.AGEpy as age
+import contextlib
+import cStringIO
+@contextlib.contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    sys.stdout = cStringIO.StringIO()
+    yield
+    sys.stdout = save_stdout
+with nostdout():
+    import AGEpy.AGEpy as age
+age.checkImport()
+
 
 n_processors=int(args.cpus)
 

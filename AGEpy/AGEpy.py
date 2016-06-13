@@ -31,6 +31,10 @@ import urllib2
 import StringIO
 import gzip
 
+def checkImport():
+    print "AGEpy imported"
+    sys.stdout.flush()
+
 def readGTF(infile):
     """
     Reads a GTF file and labels the respective columns in agreement with GTF file standards:
@@ -1523,8 +1527,8 @@ def getGeneAssociation(URL_or_file):
     mgi_cols=["DB","DB_Object_ID","DB_Object_Symbol","Qualifier (this field is optional)","GO ID","DB:Reference","Evidence Code","Evidence Code Qualifier (optional)",\
      "Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by"]
     fb_cols=["DB","DB_Object_ID","DB_Object_Symbol","Qualifier","GO ID","DB:Reference","Evidence",\
-     "With (or) From","Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by","Annotation Extension"]#,\
-     #"Gene Product Form ID"]
+     "With (or) From","Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by","Annotation Extension",\
+     "Gene Product Form ID"]
     cols={"fb":fb_cols,"wb":fb_cols,"mgi":fb_cols}
     colsType=URL_or_file.split(".")
     colsType=colsType[len(colsType)-2]
