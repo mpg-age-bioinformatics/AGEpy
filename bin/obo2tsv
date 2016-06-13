@@ -7,6 +7,7 @@ parser.add_argument("-i", "--input",help="go-basic.obo file. Files can be downlo
 parser.add_argument("-u", "--url", help="If no go-basic.obo input file is specified, a url to a target obo file can be specified instead.", default='http://geneontology.org/ontology/go-basic.obo')
 parser.add_argument("-o", "--output", help="Name of output tab separated file.", default="go-basic.tsv")
 parser.add_argument("-c", "--cpus", help="Number of cpus.", default=36)
+parser.add_argument("--organism", help="Optional, merge GO obo.tsv with a GO annotation for an organism: either a link to a file on geneontology.org eg. http://geneontology.org/gene-associations/gene_association.fb.gz or the path for the respective  downloded .gz file.",default=None)
 args = parser.parse_args()
 
 import pandas as pd
@@ -164,5 +165,15 @@ if __name__ == '__main__':
     df=pd.merge(df,TSS,on="term",how="outer")
     col=['term','synonym','name', 'relationship', 'namespace', 'is_a', 'def', 'subset', 'comment', 'xref', 'is_obsolete', 'consider', 'alt_id','replaced_by', 'parent_terms', 'children']
     df=df[col]
+    if args.organism:
+        org=age.getGeneAssociation(args.organism)
+        if "GO ID" in org.columns.tolist():
+            df=pd.merge(org,df,left_on=["GO ID"], right_on=["term"],how="left")
+        else:
+            check=org.ix[0]
+            for i in range(len(check)):
+                if "GO:" in check[i]:
+                    break
+            df=pd.merge(org,df,left_on=[i], right_on=["term"],how="left")
     df.to_csv(args.output,sep="\t",index=None)
     print "Done"
