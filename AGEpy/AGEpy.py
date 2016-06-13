@@ -1494,6 +1494,12 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     return fig
 
 def getGeneAssociation(URL_or_file):
+    """
+    This function collects GO annotation from http://geneontology.org/page/download-annotations.
+
+    :param URL_or_file: either a link to a file on geneontology.org eg. http://geneontology.org/gene-associations/gene_association.fb.gz or the path for the respective  downloded .gz file.  
+    :returns: a Pandas dataframe with the parsed table.
+    """
     if URL_or_file[:4] == "http":
         response = urllib2.urlopen(URL_or_file)
         compressedFile = StringIO.StringIO(response.read())
@@ -1505,14 +1511,26 @@ def getGeneAssociation(URL_or_file):
     out=[ s for s in out if s[0] != "!" ]
     out=[s.split("\t") for s in out]
     out=pd.DataFrame(out)
-    cols=["DB","DB_Object_ID","DB_Object_Symbol","Qualifier (this field is optional)","GO ID","DB:Reference","Evidence",\
-     "With (or) From","Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by","Annotation Extension",\
-     "Gene Product Form ID"]
-    out.columns=cols
+    mgi_cols=["DB","DB_Object_ID","DB_Object_Symbol","Qualifier (this field is optional)","GO ID","DB:Reference","Evidence Code","Evidence Code Qualifier (optional)",\
+     "Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by"]
+    fb_cols=["DB","DB_Object_ID","DB_Object_Symbol","Qualifier","GO ID","DB:Reference","Evidence",\
+     "With (or) From","Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by","Annotation Extension"]#,\
+     #"Gene Product Form ID"]
+    cols={"fb":fb_cols,"wb":fb_cols,"mgi":fb_cols}
+    colsType=URL_or_file.split(".")
+    colsType=colsType[len(colsType)-2]
+    if colsType in cols.keys():
+        try:
+            cols=cols.get(colsType)
+            out.columns=cols
+        except ValueError as err:
+            print "Could not fit headers."
+            print err
+            sys.stdout.flush()
+    else:
+        print "Could not find headers for %s." %colsType
+        sys.stdout.flush()
     return out
-
-
-
 
 
 DNAcode={'CTT': 'L', 'ATG': 'M', 'ACA': 'T', 'ACG': 'T', 'ATC': 'I', 'AAC': 'N', 'ATA': 'I', 'AGG': 'R', 'CCT': 'P', 'ACT': 'T', 'AGC': 'S', 'AAG': 'K', 'AGA': 'R', 'CAT': 'H', 'AAT': 'N', 'ATT': 'I', 'CTG': 'L', 'CTA': 'L', 'CTC': 'L', 'CAC': 'H', 'AAA': 'K', 'CCG': 'P', 'AGT': 'S', 'CCA': 'P', 'CAA': 'Q', 'CCC': 'P', 'TAT': 'Y', 'GGT': 'G', 'TGT': 'C', 'CGA': 'R', 'CAG': 'Q', 'TCT': 'S', 'GAT': 'D', 'CGG': 'R', 'TTT': 'F', 'TGC': 'C', 'GGG': 'G', 'TAG': 'STOP', 'GGA': 'G', 'TAA': 'STOP', 'GGC': 'G', 'TAC': 'Y', 'TTC': 'F', 'TCG': 'S', 'TTA': 'L', 'TTG': 'L', 'TCC': 'S', 'ACC': 'T', 'TCA': 'S', 'GCA': 'A', 'GTA': 'V', 'GCC': 'A', 'GTC': 'V', 'GCG': 'A', 'GTG': 'V', 'GAG': 'E', 'GTT': 'V', 'GCT': 'A', 'TGA': 'STOP', 'GAC': 'D', 'CGT': 'R', 'TGG': 'W', 'GAA': 'E', 'CGC': 'R'}
