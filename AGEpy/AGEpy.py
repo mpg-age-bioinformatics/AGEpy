@@ -12,8 +12,17 @@ import os
 import ssl
 from biomart import BiomartServer
 from urllib import urlopen
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
+try:
+    import rpy2.robjects as robjects
+    from rpy2.robjects.packages import importr
+    try:
+        biomaRt = importr("biomaRt")
+    except:
+        print "rpy2 could be loaded but 'biomaRt' could not be found.\nIf you want to use 'biomaRt' related functions please install 'biomaRt' in R.\n\n$ R\n> source('http://bioconductor.org/biocLite.R')\n> biocLite()\n> biocLite('biomaRt')\n> quit()"
+        sys.stdout.flush()
+except:
+    print "Failed to import rpy2 module.\nPlease make sure you are using the same version of R you had when AGEpy was installed."
+    sys.stdout.flush()
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
