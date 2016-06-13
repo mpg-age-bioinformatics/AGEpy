@@ -18,7 +18,9 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-
+import urllib2
+import StringIO
+import gzip
 
 def readGTF(infile):
     """
@@ -1490,6 +1492,28 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
         plt.savefig(output_file+".SymPlot.svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
     
     return fig
+
+def getGeneAssociation(URL_or_file):
+    if URL_or_file[:4] == "http":
+        response = urllib2.urlopen(URL_or_file)
+        compressedFile = StringIO.StringIO(response.read())
+        decompressedFile = gzip.GzipFile(fileobj=compressedFile)
+    else:
+        decompressedFile = gzip.GzipFile(URL_or_file)
+    out=decompressedFile.read().split("\n")
+    out=[ s for s in out if len(s) > 0 ]
+    out=[ s for s in out if s[0] != "!" ]
+    out=[s.split("\t") for s in out]
+    out=pd.DataFrame(out)
+    cols=["DB","DB_Object_ID","DB_Object_Symbol","Qualifier (this field is optional)","GO ID","DB:Reference","Evidence",\
+     "With (or) From","Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by","Annotation Extension",\
+     "Gene Product Form ID"]
+    out.columns=cols
+    return out
+
+
+
+
 
 DNAcode={'CTT': 'L', 'ATG': 'M', 'ACA': 'T', 'ACG': 'T', 'ATC': 'I', 'AAC': 'N', 'ATA': 'I', 'AGG': 'R', 'CCT': 'P', 'ACT': 'T', 'AGC': 'S', 'AAG': 'K', 'AGA': 'R', 'CAT': 'H', 'AAT': 'N', 'ATT': 'I', 'CTG': 'L', 'CTA': 'L', 'CTC': 'L', 'CAC': 'H', 'AAA': 'K', 'CCG': 'P', 'AGT': 'S', 'CCA': 'P', 'CAA': 'Q', 'CCC': 'P', 'TAT': 'Y', 'GGT': 'G', 'TGT': 'C', 'CGA': 'R', 'CAG': 'Q', 'TCT': 'S', 'GAT': 'D', 'CGG': 'R', 'TTT': 'F', 'TGC': 'C', 'GGG': 'G', 'TAG': 'STOP', 'GGA': 'G', 'TAA': 'STOP', 'GGC': 'G', 'TAC': 'Y', 'TTC': 'F', 'TCG': 'S', 'TTA': 'L', 'TTG': 'L', 'TCC': 'S', 'ACC': 'T', 'TCA': 'S', 'GCA': 'A', 'GTA': 'V', 'GCC': 'A', 'GTC': 'V', 'GCG': 'A', 'GTG': 'V', 'GAG': 'E', 'GTT': 'V', 'GCT': 'A', 'TGA': 'STOP', 'GAC': 'D', 'CGT': 'R', 'TGG': 'W', 'GAA': 'E', 'CGC': 'R'}
 
