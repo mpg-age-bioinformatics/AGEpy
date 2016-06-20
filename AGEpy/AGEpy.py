@@ -1288,7 +1288,8 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
             #    f=maxFC
             #if float(f) < minFC:
             #    f=minFC
-            ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor='black')
+            #ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor='black')
+            ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor=cmap(norm(float(f))))
             p=p+w
         if pvalCol:
             if df.ix[i,pvalCol] < 0.05:
@@ -1423,7 +1424,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
             p=float(maxAn-ann)/2
         else:
             p=0
-        ax2.barh(pos, ann, left=p, color=cmap(norm(float(f))),edgecolor='black')#
+        ax2.barh(pos, ann, left=p, color=cmap(norm(float(f))),edgecolor=cmap(norm(float(f))))#
 
         fcs=df.ix[i,'log2fc'].split(",")
         fcs=pd.DataFrame(fcs)
