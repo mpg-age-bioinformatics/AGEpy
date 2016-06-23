@@ -163,7 +163,7 @@ if __name__ == '__main__':
     funclist = []
     for d in reader:
         out_put = pool.apply_async(worker,[d])
-    funclist.append(out_put)
+        funclist.append(out_put)
 
     dfCov=pd.DataFrame()
     for f in funclist:
