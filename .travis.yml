@@ -1,3 +1,8 @@
 language: python
+
+before_install:
+    - sudo apt-get update 
+    - sudo apt-get install r-base
+
 install:
     - pip install .
