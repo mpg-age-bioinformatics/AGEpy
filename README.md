@@ -1,4 +1,5 @@
-## AGEpy
+## AGEpy [![Build Status](https://travis-ci.org/mpg-age-bioinformatics/AGEpy.svg?branch=master)](https://travis-ci.org/mpg-age-bioinformatics/AGEpy)
+
 
 This python package contains Bioinformatics tools developed at the
 Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
