@@ -3,7 +3,7 @@ language: python
 sudo: true
 
 before_install:
-    - sudo echo "deb http://cran.rstudio.com/bin/linux/ubuntu precise/" >> /etc/apt/sources.list 
+    - echo "deb http://cran.rstudio.com/bin/linux/ubuntu precise/" >> /etc/apt/sources.list 
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
     - sudo add-apt-repository ppa:marutter/rdev
     - sudo apt-get update
