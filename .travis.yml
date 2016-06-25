@@ -4,7 +4,7 @@ sudo: true
 
 before_install:
     - sudo apt-get update 
-    - sudo apt-get install r-base
+    - sudo apt-get install r-base r-base-dev 
 
 install:
     - pip install .
