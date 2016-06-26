@@ -1521,6 +1521,12 @@ def getGeneAssociation(URL_or_file):
     else:
         decompressedFile = gzip.GzipFile(URL_or_file)
     out=decompressedFile.read().split("\n")
+
+    if out[0]=="!gaf-version: 2.0":
+        reco=out[0]
+    else:
+        reco=None
+
     out=[ s for s in out if len(s) > 0 ]
     out=[ s for s in out if s[0] != "!" ]
     out=[s.split("\t") for s in out]
@@ -1530,9 +1536,13 @@ def getGeneAssociation(URL_or_file):
     fb_cols=["DB","DB_Object_ID","DB_Object_Symbol","Qualifier","GO ID","DB:Reference","Evidence",\
      "With (or) From","Aspect","DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon","Date","Assigned_by","Annotation Extension",\
      "Gene Product Form ID"]
-    cols={"fb":fb_cols,"wb":fb_cols,"mgi":fb_cols}
+    gaf_20=["DB","DB Object ID","DB Object Symbol","Qualifier","GO ID","DB:Reference (|DB:Reference)","Evidence Code","With (or) From","Aspect","DB Object Name",\
+     "DB Object Synonym (|Synonym)","DB Object Type","Taxon(|taxon)","Date","Assigned By","Annotation Extension","Gene Product Form ID"]
+    cols={"fb":fb_cols,"wb":fb_cols,"mgi":fb_cols,"!gaf-version: 2.0":gaf_20}
     colsType=URL_or_file.split(".")
     colsType=colsType[len(colsType)-2]
+    if colsType=="gaf":
+        colsType=reco
     if colsType in cols.keys():
         try:
             cols=cols.get(colsType)
