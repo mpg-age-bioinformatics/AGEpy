@@ -1522,8 +1522,14 @@ def getGeneAssociation(URL_or_file):
         decompressedFile = gzip.GzipFile(URL_or_file)
     out=decompressedFile.read().split("\n")
 
-    if out[0]=="!gaf-version: 2.0":
-        reco=out[0]
+    version=[ s for s in out if len(s) > 0 ]
+    version=[ s for s in version if s[0] == '!' ]
+    version=[ s for s in version if "!gaf-version:" in s ]
+    version=version[0]
+
+
+    if version=="!gaf-version: 2.0":
+        reco=version
     else:
         reco=None
 
