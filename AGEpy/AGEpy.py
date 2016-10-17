@@ -52,19 +52,26 @@ def readGTF(infile):
 def retrieve_GTF_field(field,gtf):
     """
     Returns a field of choice from the attribute column of the GTF
-    
+     
     :param field: field to be retrieved
     :returns: a Pandas dataframe with one columns containing the field of choice
     
     """
-    label=field
-    field = pd.DataFrame(gtf['attribute'].str.split(field).tolist())[1]
-    field = field.astype(str)
-    field = pd.DataFrame(field.str.split(';',1).tolist())
-    field = pd.DataFrame(field[0].str.split('"').tolist())[1]
-    field = pd.DataFrame(field)
-    field.columns=[label]
-    return field
+    inGTF=gtf.copy() 
+    def splits(x):
+        l=x.split(";")
+        l=[ s.split(" ") for s in l]
+        res=np.nan
+        for s in l:
+            if field in s:
+                if '"' in s[-1]:
+                    res=s[-1][1:-1]
+                else:
+                    res=s[-1]
+        return res
+        
+    inGTF[field]=inGTF['attribute'].apply(lambda x: splits(x)) 
+    return inGTF[[field]]
 
 def attributesGTF(inGTF):
     """
@@ -105,9 +112,11 @@ def parseGTF(inGTF):
     """
 
     desc=attributesGTF(inGTF)
-    df=inGTF.drop(['attribute'],axis=1)
+    ref=inGTF.copy()
+    ref.reset_index(inplace=True, drop=True)
+    df=ref.drop(['attribute'],axis=1).copy()
     for d in desc:
-        field=retrieve_GTF_field(d,inGTF)
+        field=retrieve_GTF_field(d,ref)
         df=pd.concat([df,field],axis=1)
     return df
 
@@ -142,10 +151,13 @@ def GTFtoBED(inGTF,name):
 
     returns: a bed dataframe with the corresponding bed fiels: 'chrom','chromStart','chromEnd','name','score','strand'
     """
-    if name not in inGTF.columns.tolist():
-        field=retrieve_GTF_field(name, inGTF)
-        inGTF=pd.concat([inGTF,field],axis=1)
-    bed=inGTF[['seqname','start','end',name,'score','strand']]
+    
+    bed=inGTF.copy()
+    bed.reset_index(inplace=True, drop=True)
+    if name not in bed.columns.tolist():
+        field=retrieve_GTF_field(name, bed)
+        bed=pd.concat([bed,field],axis=1)
+    bed=bed[['seqname','start','end',name,'score','strand']]
     bed.columns=['chrom','chromStart','chromEnd','name','score','strand']
     bed.drop_duplicates(inplace=True)
     bed.reset_index(inplace=True,drop=True)
