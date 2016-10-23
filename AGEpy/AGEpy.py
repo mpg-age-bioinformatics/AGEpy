@@ -2044,12 +2044,12 @@ def MAPGenoToTrans(parsedGTF,feature):
     GenTransMap=GenTransMap.sort_values(by=["transcript_id","exon_number"],ascending=True)
     def CombineExons(df):
         return pd.Series(dict( feature_bases = ','.join(df['feature_bases']) ) )
-    GenTransMapDic=GenTransMap.groupby("transcript_id").apply(CombineExons)
-    GenTransMapDic=GenTransMapDic.to_dict().get("feature_bases")
+    GenTransMap=GenTransMap.groupby("transcript_id").apply(CombineExons)
+    GenTransMap=GenTransMap.to_dict().get("feature_bases")
 
-    return GenTransMapDic
+    return GenTransMap
 
-def GetTransPosition(df,field,refCol="transcript_id"):
+def GetTransPosition(df,field,dic,refCol="transcript_id"):
     """
     Maps a genome position to transcript positon"
 
