@@ -8,7 +8,9 @@ setup(name = 'AGEpy',
       author_email = 'bioinformatics@age.mpg.de',
       license = 'MIT',
       packages = [ 'AGEpy' ],
-      install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2','requests==2.10.0', 'suds', 'xlrd', 'biomart', 'rpy2', 'matplotlib', 'pyocclient', 'xlsxwriter','cython' ],
+      install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2','requests==2.10.0', \
+      'suds', 'xlrd', 'biomart', 'rpy2', 'matplotlib', 'pyocclient', \
+      'xlsxwriter','cython','pybedtools'],
       dependency_links=["git+https://github.com/mpg-age-bioinformatics/pyocclient.git#egg=pyocclient-0.1"],
       zip_safe = False,
       scripts=['bin/david','bin/bit','bin/obo2tsv']

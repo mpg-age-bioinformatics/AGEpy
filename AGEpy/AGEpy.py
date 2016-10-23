@@ -30,6 +30,9 @@ from matplotlib import gridspec
 import urllib2
 import StringIO
 import gzip
+import pybedtools
+from pybedtools import BedTool
+
 
 def checkImport():
     print "AGEpy imported"
@@ -39,9 +42,9 @@ def readGTF(infile):
     """
     Reads a GTF file and labels the respective columns in agreement with GTF file standards:
     'seqname','source','feature','start','end','score','strand','frame','attribute'.
-    
+
     :param infile: path/to/file.gtf
-    :returns: a Pandas dataframe of the respective GTF    
+    :returns: a Pandas dataframe of the respective GTF
 
     """
     df=pd.read_table(infile, sep='\t', comment="#", header=None, dtype=str)
@@ -52,12 +55,12 @@ def readGTF(infile):
 def retrieve_GTF_field(field,gtf):
     """
     Returns a field of choice from the attribute column of the GTF
-     
+
     :param field: field to be retrieved
     :returns: a Pandas dataframe with one columns containing the field of choice
-    
+
     """
-    inGTF=gtf.copy() 
+    inGTF=gtf.copy()
     def splits(x):
         l=x.split(";")
         l=[ s.split(" ") for s in l]
@@ -69,8 +72,8 @@ def retrieve_GTF_field(field,gtf):
                 else:
                     res=s[-1]
         return res
-        
-    inGTF[field]=inGTF['attribute'].apply(lambda x: splits(x)) 
+
+    inGTF[field]=inGTF['attribute'].apply(lambda x: splits(x))
     return inGTF[[field]]
 
 def attributesGTF(inGTF):
@@ -99,16 +102,16 @@ def attributesGTF(inGTF):
     finaldesc=[]
     for d in desc:
         if len(d) > 0:
-            finaldesc.append(d)    
+            finaldesc.append(d)
     return finaldesc
-    
+
 def parseGTF(inGTF):
     """
     Reads an extracts all attributes in the attributes section of a GTF and constructs a new dataframe wiht one collumn per attribute instead of the attributes column
 
     :param inGTF: GTF dataframe to be parsed
     :returns: a dataframe of the orignal input GTF with attributes parsed.
-    
+
     """
 
     desc=attributesGTF(inGTF)
@@ -145,13 +148,13 @@ def writeGTF(inGTF,file_path):
 def GTFtoBED(inGTF,name):
     """
     Transform a GTF dataframe into a bed dataframe
-    
+
     :param inGTF: GTF dataframe for transformation
     :param name: field of the GTF data frame to be use for the bed 'name' positon
 
     returns: a bed dataframe with the corresponding bed fiels: 'chrom','chromStart','chromEnd','name','score','strand'
     """
-    
+
     bed=inGTF.copy()
     bed.reset_index(inplace=True, drop=True)
     if name not in bed.columns.tolist():
@@ -167,11 +170,11 @@ def writeBED(inBED, file_path):
     """
     Writes a bed dataframe into a bed file.
     Bed format: 'chrom','chromStart','chromEnd','name','score','strand'
- 
+
     :param inBED: bed dataframe to be written.
     :param file_path: /path/to/file.bed
-    
-    :returns: nothing    
+
+    :returns: nothing
 
     """
     inBED.to_csv(file_path,index=None,sep="\t",header=None)
@@ -182,19 +185,19 @@ rbiomart_host="www.ensembl.org"
 def databasesBM(host=biomart_host):
     """
     Lists BioMart databases.
-    
+
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
     :returns: nothing
 
     """
-    server = BiomartServer(host) 
+    server = BiomartServer(host)
     server.show_databases()
 
 def RdatabasesBM(host=rbiomart_host):
     """
     Lists BioMart databases through a RPY2 connection.
-    
+
     :param host: address of the host server, default='www.ensembl.org'
 
     :returns: nothing
@@ -207,7 +210,7 @@ def RdatabasesBM(host=rbiomart_host):
 def datasetsBM(host=biomart_host):
     """
     Lists BioMart datasets.
-    
+
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
     :returns: nothing
@@ -219,7 +222,7 @@ def datasetsBM(host=biomart_host):
 def RdatasetsBM(database,host=rbiomart_host):
     """
     Lists BioMart datasets through a RPY2 connection.
-    
+
     :param database: a database listed in RdatabasesBM()
     :param host: address of the host server, default='www.ensembl.org'
 
@@ -233,7 +236,7 @@ def RdatasetsBM(database,host=rbiomart_host):
 def filtersBM(dataset,host=biomart_host):
     """
     Lists BioMart filters for a specific dataset.
-    
+
     :param dataset: dataset to list filters of.
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
@@ -247,7 +250,7 @@ def filtersBM(dataset,host=biomart_host):
 def RfiltersBM(dataset,database,host=rbiomart_host):
     """
     Lists BioMart filters through a RPY2 connection.
-    
+
     :param dataset: a dataset listed in RdatasetsBM()
     :param database: a database listed in RdatabasesBM()
     :param host: address of the host server, default='www.ensembl.org'
@@ -263,7 +266,7 @@ def RfiltersBM(dataset,database,host=rbiomart_host):
 def attributesBM(dataset,host=biomart_host):
     """
     Lists BioMart attributes for a specific dataset.
-    
+
     :param dataset: dataset to list attributes of.
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
@@ -277,11 +280,11 @@ def attributesBM(dataset,host=biomart_host):
 def RattributesBM(dataset,database,host=rbiomart_host):
     """
     Lists BioMart attributes through a RPY2 connection.
-    
+
     :param dataset: a dataset listed in RdatasetsBM()
     :param database: a database listed in RdatabasesBM()
     :param host: address of the host server, default='www.ensembl.org'
-    
+
     :returns: nothing
 
     """
@@ -296,8 +299,8 @@ def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=No
 
     :param query_filtery: one BioMart filter associated with the items being queried
     :param query_items: list of items to be queried (must assoiate with given filter)
-    :param query_querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once. 
-    :param query_attributes: list of attributes to recover from BioMart  
+    :param query_querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once.
+    :param query_attributes: list of attributes to recover from BioMart
     :param query_dataset: dataset to query
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
@@ -307,14 +310,14 @@ def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=No
     server = BiomartServer(host)
     d=server.datasets[query_dataset]
     res=[]
-    
+
     if query_dic is None:
         chunks=[query_items[x:x+350] for x in xrange(0, len(query_items), 350)]
         for c in chunks:
             response=d.search({'filters':{query_filter:c},'attributes':query_attributes})
             for line in response.iter_lines():
                 line = line.decode('utf-8')
-                res.append(line.split("\t")) 
+                res.append(line.split("\t"))
     else:
         response=d.search({'filters':query_dic,'attributes':query_attributes})
         for line in response.iter_lines():
@@ -323,14 +326,14 @@ def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=No
     res=pd.DataFrame(res)
     res.columns=query_attributes
     return res
- 
+
 def RqueryBM(query_filter,query_items,query_attributes,dataset,database,host=rbiomart_host):
     """
     Queries BioMart.
 
     :param query_filtery: one BioMart filter associated with the items being queried
     :param query_items: list of items to be queried (must assoiate with given filter)
-    :param query_attributes: list of attributes to recover from BioMart  
+    :param query_attributes: list of attributes to recover from BioMart
     :param dataset: dataset to query
     :param database: database to query
     :param host: address of the host server, default='www.ensembl.org'
@@ -338,7 +341,7 @@ def RqueryBM(query_filter,query_items,query_attributes,dataset,database,host=rbi
     return: a Pandas dataframe of the queried attributes
 
     """
- 
+
     biomaRt = importr("biomaRt")
     ensemblMart=biomaRt.useMart(database, host=rbiomart_host)
     ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
@@ -427,7 +430,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
         df.columns=david_fields
     else:
         df=None
-    
+
     return df
 
 
@@ -438,7 +441,7 @@ def id_nameDAVID(df,GTF=None,name_id=None):
     :param df: a dataframe output from DAVIDenrich
     :param GTF: a GTF dataframe from readGTF()
     :param name_id: instead of a gtf dataframe a dataframe with the columns 'gene_name' and 'gene_id' can be given as input
-    
+
     :returns: a pandas dataframe with a gene name column added to it.
     """
     if name_id is None:
@@ -465,14 +468,37 @@ def id_nameDAVID(df,GTF=None,name_id=None):
         #tmp=tmp.replace(to_replace=tmp.xs(0)['Gene_names'], value=names)
         enrichN=pd.concat([enrichN, tmp])
     enrichN=enrichN.reset_index(drop=True)
-    
+
     gene_names=enrichN[['Gene_names']]
     gpos=enrichN.columns.get_loc("geneIds")
     enrichN=enrichN.drop(['Gene_names'],axis=1)
     cols=enrichN.columns.tolist()
-    enrichN=pd.concat([enrichN[cols[:gpos+1]],gene_names,enrichN[cols[gpos+1:]]],axis=1)   
+    enrichN=pd.concat([enrichN[cols[:gpos+1]],gene_names,enrichN[cols[gpos+1:]]],axis=1)
 
     return enrichN
+
+def DAVIDgetGeneAttribute(x,parsedGTF,refCol="ensembl_gene_id",fieldTOretrieve="gene_name"):
+    """
+    Returns a list of gene names for given gene ids.
+
+    :param x: a string with the list of IDs separated by ', '
+    :param parsedGTF: a parsed GTF with at least refcCol and fieldTOretrieve as retrieved from parsedGTF()
+    :param refCol: the header of the column containing the identifiers
+    :param fieldTOretrieve: the field to retrieve from parsedGTF eg. 'gene_name'
+
+    :returns: list of fieldTOretrieve separeted by ', ' in the same order as the given in x
+    """
+
+    l=x.split(", ")
+    l=[ s.upper() for s in l ]
+    tmpdf=pd.DataFrame({refCol:l},index=range(len(l)))
+    df_fix=parsedGTF[[refCol,fieldTOretrieve]].drop_duplicates()
+    df_fix[refCol]=df_fix[refCol].apply(lambda x: x.upper())
+    ids=pd.merge(tmpdf,df_fix,how="left",on=[refCol])
+    ids=ids[fieldTOretrieve].tolist()
+    ids=[ str(s) for s in ids ]
+    ids=", ".join(ids)
+    return ids
 
 
 def organismsKEGG():
@@ -493,7 +519,7 @@ def organismsKEGG():
 def databasesKEGG(organism,ens_ids):
     """
     Finds KEGG database identifiers for a respective organism given example ensembl ids.
-    
+
 
     :param organism: an organism as listed in organismsKEGG()
     :param ens_ids: a list of ensenbl ids of the respective organism
@@ -528,7 +554,7 @@ def databasesKEGG(organism,ens_ids):
     if len(test_db) == 1:
         print "For "+organism+" the following db was found: "+ens_db
         print "This database does not seem to be valid KEGG-linked database identifier"
-        print "For \n'hsa' use 'ensembl-hsa'\n'mmu' use 'ensembl-mmu'\n'cel' use 'EnsemblGenomes-Gn'\n'dme' use 'FlyBase'" 
+        print "For \n'hsa' use 'ensembl-hsa'\n'mmu' use 'ensembl-mmu'\n'cel' use 'EnsemblGenomes-Gn'\n'dme' use 'FlyBase'"
         sys.stdout.flush()
         ens_db = None
     else:
@@ -602,7 +628,7 @@ def idsKEGG(organism):
     df.columns=['KEGGid','gene_name']
     df=df[['gene_name','KEGGid']]
     return df
-    
+
 def pathwaysKEGG(organism):
     """
     Retrieves all pathways for a given organism.
@@ -610,7 +636,7 @@ def pathwaysKEGG(organism):
     :param organism: an organism as listed in organismsKEGG()
 
     :returns df: a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.
-    :returns df_: a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below 
+    :returns df_: a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below
     """
 
     #print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
@@ -668,12 +694,12 @@ def pathwaysKEGG(organism):
 
 def biomaRtTOkegg(df):
     """
-    Transforms a pandas dataframe with the columns 'ensembl_gene_id','kegg_enzyme' 
+    Transforms a pandas dataframe with the columns 'ensembl_gene_id','kegg_enzyme'
     to dataframe ready for use in ...
-    
-    :param df: a pandas dataframe with the following columns: 'ensembl_gene_id','kegg_enzyme' 
 
-    :returns: a pandas dataframe with the following columns: 'ensembl_gene_id','kegg_enzyme' 
+    :param df: a pandas dataframe with the following columns: 'ensembl_gene_id','kegg_enzyme'
+
+    :returns: a pandas dataframe with the following columns: 'ensembl_gene_id','kegg_enzyme'
     """
     df=df.dropna()
     ECcols=df.columns.tolist()
@@ -703,7 +729,7 @@ def biomaRtTOkegg(df):
     noPlus['fake']='ec:'
     noPlus['kegg_enzyme']=noPlus['fake']+noPlus['kegg_enzyme']
     noPlus=noPlus[['ensembl_gene_id','kegg_enzyme']]
-    
+
     return noPlus
 
 
@@ -766,23 +792,23 @@ def expKEGG(organism,names_KEGGids):
 def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=rbiomart_host,links=True,dfexp=None,kegg_db=None ):
     """
     This looks for all KEGG annotatios of an organism in biomaRt and the respective pathways in KEGG.
-    
+
     :param dfexp: a Pandas dataframe with the following columns: 'ensembl_gene_id', 'log2FC'
     :param organism: a KEGG organism identifier
     :param dataset: a biomaRt dataset
     :param database: a biomaRt database
-    :param query_attributes: biomaRt query attributes, the name can change but the output should stay in the same order ie. 'ensembl_gene_id','kegg_enzyme' 
+    :param query_attributes: biomaRt query attributes, the name can change but the output should stay in the same order ie. 'ensembl_gene_id','kegg_enzyme'
     :param host: biomaRt_host
     :param links: if True, returns df_links
     :param dfexp: a Pandas dataframe with the folowing columns 'KEGGid' and 'log2FC'
-    :param kegg_db: a KEGG database as recovered by the databasesKEGG function   
+    :param kegg_db: a KEGG database as recovered by the databasesKEGG function
 
- 
+
     :returns df: a Pandas dataframe with the 'KEGGid','pathsIDs','pathName','ensembl_gene_id','kegg_enzyme'
     :returns df_: a matrix with a column for each KEGG pathway for a given organism and the expression values in the respective dfexp in parameter
     :returns fullmatrix: a matrix with a column for each KEGG pathway for a given organism
-    :returns df_links: a dataframe with links for each pathway and the links in the dfexp highlighted red (if df_links. 
-    
+    :returns df_links: a dataframe with links for each pathway and the links in the dfexp highlighted red (if df_links.
+
     """
     try:
         # Get all ensembl gene ids and keeg enzyme labels from biomaRt
@@ -799,7 +825,7 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
     except:
         # Do it wiht KEGG
         ec_KEGGid=ecs_idsKEGG(organism)
-        KEGGid_ENSid=ensembl_to_kegg(organism,kegg_db)  
+        KEGGid_ENSid=ensembl_to_kegg(organism,kegg_db)
         biomaRt_output=pd.merge(ec_KEGGid,KEGGid_ENSid,on=['KEGGid'],how="outer")
         biomaRt_output=biomaRt_output.drop(['KEGGid'],axis=1)
         biomaRt_output=biomaRt_output[['ENSid','ec']]
@@ -855,7 +881,7 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
             return ex
 
         for c in cols:
-            df_[c]=df_.apply(get_expression, args=(c,),axis=1)        
+            df_[c]=df_.apply(get_expression, args=(c,),axis=1)
 
         if links==True:
             df_links=pd.DataFrame()
@@ -877,7 +903,7 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
                     d=pd.DataFrame(d,index=[0])
                     df_links=pd.concat([df_links,d])
             df_links.reset_index(inplace=True, drop=True)
-    
+
             return df, df_, fullmatrix, df_links
 
         else:
@@ -885,12 +911,12 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
 
 
 def getFileFormat (path):
-  
+
   """
   Return the file format
 
   :param path: The path to the file
-  
+
   :returns: None, if file is missing, else one of the strings 'xlsx', 'xls', 'txt'
   """
 
@@ -958,14 +984,14 @@ def getFasta(opened_file, sequence_name):
                     s=s + 1
                     seq=seq+lines[s]
                     firstbase=lines[s+1][0]
-    
+
     if len(seq)==0:
         seq=None
-    else:        
+    else:
         seq=seq.split("\n")
         seq="".join(seq)
-    
-    return seq  
+
+    return seq
 
 
 def writeFasta(sequence, sequence_name, output_file):
@@ -984,17 +1010,17 @@ def writeFasta(sequence, sequence_name, output_file):
     while i <= len(sequence):
         f.write(sequence[i:i+60]+"\n")
         i=i+60
-    f.close()  
+    f.close()
 
 def rewriteFasta(sequence, sequence_name, fasta_in, fasta_out):
     """
     Rewrites a specific sequence in a multifasta file while keeping the sequence header.
 
-    :param sequence: a string with the sequence to be written  
+    :param sequence: a string with the sequence to be written
     :param sequence_name: the name of the sequence to be retrieved eg. for '>2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)
     :param fasta_in: /path/to/original.fa
     :param fasta_out: /path/to/destination.fa
-    
+
     :returns: nothing
     """
     f=open(fasta_in, 'r+')
@@ -1016,9 +1042,9 @@ def rewriteFasta(sequence, sequence_name, fasta_in, fasta_out):
                 s=0
                 while s <= len(sequence):
                     f2.write(sequence[s:s+60]+"\n")
-                    s=s+60                
+                    s=s+60
             else:
-                i=i+1 
+                i=i+1
         else:
             f2.write(line)
             i=i+1
@@ -1032,8 +1058,8 @@ def readSAM(SAMfile,header=False):
 
     :param SAMfile: /path/to/file.sam
     :param header: logical, if True, reads the header information
-    
-    :returns: a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' and a list of the headers if header=True 
+
+    :returns: a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' and a list of the headers if header=True
 
     """
     if header==True:
@@ -1045,7 +1071,7 @@ def readSAM(SAMfile,header=False):
             else:
                 continue
         f.close()
-    
+
     sam=pd.read_table(SAMfile,sep="this_gives_one_column",comment="@",header=None)
     sam=pd.DataFrame(sam[0].str.split("\t").tolist())
     acols=[0,1,2,3,4,5,6,7,8,9]
@@ -1058,9 +1084,9 @@ def readSAM(SAMfile,header=False):
             sam_[10]=sam_[10].astype(str)
             sam[c]=sam[c].astype(str)
             sam_[10]=sam_[10]+"\t"+sam[c]
-        
+
     sam_.columns=['QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL']
-    
+
     if header==True:
         return sam_, head
     else:
@@ -1084,11 +1110,11 @@ def writeSAM(sam,SAMfile,header=None):
     sam.reset_index(inplace=True,drop=True)
     QUAL=pd.DataFrame(sam['QUAL'].str.split("\t").tolist())
     cols=QUAL.columns.tolist()
-    
+
     for c in cols:
         QUAL[c]=QUAL[c].apply(lambda x: toNone(x))
 
-    sam=sam.drop(['QUAL'],axis=1)  
+    sam=sam.drop(['QUAL'],axis=1)
     sam=pd.concat([sam,QUAL],axis=1)
     sam=sam.astype(str)
     sam=sam.as_matrix()
@@ -1100,11 +1126,11 @@ def writeSAM(sam,SAMfile,header=None):
             tfile.write(l)
 
     for l in sam:
-        l=[ s for s in l if s not in ['nan'] ] 
+        l=[ s for s in l if s not in ['nan'] ]
         l="\t".join(l)
         tfile.write(l+"\n")
 
-    tfile.close()    
+    tfile.close()
 
 def SAMflags(x):
     """
@@ -1115,10 +1141,10 @@ def SAMflags(x):
     :returns: complete SAM flag explanaition
     """
     flags=[]
-    
+
     if x & 1:
         l="1: Read paired"
-    else: 
+    else:
         l="0: Read unpaired"
     flags.append(l)
 
@@ -1129,51 +1155,51 @@ def SAMflags(x):
     flags.append(l)
 
     if x & 4 :
-        l="1: Read unmapped"   
+        l="1: Read unmapped"
     else:
-        l="0: Read mapped"   
+        l="0: Read mapped"
     flags.append(l)
-    
+
     if x & 8 :
-        l="1: Mate unmapped"             
+        l="1: Mate unmapped"
     else:
-        l="0: Mate mapped"                   
+        l="0: Mate mapped"
     flags.append(l)
 
     if x & 16 :
-        l="1: Read reverse strand"             
+        l="1: Read reverse strand"
     else:
-        l="0: Read direct strand"                   
+        l="0: Read direct strand"
     flags.append(l)
 
     if x & 32 :
-        l="1: Mate reverse strand"             
+        l="1: Mate reverse strand"
     else:
-        l="0: Mate direct strand"                   
+        l="0: Mate direct strand"
     flags.append(l)
 
     if x & 64 :
-        l="1: First in pair"             
+        l="1: First in pair"
     else:
-        l="0: Second in pair"                   
+        l="0: Second in pair"
     flags.append(l)
 
     if x & 128 :
-        l="1: Second in pair"             
+        l="1: Second in pair"
     else:
-        l="0: First in pair"                   
+        l="0: First in pair"
     flags.append(l)
 
     if x & 256 :
-        l="1: Not primary alignment"             
+        l="1: Not primary alignment"
     else:
-        l="0: Primary alignment"                   
+        l="0: Primary alignment"
     flags.append(l)
 
     if x & 512 :
-        l="1: Read fails platform/vendor quality checks"             
+        l="1: Read fails platform/vendor quality checks"
     else:
-        l="0: Read passes platform/vendor quality checks"                   
+        l="0: Read passes platform/vendor quality checks"
     flags.append(l)
 
     if x & 1024 :
@@ -1196,34 +1222,34 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     -inf or inf enrichments will come out as min found float or max found float, respectively.
 
     :param df: pandas dataframe with the following columns - 'Enrichment', 'Term', and 'log2fc'.
-               For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
+               For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term.
                eg. '-inf,-1,2,3.4,3.66,inf'
-    :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png 
+    :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png
     :param gene_expression: label for the color gradiant bar.
     :param figure_title: Figure title.
-    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking      
+    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
     :param lowerLimit: lower limit for the heatmap bar (default is the 0.1 percentile)
-    :param upperLimit: upper limit for the heatmap bar (default is the 0.9 percentile)      
+    :param upperLimit: upper limit for the heatmap bar (default is the 0.9 percentile)
     :param colorBarType: type of heatmap, 'Spectral' is dafault, alternative eg. 'seismic'
     :returns: a matplotlib figure
-    """    
+    """
     limits=pd.DataFrame(df['log2fc'].str.split(",").tolist())
     limits=limits.as_matrix().flatten()
     limits=pd.DataFrame(limits)
     limits[0]=limits[0].astype(str)
     limits=limits[limits[0]!="None"][limits[0]!=""]
-    
+
     try:
         limits=[float(x) for x in limits[0].tolist()]
-        
+
     except ValueError,e:
         print "error",e,"on line"
- 
+
     if upperLimit:
         maxFC=upperLimit
     else:
         maxFC=np.percentile(limits,90)
-    
+
     if lowerLimit:
         minFC=lowerLimit
     else:
@@ -1244,7 +1270,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     else:
         siz=3
 
-    
+
     fig = plt.figure(figsize=(8, siz))
     #fig.suptitle(figure_title, fontsize=24, fontweight='bold')
 
@@ -1256,7 +1282,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     enr=[x for x in enr if str(x) != str(float("-inf"))]
 
     m=max(enr)
-    
+
     maxE=max(enr)
     minE=min(enr)
 
@@ -1285,9 +1311,9 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         fcs=pd.DataFrame(fcs)
         fcs[0]=fcs[0].astype(str)
         fcs[0]=fcs[0].apply(lambda x: getINFs(x))
-        
+
         #fcs=fcs[fcs[0]!=""].astype(float)[0].tolist()
-        fcs=fcs.astype(float)[0].tolist()        
+        fcs=fcs.astype(float)[0].tolist()
 
         try:
             w=float(df.ix[i,'Enrichment'])/float(len(fcs))
@@ -1316,23 +1342,23 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     ax1.set_yticklabels(df['Term'].tolist())
 
     ax1.tick_params(
-        axis='y',          
-        which='both',      
-        left='off',      
-        right='off',         
+        axis='y',
+        which='both',
+        left='off',
+        right='off',
         labelleft='on')
 
     ax1.tick_params(
-        axis='x',          
-        which='both',     
-        bottom='off',      
-        top='on',         
+        axis='x',
+        which='both',
+        bottom='off',
+        top='on',
         labelbottom='off',
-        labeltop='on') 
-    
+        labeltop='on')
+
     ax1.set_ylim(ymax = max(arrangment) + 1.5 ) #1.5
     ax1.set_xlabel("GO Term Enrichment")
-    ax1.xaxis.set_label_position('top') 
+    ax1.xaxis.set_label_position('top')
 
     ax1.spines['right'].set_visible(False)
     ax1.spines['bottom'].set_visible(False)
@@ -1364,14 +1390,14 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
 def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     """
     Python implementation of the SymPlot from the CellPlot package for R.
-    -inf or inf enrichments will come out as min found float or max found float, respectively.    
+    -inf or inf enrichments will come out as min found float or max found float, respectively.
 
     :param df: pandas dataframe with the following columns - 'Enrichment', 'Significant', 'Annotated', 'Term', and 'log2fc'.
-               For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. 
+               For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term.
                eg. '-inf,-1,2,3.4,3.66,inf'
-    :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png 
+    :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png
     :param figure_title: Figure title.
-    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking 
+    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
     :returns: a matplotlib figure
     """
     maxAn=df['Annotated'].max()
@@ -1442,8 +1468,8 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
         fcs=pd.DataFrame(fcs)
         fcs[0]=fcs[0].astype(str)
         fcs[0]=fcs[0].apply(lambda x: getINFs(x))
-        #fcs=fcs[fcs[0]!=""].astype(float)     
-        fcs=fcs.astype(float)  
+        #fcs=fcs[fcs[0]!=""].astype(float)
+        fcs=fcs.astype(float)
         down=len(fcs[fcs[0]<0])/ann*100
         up=len(fcs[fcs[0]>0])/ann*100
         alldown.append(down)
@@ -1478,7 +1504,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
 
     fa=10*0.1/len(df)+1
     fb=10*0.08/len(df)+1
-    
+
     ax1.set_title('Downregulated (%)',y=fa)#
     ax2.set_title('Annotated\n(max=%s)' %str(maxAn),y=fb)#
     ax3.set_title('Upregulated (%)',y=fa)
@@ -1490,8 +1516,8 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     ax1.set_ylim(ymax = max(arrangment)+1.5)
     ax2.set_ylim(ymax = max(arrangment)+1.5)
     ax3.set_ylim(ymax = max(arrangment)+1.5)
-    
-    
+
+
     ax1.set_yticks(arrangment+0.4)
     def get_label_with_sig (df):
         termLabel=df['Term']
@@ -1504,26 +1530,26 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
         else:
             return termLabel
 
-    df['newLabels']=df.apply(get_label_with_sig, axis=1)  
+    df['newLabels']=df.apply(get_label_with_sig, axis=1)
 
     ax1.set_yticklabels(df['newLabels'].tolist())
 
     cb1 = matplotlib.colorbar.ColorbarBase(ax4, cmap=cmap,norm=norm, orientation='horizontal')
     cb1.set_label('GO Term Enrichment (0.1-0.9 percentiles)\n\n\n'+figure_title)
-    
+
     fig.subplots_adjust(wspace=0)
 
     if output_file:
         plt.savefig(output_file+".SymPlot.png",dpi=300,bbox_inches='tight', pad_inches=0.1,format='png')
         plt.savefig(output_file+".SymPlot.svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
-    
+
     return fig
 
 def getGeneAssociation(URL_or_file):
     """
     This function collects GO annotation from http://geneontology.org/page/download-annotations.
 
-    :param URL_or_file: either a link to a file on geneontology.org eg. http://geneontology.org/gene-associations/gene_association.fb.gz or the path for the respective  downloded .gz file.  
+    :param URL_or_file: either a link to a file on geneontology.org eg. http://geneontology.org/gene-associations/gene_association.fb.gz or the path for the respective  downloded .gz file.
     :returns: a Pandas dataframe with the parsed table.
     """
     if URL_or_file[:4] == "http":
@@ -1587,17 +1613,17 @@ def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
     :param proteinsfile: path to local file or to baseURL/proteinsfile
     :param proteinsclusterfile: path to local file or to baseURL/proteinsclusterfile
     :param baseURL: baseURL for downloading files
-    
+
     :returns genedf: Homolog gene Pandas dataframe
-    :returns protclusdf: Pandas dataframe. Lists one protein per gene that were used for homologene clustering. 
-                        If a gene has multiple protein accessions derived from alternative splicing, 
-                        only one protein isoform that give most protein alignment to proteins in other species 
-                        was selected for clustering and it is listed in this file. 
-    :returns proteinsdf: Pandas dataframe. Lists all proteins and their gene information. 
-                        If a gene has multple protein accessions derived from alternative splicing event, 
-                        each protein accession is list in a separate line.  
-    """    
-    
+    :returns protclusdf: Pandas dataframe. Lists one protein per gene that were used for homologene clustering.
+                        If a gene has multiple protein accessions derived from alternative splicing,
+                        only one protein isoform that give most protein alignment to proteins in other species
+                        was selected for clustering and it is listed in this file.
+    :returns proteinsdf: Pandas dataframe. Lists all proteins and their gene information.
+                        If a gene has multple protein accessions derived from alternative splicing event,
+                        each protein accession is list in a separate line.
+    """
+
     def getDf(inputfile):
         if os.path.isfile(inputfile):
             df=pd.read_table(inputfile,header=None)
@@ -1612,12 +1638,12 @@ def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
     taxdf=getDf(taxfile)
     taxdf.set_index([0],inplace=True)
     taxdi=taxdf.to_dict().get(1)
-    
+
     genedf=getDf(genefile)
     genecols=["HID","Taxonomy ID","Gene ID","Gene Symbol","Protein gi","Protein accession"]
     genedf.columns=genecols
     genedf["organism"]=genedf["Taxonomy ID"].apply(lambda(x):taxdi.get(x))
-    
+
     proteinsdf=getDf(proteinsfile)
     proteinscols=["taxid","entrez GeneID","gene symbol","gene description","protein accession.ver","mrna accession.ver",\
                  "length of protein  listed in column 5","-11) contains data about gene location on the genome",\
@@ -1625,7 +1651,7 @@ def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
                   "end position of the gene in 0-based coordinate","strand","nucleotide gi of genomic sequence where this gene is annotated"]
     proteinsdf.columns=proteinscols
     proteinsdf["organism"]=proteinsdf["taxid"].apply(lambda(x):taxdi.get(x))
-    
+
     protclusdf=getDf(proteinsclusterfile)
     protclustercols=["taxid","entrez GeneID","gene symbol","gene description","protein accession.ver","mrna accession.ver",\
                  "length of protein  listed in column 5","-11) contains data about gene location on the genome",\
@@ -1633,8 +1659,416 @@ def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
                   "end position of the gene in 0-based coordinate","strand","nucleotide gi of genomic sequence where this gene is annotated"]
     protclusdf.columns=proteinscols
     protclusdf["organism"]=protclusdf["taxid"].apply(lambda(x):taxdi.get(x))
-    
+
     return genedf, protclusdf, proteinsdf
+
+def NormInt(df,sampleA,sampleB):
+    """
+    Normalizes intensities of a gene in two samples
+
+    :param df: dataframe output of GetData()
+    :param sampleA: column header of sample A
+    :param sampleB: column header of sample B
+
+    :returns: normalized intensities
+    """
+
+    c1=df[sampleA]
+    c2=df[sampleB]
+    return np.log10(np.sqrt(c1*c2))
+
+def MA(df,title,figName,c, daType="counts",nbins=10,perc=.5,deg=3,eq=True,splines=True,spec=None,Targets=None,ylim=None,sizeRed=8):
+    """
+    Plots an MA like plot GetData() outputs.
+
+    :param df: dataframe output of GetData()
+    :param title: plot title, 'Genes' or 'Transcripts'
+    :param figName: /path/to/saved/figure/prefix
+    :param c: pair of samples to be plotted in list format
+    :param daType: data type, ie. 'counts' or 'FPKM'
+    :param nbins: number of bins on normalized intensities to fit the splines
+    :param per: log2(fold change) percentil to which the splines will be fitted
+    :param deg: degress of freedom used to fit the splines
+    :param eq: if true assumes for each bin that the lower and upper values are equally distant to 0, taking the smaller distance for both
+    :param spec: list of ids to be highlighted
+    :param Targets: list of ids that will be highlighted if outside of the fitted splines
+    :param ylim: a list of limits to apply on the y-axis of the plot
+    :param sizeRed: size of the highlight marker
+
+    :returns df_: a Pandas dataframe similar to the GetData() output with normalized intensities and spline outbounds rows marked as 1.
+    :returns red: list of ids that are highlighted
+    """
+
+    df_=df[df[c[0]]>0]
+    df_=df_[df_[c[1]]>0]
+
+    df_["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ]=df_.apply(NormInt, args=(c[0],c[1],), axis=1)
+
+    if daType=="counts":
+        lowLim=np.log10(np.sqrt(10))
+    elif daType=="FPKM":
+        lowLim=np.log10(0.1)
+
+    df_b=df_[df_["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ]>lowLim ]
+    df_b.reset_index(inplace=True, drop=True)
+
+    Xdata=df_["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist()
+    Ydata=df_["log2(%s/%s)" %( str(c[1]), str(c[0]) )].tolist()
+
+    minX=min(Xdata)
+    maxX=max(Xdata)
+
+    minX_=min(df_b["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist())
+    maxX_=max(df_b["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist())
+
+    df_b["bin"]=pd.cut(df_b["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist(), nbins,labels=False)
+
+    spl=[]
+    for b in set( df_b["bin"].tolist() ):
+        tmp=df_b[df_b["bin"]==b]
+        Xbin = tmp["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist()
+        Xval = np.mean([max(Xbin),min(Xbin)])
+        Ybin = tmp["log2(%s/%s)" %( str(c[1]), str(c[0]) )].tolist()
+        YvalP=np.percentile(Ybin,100.00-float(perc))
+        YvalM=np.percentile(Ybin,float(perc))
+        spl.append([Xval,YvalP,YvalM])
+
+    spl=pd.DataFrame( spl,columns=["X","Upper","Lower"],index=range(len(spl)) )
+
+    def CheckMin(df):
+        U=abs(df["Upper"])
+        L=abs(df["Lower"])
+        return min([U,L])
+
+    spl["min"]=spl.apply(CheckMin, axis=1)
+
+    coeffsUpper = np.polyfit(spl["X"].tolist(), spl["Upper"].tolist(), deg)
+    coeffsLower = np.polyfit(spl["X"].tolist(), spl["Lower"].tolist(), deg)
+
+    Xspl = np.array(np.linspace(minX, maxX, 10*nbins))
+
+    if eq:
+        coeffsUpper = np.polyfit(spl["X"].tolist(), spl["min"].tolist(), deg)
+        coeffsLower = np.polyfit(spl["X"].tolist(), [ ss*-1 for ss in spl["min"].tolist()] , deg)
+        YsplUpper = np.polyval(coeffsUpper, Xspl)
+        YsplLower = np.polyval(coeffsLower, Xspl)
+
+    else:
+        coeffsUpper = np.polyfit(spl["X"].tolist(), spl["Upper"].tolist(), deg)
+        coeffsLower = np.polyfit(spl["X"].tolist(), spl["Lower"].tolist(), deg)
+        YsplUpper = np.polyval(coeffsUpper, Xspl)
+        YsplLower = np.polyval(coeffsLower, Xspl)
+
+    def checkOutbounds(df,Xspl=Xspl,coeffsUpper=coeffsUpper,coeffsLower=coeffsLower,c=c):
+        x=df["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) )]
+        y=df["log2(%s/%s)" %( str(c[1]), str(c[0]) )]
+        if y < 0:
+            v=np.polyval(coeffsLower, x)
+            if y < v:
+                return 1
+            else:
+                return 0
+        else:
+            v=np.polyval(coeffsUpper, x)
+            if y > v:
+                return 1
+            else:
+                return 0
+
+    df_["OutBounds"]=df_.apply(checkOutbounds,axis=1)
+
+    if Targets:
+        if title == "Transcripts":
+            red=df_[df_["OutBounds"]==1][df_["transcript_id"].isin(Targets)]["transcript_id"].tolist()
+            Xdata_=df_[df_["OutBounds"]==1][df_["transcript_id"].isin(Targets)]["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist()
+            Ydata_=df_[df_["OutBounds"]==1][df_["transcript_id"].isin(Targets)]["log2(%s/%s)" %( str(c[1]), str(c[0]) ) ].tolist()
+        elif title == "Genes":
+            red=df_[df_["OutBounds"]==1][df_["gene_id"].isin(Targets)]["gene_id"].tolist()
+            Xdata_=df_[df_["OutBounds"]==1][df_["gene_id"].isin(Targets)]["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) )].tolist()
+            Ydata_=df_[df_["OutBounds"]==1][df_["gene_id"].isin(Targets)]["log2(%s/%s)" %( str(c[1]), str(c[0]) )].tolist()
+    elif spec:
+        if title == "Transcripts":
+            red=df_[df_["transcript_id"].isin(spec)]["transcript_id"].tolist()
+            Xdata_=df_[df_["transcript_id"].isin(spec)]["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist()
+            Ydata_=df_[df_["transcript_id"].isin(spec)]["log2(%s/%s)" %( str(c[1]), str(c[0]) ) ].tolist()
+        elif title == "Genes":
+            red=df_[df_["gene_id"].isin(spec)]["gene_id"].tolist()
+            Xdata_=df_[df_["gene_id"].isin(spec)]["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) )].tolist()
+            Ydata_=df_[df_["gene_id"].isin(spec)]["log2(%s/%s)" %( str(c[1]), str(c[0]) )].tolist()
+    else:
+        Xdata_=df_[df_["OutBounds"]==1]["normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) ].tolist()
+        Ydata_=df_[df_["OutBounds"]==1]["log2(%s/%s)" %( str(c[1]), str(c[0]) ) ].tolist()
+        if title == "Transcripts":
+            red=df_[df_["OutBounds"]==1]["transcript_id"].tolist()
+        elif title == "Genes":
+            red=df_[df_["OutBounds"]==1]["gene_id"].tolist()
+
+
+
+
+    fig = plt.gcf()
+    fig.set_size_inches(6, 6)
+    plt.scatter(Xdata,Ydata, s=2)
+    plt.scatter(Xdata_,Ydata_,s=sizeRed, c='r')
+    if splines:
+        plt.plot(Xspl,YsplUpper, "-",lw=0.5, c='g')
+        plt.plot(Xspl,YsplLower,"-", lw=0.5,c='g')
+
+    plt.xlabel("normalized intensities (%s vs. %s)" %( str(c[0]), str(c[1]) ) )
+    plt.ylabel("log2(%s/%s)" %( str(c[1]), str(c[0]) ))
+
+    if ylim:
+        plt.ylim(ylim[0],ylim[1])
+    else:
+        ylims=max([abs(min(Ydata)), abs(max(Ydata)) ])
+        plt.ylim(-ylims*1.1,ylims*1.1)
+
+    plt.title(title)
+    plt.savefig(figName+".png",dpi=300,bbox_inches='tight', pad_inches=0.1,format='png')
+    plt.savefig(figName+".svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
+    plt.show()
+
+    return df_,red
+
+def GetBEDnarrowPeakgz(URL_or_PATH_TO_file):
+    """
+    Reads a gz compressed BED narrow peak file from a web address or local file
+
+    :param URL_or_PATH_TO_file: web address of path to local file
+
+    :returns: a Pandas dataframe
+    """
+
+    if os.path.isfile(URL_or_PATH_TO_file):
+        response=open(URL_or_PATH_TO_file, "r")
+        compressedFile = StringIO.StringIO(response.read())
+    else:
+        response = urllib2.urlopen(URL_or_PATH_TO_file)
+        compressedFile = StringIO.StringIO(response.read())
+    decompressedFile = gzip.GzipFile(fileobj=compressedFile)
+    out=decompressedFile.read().split("\n")
+    out=[ s.split("\t") for s in out]
+    out=pd.DataFrame(out)
+    out.columns=["chrom","chromStart","chromEnd","name","score","strand","signalValue","-log10(pValue)","-log10(qvalue)","peak"]
+    out["name"]=out.index.tolist()
+    out["name"]="Peak_"+out["name"].astype(str)
+    out=out[:-1]
+    return out
+
+def dfTObedtool(df):
+    """
+    Transforms a pandas dataframe into a bedtool
+
+    :param df: Pandas dataframe
+
+    :returns: a bedtool
+    """
+
+    df=df.astype(str)
+    df=df.drop_duplicates()
+    df=df.values.tolist()
+    df=["\t".join(s) for s in df ]
+    df="\n".join(df)
+    df=BedTool(df, from_string=True)
+    return df
+
+def GetPeaksExons(bedtool_AB,parsedGTF):
+    """
+    Annotates a bedtool, BED narrow peak
+
+    :param bedtool_AB: a bedtool
+    :param parsedGTF: a parsed GTF file as outputed by parseGTF()
+
+    :returns: a Pandas dataframe
+    """
+
+    exonsGTF=parsedGTF[parsedGTF["feature"]=="exon"]
+    exonsGTF.reset_index(inplace=True, drop=True)
+
+    exonsBED=GTFtoBED(exonsGTF, "exon_id")
+    bedtool_exons=dfTObedtool(exonsBED)
+
+
+
+    bedtool_target_exons=bedtool_AB.intersect(bedtool_exons, wo=True, s=True)
+    dfTargetE=pd.read_table(bedtool_target_exons.fn, names=["chrom","chromStart","chromEnd","name","score",\
+                                                            "strand","signal_Value","-log10(pValue)",\
+                                                            "-log10(qValue)","peak",'seqname', 'start', 'end', \
+                                                            'exon_id', 'score_exon', 'strand_exon', "overlap"])
+    ExonsTransGenes=parsedGTF[["exon_id","transcript_id","gene_id"]].drop_duplicates()
+    dfTargets=pd.merge(dfTargetE,ExonsTransGenes,on=["exon_id"],how="left")
+    dfTargets["count"]=1
+
+    def getCounts(df,field):
+        """
+        For each field in a bed narrow peak returns the number or times that field is present,\
+        the normalized mean of the '-log10(pValue)' and normalized mean of the signal value.
+
+        :param df: a Pandas dataframe of a bed narrow peak
+        :param field: field to analyse, ie. exons or transcripts
+
+        :returns: a Pandas dataframe
+        """
+
+        tmp=df[[field,'name',"count"]].drop_duplicates()
+        tmp=tmp.drop(["name"],axis=1)
+        tmp["count"]=tmp["count"].astype(int)
+        tmp.columns=[field,"%s_count" %str(field)]
+        tmp=tmp.groupby(field, as_index=False).sum()
+        df=pd.merge(df,tmp,on=field,how="left")
+
+        tmp=df[[field,'name',"-log10(pValue)"]].drop_duplicates()
+        tmp=tmp.drop(["name"],axis=1)
+        tmp["-log10(pValue)"]=tmp["-log10(pValue)"].astype(float)
+        tmp=tmp.groupby(field).apply(lambda l: reduce(lambda x, y: x*y, l["-log10(pValue)"]) )
+        tmp=pd.DataFrame(tmp)
+        tmp.reset_index(inplace=True,drop=False)
+        tmp.columns=[field,"%s norm. mean -log10(pValue)" %str(field)]
+        df=pd.merge(df,tmp,on=field,how="left")
+
+        tmp=df[[field,'name',"signal_Value"]].drop_duplicates()
+        tmp=tmp.drop(["name"],axis=1)
+        tmp["signal_Value"]=tmp["signal_Value"].astype(float)
+        tmp=tmp.groupby(field).apply(lambda l: reduce(lambda x, y: x*y, l["signal_Value"]) )
+        tmp=pd.DataFrame(tmp)
+        tmp.reset_index(inplace=True,drop=False)
+        tmp.columns=[field,"%s signal_Value" %str(field)]
+        df=pd.merge(df,tmp,on=field,how="left")
+
+        return df
+
+    for f in ["exon_id","transcript_id"]:
+        dfTargets=getCounts(dfTargets,f)
+
+    def getCounts_GeneIDs(df):
+        """
+        For each gene id in a bed narrow peak returns the number or times that field is present,\
+        the normalized mean of the '-log10(pValue)' and normalized mean of the signal value.
+
+        :param df: a Pandas dataframe of a bed narrow peak
+
+        :returns: a Pandas dataframe
+        """
+
+        field="gene_id"
+
+        tmp=df[[field,"transcript_id","transcript_id_count"]].drop_duplicates()
+        tmp=tmp.drop(["transcript_id"],axis=1)
+        tmp["transcript_id_count"]=tmp["transcript_id_count"].astype(int)
+        tmp.columns=[field,"%s_count" %str(field)]
+        tmp=tmp.groupby(field, as_index=False).sum()
+        df=pd.merge(df,tmp,on=field,how="left")
+
+        tmp=df[[field,'transcript_id',"transcript_id norm. mean -log10(pValue)"]].drop_duplicates()
+        tmp=tmp.drop(["transcript_id"],axis=1)
+        tmp["transcript_id norm. mean -log10(pValue)"]=tmp["transcript_id norm. mean -log10(pValue)"].astype(float)
+        tmp.columns=[field,"%s norm. mean -log10(pValue)" %str(field)]
+        tmp=tmp.groupby(field, as_index=False).sum()
+        df=pd.merge(df,tmp,on=field,how="left")
+
+
+
+        tmp=df[[field,'transcript_id',"transcript_id signal_Value"]].drop_duplicates()
+        tmp=tmp.drop(["transcript_id"],axis=1)
+        tmp["transcript_id signal_Value"]=tmp["transcript_id signal_Value"].astype(float)
+        tmp.columns=[field,"%s signal_Value" %str(field)]
+        tmp=tmp.groupby(field, as_index=False).sum()
+        df=pd.merge(df,tmp,on=field,how="left")
+
+        return df
+
+    dfTargets=getCounts_GeneIDs(dfTargets)
+
+
+    dfTargets=dfTargets.drop(["count"],axis=1)
+    return dfTargets
+
+def filterMotifs(memeFile,outFile, minSites):
+    """
+    Selectes motifs from a meme file based on the number of sites.
+
+    :param memeFile: MEME file to be read
+    :param outFile: MEME file to be written
+    :param minSites: minimum number of sites each motif needs to have to be valid
+
+    :returns: nothing
+    """
+
+    with open(memeFile, "r") as mF:
+        oldMEME=mF.readlines()
+        newMEME=oldMEME[:7]
+        i=7
+        while i < len(oldMEME):
+            if oldMEME[i].split(" ")[0] == "MOTIF":
+                print oldMEME[i].split("\n")[0], int(oldMEME[i+2].split("nsites= ")[1].split(" ")[0])
+                sys.stdout.flush()
+                if int(oldMEME[i+2].split("nsites= ")[1].split(" ")[0]) > minSites:
+                    newMEME.append(oldMEME[i])
+                    f=i+1
+                    while oldMEME[f].split(" ")[0] != "MOTIF":
+                        newMEME.append(oldMEME[f])
+                        f=f+1
+                    i=i+1
+                else:
+                    i=i+1
+            else:
+                i=i+1
+    with open(outFile, "w+") as out:
+        out.write("".join(newMEME) )
+
+    return newMEME
+
+def MAPGenoToTrans(parsedGTF,feature):
+    """
+    Gets all positions of all bases in an exon
+
+    :param df: a Pandas dataframe with 'start','end', and 'strand' information for each entry.
+                df must contain 'seqname','feature','start','end','strand','frame','gene_id',
+                'transcript_id','exon_id','exon_number']
+    :param feature: feature upon wich to generate the map, eg. 'exon' or 'transcript'
+
+    :returns: a string with the comma separated positions of all bases in the exon
+    """
+    GenTransMap=parsedGTF[parsedGTF["feature"]==feature]
+    def getExonsPositions(df):
+        start=int(df["start"])
+        stop=int(df["end"])
+        strand=df["strand"]
+        r=range(start,stop+1)
+        if strand=="-":
+            r.sort(reverse=True)
+        r=[ str(s) for s in r]
+        return ",".join(r)
+
+    GenTransMap["feature_bases"]=GenTransMap.apply(getExonsPositions, axis=1)
+    GenTransMap=GenTransMap.sort_values(by=["transcript_id","exon_number"],ascending=True)
+    def CombineExons(df):
+        return pd.Series(dict( feature_bases = ','.join(df['feature_bases']) ) )
+    GenTransMapDic=GenTransMap.groupby("transcript_id").apply(CombineExons)
+    GenTransMapDic=GenTransMapDic.to_dict().get("feature_bases")
+
+    return GenTransMapDic
+
+def GetTransPosition(df,field,refCol="transcript_id"):
+    """
+    Maps a genome position to transcript positon"
+
+    :param df: a Pandas dataframe
+    :param field: the head of the column containing the genomic position
+    :param dic: a dictionary containing for each transcript the respective bases eg. {ENST23923910:'234,235,236,1021,..'}
+    :param refCol: header of the reference column with IDs, eg. 'transcript_id'
+
+    :returns: position on transcript
+    """
+    try:
+        gen=str(int(df[field]))
+        transid=df[refCol]
+        bases=dic.get(transid).split(",")
+        bases=bases.index(str(gen))
+    except:
+        bases=np.nan
+    return bases
+
 
 
 DNAcode={'CTT': 'L', 'ATG': 'M', 'ACA': 'T', 'ACG': 'T', 'ATC': 'I', 'AAC': 'N', 'ATA': 'I', 'AGG': 'R', 'CCT': 'P', 'ACT': 'T', 'AGC': 'S', 'AAG': 'K', 'AGA': 'R', 'CAT': 'H', 'AAT': 'N', 'ATT': 'I', 'CTG': 'L', 'CTA': 'L', 'CTC': 'L', 'CAC': 'H', 'AAA': 'K', 'CCG': 'P', 'AGT': 'S', 'CCA': 'P', 'CAA': 'Q', 'CCC': 'P', 'TAT': 'Y', 'GGT': 'G', 'TGT': 'C', 'CGA': 'R', 'CAG': 'Q', 'TCT': 'S', 'GAT': 'D', 'CGG': 'R', 'TTT': 'F', 'TGC': 'C', 'GGG': 'G', 'TAG': 'STOP', 'GGA': 'G', 'TAA': 'STOP', 'GGC': 'G', 'TAC': 'Y', 'TTC': 'F', 'TCG': 'S', 'TTA': 'L', 'TTG': 'L', 'TCC': 'S', 'ACC': 'T', 'TCA': 'S', 'GCA': 'A', 'GTA': 'V', 'GCC': 'A', 'GTC': 'V', 'GCG': 'A', 'GTG': 'V', 'GAG': 'E', 'GTT': 'V', 'GCT': 'A', 'TGA': 'STOP', 'GAC': 'D', 'CGT': 'R', 'TGG': 'W', 'GAA': 'E', 'CGC': 'R'}
@@ -1644,4 +2078,3 @@ DNAcode={'CTT': 'L', 'ATG': 'M', 'ACA': 'T', 'ACG': 'T', 'ATC': 'I', 'AAC': 'N',
 
 if __name__ == '__main__':
     print "AGEpy"
-    
