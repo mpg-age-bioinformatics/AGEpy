@@ -2064,7 +2064,7 @@ def GetTransPosition(df,field,dic,refCol="transcript_id"):
         gen=str(int(df[field]))
         transid=df[refCol]
         bases=dic.get(transid).split(",")
-        bases=bases.index(str(gen))
+        bases=bases.index(str(gen))+1
     except:
         bases=np.nan
     return bases
