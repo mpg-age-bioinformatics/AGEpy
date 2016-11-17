@@ -11,7 +11,7 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
 #### Read the Docs
 
-We have started introducing some documentation [here](http://agepy.readthedocs.org).
+We have started introducing some documentation [here]( https://github.com/mpg-age-bioinformatics/AGEpy/wiki).
 
 
 #### Installation
@@ -74,20 +74,6 @@ python setup.py develop --user
 ```
 
 Be aware that with the develop option you won't be able to properly update once new scripts are added.
-
-###### pip
-
-If you have pip installed you can get the current pip version over pip:
-
-```bash
-pip install --user AGEpy
-```
-
-and upgrade whenever required with:
-
-```bash
-pip install --user AGEpy --upgrade
-```
 
 #### Help
 
