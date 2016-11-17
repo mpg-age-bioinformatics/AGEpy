@@ -75,20 +75,6 @@ python setup.py develop --user
 
 Be aware that with the develop option you won't be able to properly update once new scripts are added.
 
-###### pip
-
-If you have pip installed you can get the current pip version over pip:
-
-```bash
-pip install --user AGEpy
-```
-
-and upgrade whenever required with:
-
-```bash
-pip install --user AGEpy --upgrade
-```
-
 #### Help
 
 In bash:
