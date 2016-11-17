@@ -158,10 +158,9 @@ def check_reqs(requirements,configdic,config_file=None, gitssh=args.gitssh):
         configdic["github_pass"]=get_github_pass(config_file=config_file,gitssh=gitssh )
     if "local_path" in requirements:
         configdic["local_path"]=get_local_path()
-	if "user_group" in requirements:
-		configdic["user_group"]=get_user_group()
-
-	return configdic
+    if "user_group" in requirements:
+        configdic["user_group"]=get_user_group()
+    return configdic
 
 requirements=["owncloud_address","owncloud_upload_folder",\
 "owncloud_download_folder","owncloud_user",\
@@ -378,12 +377,12 @@ def ownCloud_upload(input_files=args.input,message=args.message):
     for r in requirements:
         if not args.gitssh:
             if r not in ["user_group" ]:
-                while type(configdic[r]) == type(None):
+                while configdic[r] == None:
                     configdic=check_reqs([r],configdic,config_file=None, \
                     gitssh=None)
         else:
             if r not in [ "github_user", "github_pass","user_group" ]:
-                while type(configdic[r]) == type(None):
+                while configdic[r] == None:
                     configdic=check_reqs([r],configdic,config_file=None, \
                     gitssh=args.gitssh)
 
@@ -859,7 +858,6 @@ def rsync_from(sshLogin,rsync_files,forceImport=None,sync_to=False,sync_from=Tru
                         sys.stdout.flush()
                 local_path_owner=os.stat(local_path)
                 local_path_owner=local_path_owner.st_uid
-                local_path_owner=pwd.getpwuid(local_path_owner)[0]
                 os.chown(ltf,local_path_owner,-1)
 
     for f in inv_sync_dic:
@@ -953,7 +951,6 @@ if args.start:
 
     local_path_owner=os.stat(local_path)
     local_path_owner=local_path_owner.st_uid
-    local_path_owner=pwd.getpwuid(local_path_owner)[0]
     os.chown(full_path,local_path_owner,-1)
 
     sys.exit(0)
