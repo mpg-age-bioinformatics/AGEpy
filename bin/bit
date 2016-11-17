@@ -657,28 +657,35 @@ def list_local_sync(base_destination,list_of_files):
 
     for f in list_of_files:
         full=os.path.abspath(f)
-        if os.path.isdir(full):
-            subfol=base_destination+"/"+os.path.basename(full)
-            subfolders.append(subfol)
-            for root, directories, filenames in os.walk(full):
-                bad_dirs=[]
-                for directory in directories:
-                    if os.path.basename(directory)[0] != ".":
-                        subdir=os.path.join(root, directory).split(full)[-1]
-                        subdir=subfol+subdir
-                        subfolders.append(subdir)
-                    else:
-                        bad_dirs.append(os.path.basename(directory))
-                for filename in filenames:
-                    if not any(x in filename for x in bad_dirs):
-                        subfile=os.path.join(root,filename)
-                        if os.path.isfile(subfile):
-                            upload_dic[subfile]=subfol+subfile.split(full)[-1]
+        if CheckFoldersCon(local_path,full):
+            if os.path.isdir(full):
+                subfol=base_destination+"/"+os.path.basename(full)
+                subfolders.append(subfol)
+                for root, directories, filenames in os.walk(full):
+                    bad_dirs=[]
+                    for directory in directories:
+                        if os.path.basename(directory)[0] != ".":
+                            subdir=os.path.join(root, directory).split(full)[-1]
+                            subdir=subfol+subdir
+                            subfolders.append(subdir)
+                        else:
+                            bad_dirs.append(os.path.basename(directory))
+                    for filename in filenames:
+                        if not any(x in filename for x in bad_dirs):
+                            subfile=os.path.join(root,filename)
+                            if os.path.isfile(subfile):
+                                upload_dic[subfile]=subfol+subfile.split(full)[-1]
 
-        elif os.path.isfile(full):
-            upload_dic[full]=base_destination+"/"+os.path.basename(full)
+            elif os.path.isfile(full):
+                tfile=base_destination+full.split(local_path+"/"+target_project  )[1]
+                upload_dic[full]=tfile
+                subfolders.append( tfile.split(os.path.basename(tfile))[0] )
+            else:
+                upload_dic[full]=base_destination+"/"+os.path.basename(full)
         else:
-            upload_dic[full]=base_destination+"/"+os.path.basename(full)
+            print "%s is either a link to %s or is not on your projects path. This file\
+            will not be syncronized." %(f, full)
+            sys.stdout.flush()        
 
     subfolders=list(set(subfolders))
     subfolders=[ xx for xx in subfolders if len(xx) > 0 ]
@@ -721,14 +728,21 @@ def list_local_for_remote_sync(base_destination,list_of_files):
 
     for f in list_of_files:
         full=os.path.abspath(f)
-        if os.path.isdir(full):
-            subfol=base_destination+"/"+os.path.basename(full)
-            upload_dic[full]=base_destination+"/"+os.path.basename(full)
-            subfolders.append(subfol)
-        elif os.path.isfile(full):
-            upload_dic[full]=base_destination+"/"+os.path.basename(full)
+        if CheckFoldersCon(local_path,full):
+            if os.path.isdir(full):
+                subfol=base_destination+"/"+os.path.basename(full)
+                upload_dic[full]=base_destination+"/"+os.path.basename(full)
+                subfolders.append(subfol)
+            elif os.path.isfile(full):
+                tfile=base_destination+full.split(local_path+"/"+target_project  )[1]
+                upload_dic[full]=tfile
+                subfolders.append( tfile.split(os.path.basename(tfile))[0] )
+            else:
+                upload_dic[full]=base_destination+"/"+os.path.basename(full)
         else:
-            upload_dic[full]=base_destination+"/"+os.path.basename(full)
+            print "%s is either a link to %s or is not on your projects path. This file\
+            will not be syncronized." %(f, full)
+            sys.stdout.flush()
 
     subfolders=list(set(subfolders))
     subfolders=[ xx for xx in subfolders if len(xx) > 0 ]
@@ -736,6 +750,12 @@ def list_local_for_remote_sync(base_destination,list_of_files):
 
     return upload_dic, subfolders, base_destination, parent_folder
 
+def CheckFoldersCon(base,files_to_check):
+    lbase=len(base)
+    if files_to_check[:lbase] == base:
+        return True
+    else:
+        return False
 
 def rsync_to(sshLogin,rsync_files,forceImport=None,sync_to=True,sync_from=False):
     remotePass=str(getpass.getpass(prompt="Please give in your password for %s:\
@@ -748,15 +768,14 @@ def rsync_to(sshLogin,rsync_files,forceImport=None,sync_to=True,sync_from=False)
 
     create_subfolders=[ ff for ff in subfolders if ff not in remote_path ]
     create_subfolders=" ".join(create_subfolders)
-    print create_subfolders
 
     if remote_config["user_group"]:
         remote_group=" ".join(remote_config["user_group"])
         remote_group_group="; chmod 700 "+remote_path+parent_folder+" ; for us in "\
-        +remote_group+" ; do setfacl -m user:$us:rwx "+remote_path+parent_folder+"; done "
+        +remote_group+" ; do setfacl -m user:${us}:rwx "+remote_path+parent_folder+" ; done "
 
         remote_group_project="; chmod 700 "+path_to_project+" ; for us in "\
-        +remote_group+" ; do setfacl -m user:$us:rwx "+path_to_project+" "
+        +remote_group+" ; do setfacl -m user:${us}:rwx "+path_to_project+" ; done "
     else:
         remote_group_group="; echo Not_using_acls "
         remote_group_project="; echo Not_using_acls "
@@ -769,10 +788,13 @@ def rsync_to(sshLogin,rsync_files,forceImport=None,sync_to=True,sync_from=False)
     for f in "+create_subfolders+"; do if [ ! -d $f ]; then mkdir -p $f; fi; done\'"
 
     create_subfolders="sshpass -p "+str(remotePass)+" ssh "+str(sshLogin)+" "+create_subfolders
+    #print create_subfolders
+    #sys.stdout.flush()
+    #sys.exit(0)
     os.system(create_subfolders)
 
     for f in sync_dic:
-        call='rsync -tlzhP --rsh="sshpass -p %s ssh -o \
+        call='rsync -tlzhPL --rsh="sshpass -p %s ssh -o \
         StrictHostKeyChecking=no -l %s" %s %s:%s' %(str(remotePass), \
         str(sshLogin.split("@")[0]), f,  str(sshLogin.split("@")[1]), \
         sync_dic[f])
@@ -861,7 +883,7 @@ def rsync_from(sshLogin,rsync_files,forceImport=None,sync_to=False,sync_from=Tru
                 os.chown(ltf,local_path_owner,-1)
 
     for f in inv_sync_dic:
-        call='rsync -tlzhP --rsh="sshpass -p %s ssh -o \
+        call='rsync -tlzhPL --rsh="sshpass -p %s ssh -o \
         StrictHostKeyChecking=no -l %s" %s:%s %s' %(str(remotePass), \
         str(sshLogin.split("@")[0]), str(sshLogin.split("@")[1]), \
         f, inv_sync_dic[f] )
