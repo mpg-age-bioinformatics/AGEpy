@@ -125,7 +125,7 @@ def get_local_path(structure=structure):
     return local_path
 
 def get_user_group():
-    user_group=str(raw_input("If you are using ACLs to give your group members access to this project please give in the users that will have read write access to every projects top folders. eg. userA,userB,userC: ")) or None
+    user_group=str(raw_input("If you are using ACLs to give your group members access to this project please give in the users that will have read write access to every projects top folders. eg. userA,userB,userC -- DO NOT forger to give in your own user name: ")) or None
     if user_group:
         user_group=user_group.split(",")
 	return user_group
