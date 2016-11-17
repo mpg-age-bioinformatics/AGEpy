@@ -377,12 +377,13 @@ def ownCloud_upload(input_files=args.input,message=args.message):
     configdic=read_bitconfig()
     for r in requirements:
         if not args.gitssh:
-            while configdic[r] == None:
-                configdic=check_reqs([r],configdic,config_file=None, \
-                gitssh=None)
+            if r not in ["user_group" ]:
+                while type(configdic[r]) == type(None):
+                    configdic=check_reqs([r],configdic,config_file=None, \
+                    gitssh=None)
         else:
-            if r not in [ "github_user", "github_pass"]:
-                while configdic[r] == None:
+            if r not in [ "github_user", "github_pass","user_group" ]:
+                while type(configdic[r]) == type(None):
                     configdic=check_reqs([r],configdic,config_file=None, \
                     gitssh=args.gitssh)
 
