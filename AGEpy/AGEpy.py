@@ -388,7 +388,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     ids = ','.join([str(i) for i in ids])
     use_bg = 0
     if ids_bg is not None:
-      ids_bg = ','.join(ids_bg)
+      ids_bg = ','.join([str(i) for i in ids_bg])
     ssl._create_default_https_context = ssl._create_unverified_context
     url = 'https://david.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl'
     client = sudsclient(url)
