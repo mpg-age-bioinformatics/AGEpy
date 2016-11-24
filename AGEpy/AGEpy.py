@@ -385,7 +385,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     :returns: None if no ids match the queried database, or a pandas data frame with results
     """
 
-    ids = ','.join(ids)
+    ids = ','.join([str(i) for i in ids])
     use_bg = 0
     if ids_bg is not None:
       ids_bg = ','.join(ids_bg)
@@ -424,7 +424,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
             d = dict(r)
             line = []
             for f in david_fields:
-                line.append(str(d[f]))
+                line.append(unicode(d[f]).encode('ascii','ignore'))
             df.append(line)
         df = pd.DataFrame(df)
         df.columns=david_fields
