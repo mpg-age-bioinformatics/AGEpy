@@ -1,0 +1,286 @@
+#!/usr/bin/env python
+
+# mapgtf - annotate genome maps by gtf feature attributes
+
+from __future__ import print_function
+
+import argparse
+
+p = argparse.ArgumentParser(formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+p.add_argument('-f', dest = 'feature', default = None,
+               help = 'optionally select feature from gtf file, e.g. exon')
+p.add_argument('-s', dest = 'source', default = None,
+               help = 'optionally select source to subset gtf file, e.g. ensembl')
+p.add_argument('-a', dest = 'attribute', nargs = '+',
+               default = ['gene_id', 'gene_name', 'gene_biotype', 'transcript_id',
+                          'transcript_name', 'transcript_biotype'],
+               help = 'select attribute tags to include as annotation columns')
+p.add_argument('-A', dest = 'other', nargs = '+',
+               default = ['feature'],
+               help = 'select additional columns to be added')
+p.add_argument('-k', dest = 'keep', action = 'store_true',
+               help = 'keep non-intersecting lines from file')
+p.add_argument('-o', dest = 'output', default = 'annotated.map',
+               help = 'output file name')
+p.add_argument('-c', dest = 'map_chr_col', default = 1, type = int,
+               help = 'map column index [1-based] for chromosome ids')
+p.add_argument('-p', dest = 'map_pos_col', default = 2, type = int,
+               help = 'map column index [1-based] for positions')
+p.add_argument('-e', dest = 'map_end_col', default = None, type = int,
+               help = 'map column index [1-based] for end positions, if MAPFILE contains ranges')
+p.add_argument('-n', dest = 'ncpus', default = 1, type = int,
+               help = 'select number of processes for parallel computing')
+p.add_argument('-v', dest = 'verbose', action = 'store_true',
+               help = 'be more verbose')
+p.add_argument('gtf', metavar = 'GTFFILE',
+               help = '''annotation gtf file (gff version 2);
+               see http://www.ensembl.org/info/website/upload/gff.html''')
+p.add_argument('map', metavar = 'MAPFILE',
+               help = 'genome map file to convert; VCF files need uncommented header line!')
+arg = p.parse_args()
+
+import re
+import os
+import sys
+import pandas
+from joblib import Parallel, delayed
+
+def read_gtf (path, chromosome = None, source = None, feature = None, ids = None):
+    """read gtf file and subset by chromosome, source and feature"""
+
+    def grep_gtf_ids (attributes, name):
+        """return attribute values"""
+        value = ''
+        try:
+            value = re.search('.*' + name + '\ "([^"]+)".*', attributes).group(1)
+        except:
+            pass
+        return value
+
+    def gtf_add_attribute (gtf, ids = None):
+        if ids is None:
+            return gtf
+        for i in ids:
+            gtf[i] = gtf.attribute.apply(lambda a: grep_gtf_ids(a, i))
+        return gtf
+
+    gtf = pandas.read_table(
+        path, sep = '\t', comment = '#', header = None, dtype = str)
+    if not len(gtf.columns) == 9:
+        printx('error: gtf_file does not have 9 columns', exit = 1)
+    gtf.columns = ['chromosome', 'source', 'feature', 'start', 'end', 'score',
+                   'strand', 'frame', 'attribute']
+    if source is not None:
+        gtf = gtf[gtf.source.isin([source])]
+    if feature is not None:
+        gtf = gtf[gtf.feature.isin([feature])]
+    if chromosome is not None:
+        gtf = gtf[gtf.chromosome.isin(chromosome)]
+    if ids is not None:
+        gtf = gtf_add_attribute(gtf, ids)
+    gtf['start'] = gtf['start'].astype(int)
+    gtf['end'] = gtf['end'].astype(int)
+    return gtf
+
+def read_map (path, ppos = None, epos = None):
+    """read input file as map format"""
+    m = pandas.read_table(path, sep = '\t', comment = '#', dtype = str)
+    if ppos is not None:
+        m.iloc[:,ppos] = m.iloc[:,ppos].astype(int)
+    if epos is not None:
+        m.iloc[:,epos] = m.iloc[:,epos].astype(int)
+    return m
+
+def float2str(x, mis = ''):
+    try:
+        x = str(int(x))
+    except:
+        x = mis
+    return x
+
+def flatten_list2d (ls):
+    """flatten a list of lists to a list of items"""
+    return [ i for subls in ls for i in subls ]
+
+def factor (length, groups):
+    """create a factor of length with balanced sized groups"""
+    g = range(groups)
+    t = length / groups + (1 if (length % groups > 0) else 0)
+    f = sorted(g * t)[:length]
+    return f
+
+def mcapply ( d, f, a = [], axis = 1, cpus = 2, simplify = True ):
+    """apply a function to a DataFrame by multiple processes"""
+    def isx(value, ls):
+        return [ value == i for i in ls ]
+    if len(d) < 1:
+        return d
+    if len(d.columns) < 1:
+        return d
+    cpus = min(cpus, len(d))
+    if axis == 1:
+        x = factor(len(d), cpus)
+        s = Parallel(n_jobs = cpus)(delayed(f)(
+            d[isx(i,x)], *a) for i in range(cpus))
+    else:
+        x = factor(len(d.columns), cpus)
+        s = Parallel(n_jobs = cpus)(delayed(f)(
+            d[:,isx(i,x)], *a) for i in range(cpus))
+    if simplify:
+        s = [ i for i in s if len(i) > 0 ]
+        if len(s) > 0:
+            s = pandas.concat(s, axis = 1 - axis)
+        else:
+            s = d[:0, :]
+    return(s)
+
+def match_gtf (gtf, c, p = None, e = None):
+    """return bool index for rows matching chromosomes and position in start/end range"""
+    if p is None:
+        return (gtf['chromosome'] == c)
+    if e is None:
+        return (gtf['chromosome'] == c) & (gtf['start'] <= p) & (gtf['end'] >= p)
+    else:
+        return (gtf['chromosome'] == c) & (
+            (gtf['start'] <= p) & (gtf['end'] >= p) |
+            (gtf['start'] <= e) & (gtf['end'] >= e) )
+
+def collapse_df (d, sep = ',', unique = True, transpose = False):
+    """collapse a DataFrame by rows on a separator"""
+    d = d.drop_duplicates()
+    def collapse_col (x, s, u):
+        if u:
+            x = set(x)
+        x = map(str, x)
+        return s.join(x)
+    d = d.apply(lambda col: collapse_col(col, sep, unique))
+    if transpose:
+        d = pandas.DataFrame(d).transpose()
+    return d
+
+def merge_gtf (m, gtf, gtf_columns = None, chrom_col = 0, pos_col = 1, end_col = None):
+    if gtf_columns is None:
+        return m
+    if end_col is None:
+        g = m.apply(lambda row: collapse_df(
+            gtf[match_gtf(gtf, row[chrom_col], row[pos_col])][gtf_columns]), axis = 1)
+    else:
+        g = m.apply(lambda row: collapse_df(
+            gtf[match_gtf(gtf, row[chrom_col], row[pos_col], row[end_col])][gtf_columns]), axis = 1)
+    m = pandas.concat([m, g], axis = 1)
+    return m
+
+def insert_attr (m, c, p, gtf, attr):
+    """insert attribute columns by position/chromosome match into map"""
+    def attr_list (ci, pi, ai):
+        al = gtf[match_gtf(gtf, ci, pi)][ai]
+        if len(al) < 1:
+            return ''
+        al = al.unique()
+        al = sorted(al)
+        al = ';'.join(al)
+        return al
+    for a in attr:
+        m[a] = m.apply(lambda row: attr_list(row[c], row[p], a), axis = 1)
+    return m
+
+def gtf_positions (gtf):
+    """set of positions"""
+    p = set()
+    for s, e in zip(gtf['start'], gtf['end']):
+        p = p | set(range(s, e + 1))
+    return p
+
+def printx (msg, end = '\n', exit = None):
+    print(msg, end = end)
+    sys.stdout.flush()
+    if exit is not None:
+        sys.exit(exit)
+
+def main ():
+
+    ### checks
+    if not os.path.isfile(arg.gtf):
+        printx('missing GTFFILE: ' + arg.gtf, exit = 1)
+    if not os.path.isfile(arg.map):
+        printx('missing MAPFILE: ' + arg.map, exit = 1)
+
+    ### import map
+    arg.map_pos_col -= 1
+    arg.map_chr_col -= 1
+    if arg.map_end_col is not None:
+        arg.map_end_col -= 1
+    if arg.verbose:
+        printx('reading file ... ', end = '')
+    m = read_map(arg.map, arg.map_pos_col, arg.map_end_col)
+    if arg.verbose:
+        printx('retrieved ' + str(len(m)) + ' row(s) with ' +
+              str(len(m.columns)) + ' columns')
+    chrom_col = m.columns[arg.map_chr_col]
+    pos_col = m.columns[arg.map_pos_col]
+    end_col = arg.map_end_col
+    if end_col is not None:
+        end_col = m.columns[end_col]
+    chrom_map = set(m[chrom_col].unique())
+
+    ### import gtf
+    if arg.verbose:
+        printx('reading gtf ... ', end = '')
+    g = read_gtf(arg.gtf, chrom_map, arg.source, arg.feature, arg.attribute)
+    if arg.verbose:
+        printx('retrieved ' + str(len(g)) + ' row(s)')
+    chrom_gtf = set(g['chromosome'].unique())
+    if not all([ i in g.columns for i in arg.other ]):
+        printx('invalid OTHER columns from GTF file', exit = 1)
+
+    ### get intersect
+    # chromosomes
+    chrom_all = list(chrom_map & chrom_gtf)
+    mnomatch = m[~m[chrom_col].isin(chrom_all)]
+    m = m[m[chrom_col].isin(chrom_all)]
+    if arg.verbose:
+        printx('intersected chromosomes')
+        printx('  common chromosomes: ' + ', '.join(chrom_all))
+        printx('  map rows remaining: ' + str(len(m)))
+
+    ### map
+    res = []
+    merge_how = 'inner'
+    if arg.keep:
+        merge_how = 'left'
+    if arg.verbose:
+        printx('mapping')
+    for chrom in sorted(chrom_all):
+        if arg.verbose:
+            printx('  processing chromosome ' + chrom, end = ' ... ')
+        g_chrom = g[g['chromosome'] == chrom]
+        g_chrom_se = g_chrom[['start','end']]
+        res_chrom = m[m[chrom_col] == chrom]
+        applyargs = [g_chrom, arg.other + arg.attribute, chrom_col, pos_col]
+        if end_col is not None:
+            applyargs.append(end_col)
+        #res_chrom = merge_gtf(res_chrom, g_chrom, arg.attribute, chrom_col, pos_col)
+        res_chrom = mcapply(res_chrom, merge_gtf, applyargs, cpus = arg.ncpus)
+        res.append(res_chrom)
+        if arg.verbose:
+            printx('ok')
+    res = pandas.concat(res)
+    rescols = res.columns
+    if arg.keep:
+        res = res.append(mnomatch)
+    res = res[rescols]
+    res.sort_values([chrom_col, pos_col], axis = 0, inplace = True)
+
+
+    ### export
+    if arg.verbose:
+        printx('exporting')
+    res.to_csv(arg.output, sep = '\t', index = False)
+
+    ### done
+    printx('done')
+
+if __name__ == '__main__':
+    main()
+
+### EOF
