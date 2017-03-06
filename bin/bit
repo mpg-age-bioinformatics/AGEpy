@@ -172,7 +172,7 @@ special_reqs=["owncloud_user","owncloud_pass",\
 "github_user","github_pass"]
 
 start_reqs=["github_address","github_organization",\
-"github_user","github_pass","local_path","user_group" ]
+"github_user","github_pass","local_path"]
 
 
 def git_target(github_address,github_organization,github_repo,github_user=None,github_pass=None,gitssh=args.gitssh,usepw=None):
@@ -548,8 +548,9 @@ def ownCloud_upload(input_files=args.input,message=args.message):
         print "Syncronizing your code.."
         sys.stdout.flush()
         os.chdir(local_path+"/"+target_project+"/scripts."+user_name)
-        files_to_add=os.listdir(local_path+"/"+target_project+"/scripts."+user_name)
-        git_sync(files_to_add,message,configdic["github_address"],\
+        #files_to_add=os.listdir(local_path+"/"+target_project+"/scripts."+user_name)
+        #git_sync(files_to_add,message,configdic["github_address"],\
+        git_sync(["-A"],message,configdic["github_address"],\
         configdic["github_organization"],project_name,\
         github_user=configdic["github_user"],\
         github_pass=configdic["github_pass"],gitssh=args.gitssh)
