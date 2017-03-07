@@ -13,5 +13,5 @@ setup(name = 'AGEpy',
       'xlsxwriter','pybedtools'],
       dependency_links=["git+https://github.com/mpg-age-bioinformatics/pyocclient.git#egg=pyocclient-0.1"],
       zip_safe = False,
-      scripts=['bin/david','bin/bit','bin/obo2tsv']
+      scripts=['bin/david','bin/obo2tsv']
       )
