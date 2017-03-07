@@ -40,6 +40,12 @@ $ R
 
 ##### AGEpy
 
+###### pip
+
+```bash
+pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/AGEpy-0.4.0.tar.gz --user
+```
+
 ###### github
 
 Get the latest release from github:
