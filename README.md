@@ -43,7 +43,7 @@ $ R
 ###### pip
 
 ```bash
-pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/AGEpy-0.5.0.tar.gz --user
+pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.5.0.tar.gz --user
 ```
 
 ###### github
@@ -98,7 +98,7 @@ help("AGEpy.AGEpy")
 #### Example usage
 
 ```python
-import AGEpy.AGEpy as age
+import AGEpy as age
 
 gtf=age.readGTF("/path/to/file.gtf")
 
