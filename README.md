@@ -74,7 +74,7 @@ Alternatively you can also install the package with a symlink, so that changes
 to the source files will be immediately available to users of the package on
 your system:
 
-````bash
+```bash
 cd AGEpy
 python setup.py develop --user
 ```
