@@ -6,6 +6,7 @@ import StringIO
 import gzip
 import pybedtools
 from pybedtools import BedTool
+from gtf import GTFtoBED
 
 def writeBED(inBED, file_path):
     """
