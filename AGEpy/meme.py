@@ -1,3 +1,4 @@
+import sys
 def filterMotifs(memeFile,outFile, minSites):
     """
     Selectes motifs from a meme file based on the number of sites.
