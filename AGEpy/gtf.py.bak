@@ -145,7 +145,7 @@ def MAPGenoToTrans(parsedGTF,feature):
         start=int(df["start"])
         stop=int(df["end"])
         strand=df["strand"]
-        r=list(range(start,stop+1))
+        r=range(start,stop+1)
         if strand=="-":
             r.sort(reverse=True)
         r=[ str(s) for s in r]

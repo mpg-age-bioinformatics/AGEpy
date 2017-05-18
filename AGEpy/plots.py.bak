@@ -32,8 +32,8 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     try:
         limits=[float(x) for x in limits[0].tolist()]
 
-    except ValueError as e:
-        print("error",e,"on line")
+    except ValueError,e:
+        print "error",e,"on line"
 
     if upperLimit:
         maxFC=upperLimit
@@ -108,7 +108,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         try:
             w=float(df.ix[i,'Enrichment'])/float(len(fcs))
         except:
-            print(df.ix[i,])
+            print df.ix[i,]
         p=0
         fcs.sort(key=float)
         for f in fcs:
@@ -406,7 +406,7 @@ def MA(df,title,figName,c, daType="counts",nbins=10,perc=.5,deg=3,eq=True,spline
         YvalM=np.percentile(Ybin,float(perc))
         spl.append([Xval,YvalP,YvalM])
 
-    spl=pd.DataFrame( spl,columns=["X","Upper","Lower"],index=list(range(len(spl))) )
+    spl=pd.DataFrame( spl,columns=["X","Upper","Lower"],index=range(len(spl)) )
 
     def CheckMin(df):
         U=abs(df["Upper"])

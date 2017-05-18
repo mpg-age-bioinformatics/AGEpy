@@ -1,6 +1,6 @@
 import pandas as pd
-import urllib.request, urllib.error, urllib.parse
-import io
+import urllib2
+import StringIO
 import gzip
 
 
@@ -12,8 +12,8 @@ def getGeneAssociation(URL_or_file):
     :returns: a Pandas dataframe with the parsed table.
     """
     if URL_or_file[:4] == "http":
-        response = urllib.request.urlopen(URL_or_file)
-        compressedFile = io.StringIO(response.read())
+        response = urllib2.urlopen(URL_or_file)
+        compressedFile = StringIO.StringIO(response.read())
         decompressedFile = gzip.GzipFile(fileobj=compressedFile)
     else:
         decompressedFile = gzip.GzipFile(URL_or_file)
@@ -46,15 +46,15 @@ def getGeneAssociation(URL_or_file):
     colsType=colsType[len(colsType)-2]
     if colsType=="gaf":
         colsType=reco
-    if colsType in list(cols.keys()):
+    if colsType in cols.keys():
         try:
             cols=cols.get(colsType)
             out.columns=cols
         except ValueError as err:
-            print("Could not fit headers.")
-            print(err)
+            print "Could not fit headers."
+            print err
             sys.stdout.flush()
     else:
-        print("Could not find headers for %s." %colsType)
+        print "Could not find headers for %s." %colsType
         sys.stdout.flush()
     return out

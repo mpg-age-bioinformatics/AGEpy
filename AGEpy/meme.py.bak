@@ -16,7 +16,7 @@ def filterMotifs(memeFile,outFile, minSites):
         i=7
         while i < len(oldMEME):
             if oldMEME[i].split(" ")[0] == "MOTIF":
-                print(oldMEME[i].split("\n")[0], int(oldMEME[i+2].split("nsites= ")[1].split(" ")[0]))
+                print oldMEME[i].split("\n")[0], int(oldMEME[i+2].split("nsites= ")[1].split(" ")[0])
                 sys.stdout.flush()
                 if int(oldMEME[i+2].split("nsites= ")[1].split(" ")[0]) > minSites:
                     newMEME.append(oldMEME[i])

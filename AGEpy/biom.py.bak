@@ -74,7 +74,7 @@ def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=No
     res=[]
 
     if query_dic is None:
-        chunks=[query_items[x:x+350] for x in range(0, len(query_items), 350)]
+        chunks=[query_items[x:x+350] for x in xrange(0, len(query_items), 350)]
         for c in chunks:
             response=d.search({'filters':{query_filter:c},'attributes':query_attributes})
             for line in response.iter_lines():
