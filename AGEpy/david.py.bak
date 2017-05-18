@@ -46,27 +46,27 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     client.wsdl.services[0].setlocation('https://david.ncifcrf.gov/webservice/services/DAVIDWebService.DAVIDWebServiceHttpSoap11Endpoint/')
     client_auth = client.service.authenticate(user)
     if verbose:
-      print('User Authentication:', client_auth)
+      print 'User Authentication:', client_auth
       sys.stdout.flush()
     size = client.service.addList(ids, database, name, 0) #| inputListIds,idType,listName,listType)
     if verbose:
-      print('Mapping rate of ids: ', str(size))
+      print 'Mapping rate of ids: ', str(size)
       sys.stdout.flush()
     if not float(size) > float(0):
       return None
     if ids_bg is not None:
       size_bg = client.service.addList(ids_bg, database, name_bg, 1)
       if verbose:
-        print('Mapping rate of background ids: ', str(size_bg))
+        print 'Mapping rate of background ids: ', str(size_bg)
         sys.stdout.flush()
     client_categories = client.service.setCategories(categories)
     if verbose:
-      print('Categories used: ', client_categories)
+      print 'Categories used: ', client_categories
       sys.stdout.flush()
     client_report = client.service.getChartReport(p, n)
     size_report = len(client_report)
     if verbose:
-      print('Records reported: ', str(size_report))
+      print 'Records reported: ', str(size_report)
       sys.stdout.flush()
 
     if size_report > 0:
@@ -75,7 +75,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
             d = dict(r)
             line = []
             for f in david_fields:
-                line.append(str(d[f]).encode('ascii','ignore'))
+                line.append(unicode(d[f]).encode('ascii','ignore'))
             df.append(line)
         df = pd.DataFrame(df)
         df.columns=david_fields
@@ -142,7 +142,7 @@ def DAVIDgetGeneAttribute(x,parsedGTF,refCol="ensembl_gene_id",fieldTOretrieve="
 
     l=x.split(", ")
     l=[ s.upper() for s in l ]
-    tmpdf=pd.DataFrame({refCol:l},index=list(range(len(l))))
+    tmpdf=pd.DataFrame({refCol:l},index=range(len(l)))
     df_fix=parsedGTF[[refCol,fieldTOretrieve]].drop_duplicates()
     df_fix[refCol]=df_fix[refCol].apply(lambda x: x.upper())
     ids=pd.merge(tmpdf,df_fix,how="left",on=[refCol])

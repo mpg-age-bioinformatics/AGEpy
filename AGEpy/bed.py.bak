@@ -1,13 +1,12 @@
 import pandas as pd
 import os
-from urllib.request import urlopen
-import urllib.request, urllib.error, urllib.parse
-import io
+from urllib import urlopen
+import urllib2
+import StringIO
 import gzip
 import pybedtools
 from pybedtools import BedTool
-from .gtf import GTFtoBED
-from functools import reduce
+from gtf import GTFtoBED
 
 def writeBED(inBED, file_path):
     """
@@ -33,10 +32,10 @@ def GetBEDnarrowPeakgz(URL_or_PATH_TO_file):
 
     if os.path.isfile(URL_or_PATH_TO_file):
         response=open(URL_or_PATH_TO_file, "r")
-        compressedFile = io.StringIO(response.read())
+        compressedFile = StringIO.StringIO(response.read())
     else:
-        response = urllib.request.urlopen(URL_or_PATH_TO_file)
-        compressedFile = io.StringIO(response.read())
+        response = urllib2.urlopen(URL_or_PATH_TO_file)
+        compressedFile = StringIO.StringIO(response.read())
     decompressedFile = gzip.GzipFile(fileobj=compressedFile)
     out=decompressedFile.read().split("\n")
     out=[ s.split("\t") for s in out]

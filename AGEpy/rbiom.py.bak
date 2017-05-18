@@ -5,10 +5,10 @@ try:
     try:
         biomaRt = importr("biomaRt")
     except:
-        print("rpy2 could be loaded but 'biomaRt' could not be found.\nIf you want to use 'biomaRt' related functions please install 'biomaRt' in R.\n\n$ R\n> source('http://bioconductor.org/biocLite.R')\n> biocLite()\n> biocLite('biomaRt')\n> quit()")
+        print "rpy2 could be loaded but 'biomaRt' could not be found.\nIf you want to use 'biomaRt' related functions please install 'biomaRt' in R.\n\n$ R\n> source('http://bioconductor.org/biocLite.R')\n> biocLite()\n> biocLite('biomaRt')\n> quit()"
         sys.stdout.flush()
 except:
-    print("Failed to import rpy2 module.\nPlease make sure you are using the same version of R you had when AGEpy was installed.")
+    print "Failed to import rpy2 module.\nPlease make sure you are using the same version of R you had when AGEpy was installed."
     sys.stdout.flush()
 
 rbiomart_host="www.ensembl.org"
@@ -23,7 +23,7 @@ def RdatabasesBM(host=rbiomart_host):
 
     """
     biomaRt = importr("biomaRt")
-    print((biomaRt.listMarts(host=host)))
+    print(biomaRt.listMarts(host=host))
 
 def RdatasetsBM(database,host=rbiomart_host):
     """
@@ -37,7 +37,7 @@ def RdatasetsBM(database,host=rbiomart_host):
     """
     biomaRt = importr("biomaRt")
     ensemblMart=biomaRt.useMart(database, host=host)
-    print((biomaRt.listDatasets(ensemblMart)))
+    print(biomaRt.listDatasets(ensemblMart))
 
 def RfiltersBM(dataset,database,host=rbiomart_host):
     """
@@ -53,7 +53,7 @@ def RfiltersBM(dataset,database,host=rbiomart_host):
     biomaRt = importr("biomaRt")
     ensemblMart=biomaRt.useMart(database, host=host)
     ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
-    print((biomaRt.listFilters(ensembl)))
+    print(biomaRt.listFilters(ensembl))
 
 def RattributesBM(dataset,database,host=rbiomart_host):
     """
@@ -69,7 +69,7 @@ def RattributesBM(dataset,database,host=rbiomart_host):
     biomaRt = importr("biomaRt")
     ensemblMart=biomaRt.useMart(database, host=rbiomart_host)
     ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
-    print((biomaRt.listAttributes(ensembl)))
+    print(biomaRt.listAttributes(ensembl))
 
 def RqueryBM(query_filter,query_items,query_attributes,dataset,database,host=rbiomart_host):
     """
