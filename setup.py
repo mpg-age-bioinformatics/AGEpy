@@ -9,7 +9,7 @@ setup(name = 'AGEpy',
       license = 'MIT',
       packages = [ 'AGEpy' ],
       install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2','requests==2.10.0', \
-      'suds', 'xlrd', 'biomart', 'rpy2', 'matplotlib', \
+      'suds', 'xlrd', 'biomart', 'rpy2==2.8.6', 'matplotlib', \
       'xlsxwriter','pybedtools'],
       zip_safe = False,
       scripts=['bin/david','bin/obo2tsv']
