@@ -24,7 +24,7 @@ def nostdout():
     sys.stdout = save_stdout
 with nostdout():
     import AGEpy.AGEpy as age
-age.checkImport()
+#age.checkImport()
 
 
 n_processors=int(args.cpus)
