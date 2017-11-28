@@ -10,31 +10,30 @@ def CheckResponse(r):
         print r
         sys.stdout.flush()
         
-def cytoscape(t,namespace,command,PARAMS,host="localhost",port=1234):
+def cytoscape(namespace,command,PARAMS,host="localhost",port=1234,t="P"):
     """
     General function for interacting with Cytoscape API.
     
-    :param t: type of http call, ie. "POST" or "GET".
     :param namespace: namespace where the request should be executed. eg. "string"
     :param commnand: command to execute. eg. "protein query"
     :param PARAM: a dictionary with the parameters. Check your swagger normaly running on
     http://localhost:1234/v1/swaggerUI/swagger-ui/index.html?url=http://localhost:1234/v1/commands/swagger.json
+    :param t: type of http call, ie. "POST" or "GET".
     
     :returns: For "POST" the data in the content's response. For "GET" None. 
     
     eg.
 
-    data=cytoscape("P","string","protein query",{"pubmed":"p53\np21","limit":"50"})
+    cytoscape("G","string","pubmed query",{"pubmed":"p53 p21","limit":"50"})
+
 
     """     
 
-    for p in PARAMS.keys():
-        v=str(PARAMS[p])
-        v=v.replace(" ","%20")    
-    
     if (t == "GET") or (t == "G"):
         P=[]
         for p in PARAMS.keys():
+            v=str(PARAMS[p])
+            v=v.replace(" ","%20")  
             P.append(str(p)+"="+str(PARAMS[p]))
         P="&".join(P)
         URL="http://"+str(host)+":"+str(port)+"/v1/commands/"+str(namespace)+"/"+str(command)+"?"+P
