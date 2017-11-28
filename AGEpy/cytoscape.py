@@ -28,13 +28,15 @@ def cytoscape(t,namespace,command,PARAMS,host="localhost",port=1234):
 
 
     """     
+
+    for p in PARAMS.keys():
+        v=str(PARAMS[p])
+        v=v.replace(" ","%20")    
     
     if (t == "GET") or (t == "G"):
         P=[]
         for p in PARAMS.keys():
-            v=str(PARAMS[p])
-            v=v.replace(" ","%0A")
-            P.append(str(p)+"="+v)
+            P.append(str(p)+"="+str(PARAMS[p]))
         P="&".join(P)
         URL="http://"+str(host)+":"+str(port)+"/v1/commands/"+str(namespace)+"/"+str(command)+"?"+P
         print "'"+URL+"'"
