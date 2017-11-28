@@ -24,7 +24,7 @@ def cytoscape(namespace,command,PARAMS,host="localhost",port=1234,t="P"):
     
     eg.
 
-    cytoscape("G","string","pubmed query",{"pubmed":"p53 p21","limit":"50"})
+    cytoscape("G","string","pubmed query",{"pubmed":"p53\np21","limit":"50"})
 
 
     """     
