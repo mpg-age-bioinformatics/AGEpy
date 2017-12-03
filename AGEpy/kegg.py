@@ -1,17 +1,18 @@
 import pandas as pd
 import sys
 from urllib import urlopen
-try:
-    from rpy2.robjects.packages import importr
-    try:
-        biomaRt = importr("biomaRt")
-    except:
-        print "rpy2 could be loaded but 'biomaRt' could not be found.\nIf you want to use 'biomaRt' related functions please install 'biomaRt' in R.\n\n$ R\n> source('http://bioconductor.org/biocLite.R')\n> biocLite()\n> biocLite('biomaRt')\n> quit()"
-        sys.stdout.flush()
-except:
-    print "Failed to import rpy2 module.\nPlease make sure you are using the same version of R you had when AGEpy was installed."
-    sys.stdout.flush()
-
+#try:
+#    from rpy2.robjects.packages import importr
+#    try:
+#        biomaRt = importr("biomaRt")
+#    except:
+#        print "rpy2 could be loaded but 'biomaRt' could not be found.\nIf you want to use 'biomaRt' related functions please install 'biomaRt' in R.\n\n$ R\n> source('http://bioconductor.org/biocLite.R')\n> biocLite()\n> biocLite('biomaRt')\n> quit()"
+#        sys.stdout.flush()
+#except:
+#    print "Failed to import rpy2 module.\nPlease make sure you are using the same version of R you had when AGEpy was installed."
+#    sys.stdout.flush()
+import biomart
+from biomart import BiomartServer
 
 
 
@@ -326,13 +327,22 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
     """
     try:
         # Get all ensembl gene ids and keeg enzyme labels from biomaRt
-        biomaRt = importr("biomaRt")
-        ensemblMart=biomaRt.useMart(database, host=host)
-        ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
-        biomaRt_output=biomaRt.getBM(attributes=query_attributes,mart=ensembl)
-        biomaRt_output = [tuple([biomaRt_output[j][i] for j in range(biomaRt_output.ncol)]) for i in range(biomaRt_output.nrow)]
-        biomaRt_output = pd.DataFrame(biomaRt_output)
-        biomaRt_output.columns = ['ensembl_gene_id','kegg_enzyme']
+        #biomaRt = importr("biomaRt")
+        #ensemblMart=biomaRt.useMart(database, host=host)
+        #ensembl=biomaRt.useDataset(dataset, mart=ensemblMart)
+        #biomaRt_output=biomaRt.getBM(attributes=query_attributes,mart=ensembl)
+        #biomaRt_output = [tuple([biomaRt_output[j][i] for j in range(biomaRt_output.ncol)]) for i in range(biomaRt_output.nrow)]
+        #biomaRt_output = pd.DataFrame(biomaRt_output)
+        #biomaRt_output.columns = ['ensembl_gene_id','kegg_enzyme']
+        def QueryBioMart(dataset,attributes,host=host):
+            server = BiomartServer( host )
+            organism=server.datasets[dataset]
+            response=organism.search({'attributes':attributes})
+            response=response.content.split("\n")
+            response=[s.split("\t") for s in response ]
+            response=pd.DataFrame(response,columns=attributes)
+            return response
+        biomaRt_output=QueryBioMart(dataset,query_attributes,host=host)
         biomaRt_output = biomaRt_output[biomaRt_output['kegg_enzyme']!='']
         biomaRt_output.reset_index(inplace=True,drop=True)
         biomaRt_output=biomaRtTOkegg(biomaRt_output)
