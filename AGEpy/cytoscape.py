@@ -738,6 +738,8 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
 
     for f, extension, local in zip([cys,cyjs,main_png,main_pdf,neig_png,neig_pdf,dif_png,dif_pdf],\
                                     [".cys",".cyjs",".png",".pdf",".png",".pdf",".png",".pdf"],\
-                                    [target+".cys",target+".cyjs",".main.png",",main.pdf",".topFirstNeighbors.png",".topFirstNeighbors.pdf",".topDiffusion.png",".topDiffusion.pdf"]):
+                                    [target+".cys",target+".cyjs",target+".main.png",target+".main.pdf",\
+                                    target+".topFirstNeighbors.png",target+".topFirstNeighbors.pdf",\
+                                    target+".topDiffusion.png",target+".topDiffusion.pdf"]):
         ftp_client.get(f+extension,local)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("rm "+f+extension )

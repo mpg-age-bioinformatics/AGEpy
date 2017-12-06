@@ -156,8 +156,8 @@ def FilterGOstring(names_filter=None,exclude_names=None,\
                                                "go_id","name_1006","definition_1006"]}
 
         def QueryBioMart(dataset,attributes,host=host):
-            print dataset
-            sys.stdout.flush()
+            #print dataset
+            #sys.stdout.flush()
             server = BiomartServer( host )
             organism=server.datasets[dataset]
             response=organism.search({'attributes':attributes})

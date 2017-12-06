@@ -37,8 +37,9 @@ parser.add_argument("--DAVIDcat", help="DAVID's categories you wish to analyse. 
 parser.add_argument("-u", "--DAVIDuser", help="Your DAVID's user id. example: 'John.Doe@age.mpg.de'")
 parser.add_argument("--host", help="Ensembl host. Check http://www.ensembl.org/info/website/archives/index.html for older releases.", default="http://www.ensembl.org/biomart") 
 #parser.add_argument("--AGEpy", help="Install AGEpy package with pip") 
-parser.add_argument("--species", help="Species for string app query. eg. 'caenorhabditis elegans', 'drosophila melanogaster', 'mus musculus', 'homo sapiens'. Default='caenorhabditis elegans'", default='caenorhabditis elegans'
-parser.add_argument("--limit", help="Limit for string app query. Number of extra genes to recover. If None, limit=N(query_genes)*.25"
+parser.add_argument("--organismtag",  help="Organism tag.",choices=('DMEL', 'CEL','MUS', 'HSA') )
+parser.add_argument("--species", help="Species for string app query. eg. 'caenorhabditis elegans', 'drosophila melanogaster', 'mus musculus', 'homo sapiens'. Default='caenorhabditis elegans'", default='caenorhabditis elegans')
+parser.add_argument("--limit", help="Limit for string app query. Number of extra genes to recover. If None, limit=N(query_genes)*.25")
 parser.add_argument("--cuttoff", help="Confidence cuttoff for sting app query. Default=0.4", default=0.4)
 parser.add_argument("--taxon", help="Taxon id for string app query. For the species shown above, taxon id will be automatically identified.")
 parser.add_argument("--cytoscape_host", help="Host address for cytoscape.")
@@ -73,7 +74,7 @@ cellular component (CC), and molecular function (MF).\n \nRequired python packag
 #        print "You don't have pip.\nPlease install pip first."
 #        sys.stdout.flush()
 #        sys.exit(0)
-
+import AGEpy as age
 import pandas as pd
 import numpy as np
 import time
@@ -277,7 +278,7 @@ else:
 
     final=ontology.groupby(by="ensembl_gene_id", as_index=False).apply(CombineAnn)
 
-    final.reset_index(inplace=True, drop=True))
+    final.reset_index(inplace=True, drop=True)
     final.to_csv(python_output+"/biotypes_go.txt", sep= "\t")
 
     del name_id, ontology, genes, ontology_gene, final
@@ -314,6 +315,26 @@ if args.KEGG:
         df.to_csv(python_output+"/KEGG.txt", sep= "\t", index=False)
         del df,paths_
 
+if args.cytoscape_host:
+    if not os.path.isfile(python_output+"/homdf.txt"):
+        print "\nRetrieving gene ontology evidence for hsa, mus, dmel, cel."
+        sys.stdout.flush()
+        homdf,HSA,MUS,CEL,DMEL=age.FilterGOstring()
+        homdf.to_csv(python_output+"/homdf.txt", index=None,sep="\t")
+        aging_genes=homdf[[args.organismtag+"_ensembl_gene_id","evidence"]].dropna()
+        aging_genes=aging_genes[aging_genes[args.organismtag+"_ensembl_gene_id"]!="None"]
+        aging_genes=aging_genes[args.organismtag+"_ensembl_gene_id"].tolist()
+    else:
+        print "\nUsing already existing homdf.txt file"
+        sys.stdout.flush()
+        homdf=pd.read_table(python_output+"/homdf.txt")
+        aging_genes=homdf[[args.organismtag+"_ensembl_gene_id","evidence"]].dropna()
+        aging_genes=aging_genes[aging_genes[args.organismtag+"_ensembl_gene_id"]!="None"]
+        aging_genes=aging_genes[args.organismtag+"_ensembl_gene_id"].tolist()
+
+    cytoscape_output=python_output+"/cytoscape"
+    if not os.path.isdir(cytoscape_output):
+        os.makedirs(cytoscape_output)
 
 # create excel report tables
 if args.TSV:
@@ -326,15 +347,6 @@ if args.KEGG:
     KEGG = pd.read_table(python_output+"/KEGG.txt", sep="\t")
 
 final_labels=pd.DataFrame()
-
-if args.string:
-    homdf=age.FilterGOstring()
-    aging_genes=homdf[[args.organismtag+"_ensembl_gene_id","evidence"]].dropna()
-    aging_genes=aging_genes[aging_genes[args.organismtag+"_ensembl_gene_id"]!="None"]
-    aging_genes=aging_genes[args.organismtag+"_ensembl_gene_id"].tolist()
-    cytoscape_output=python_output+"/cytoscape"
-    if not os.path.isdir(cytoscape_output):
-        os.makedirs(cytoscape_output)
 
 for sig, label in zip(sig_choice,label_choice):
     if sig != 'yes':
@@ -406,9 +418,12 @@ for sig, label in zip(sig_choice,label_choice):
 
                     df_pair = df[df['sample_1']==sample1][df['sample_2']==sample2]
                     
-                    if args.string:
-                        target=cytoscape_output+'/'sample1+'_vs_'+sample2
-                        age.aDiffCytoscape(df_pair,aging_genes,target,species=args.species,limit=args.limit, cutoff=ags.cuttoff,taxon=args.taxon,cytoscape_host=args.cytoscape_host,cytoscape_port=args.cytoscape_port)
+                    if args.cytoscape_host:
+                        if imp == 'gene_exp.diff':
+                            print "\nBuilding cytoscape network for "+sample1+' vs. '+sample2
+                            sys.stdout.flush()
+                            target=cytoscape_output+'/'+sample1+'_vs_'+sample2
+                            age.aDiffCytoscape(df_pair,aging_genes,target,species=args.species,limit=args.limit, cutoff=args.cuttoff,taxon=args.taxon,cytoscape_host=args.cytoscape_host,cytoscape_port=args.cytoscape_port)
     
 
                     if args.DAVID:
