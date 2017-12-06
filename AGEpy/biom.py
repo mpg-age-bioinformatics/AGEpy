@@ -3,20 +3,9 @@ import sys
 import pandas as pd
 import numpy as np
 from biomart import BiomartServer
+from cStringIO import StringIO
 
 biomart_host="http://www.ensembl.org/biomart"
-
-def databasesBM(host=biomart_host):
-    """
-    Lists BioMart databases.
-
-    :param host: address of the host server, default='http://www.ensembl.org/biomart'
-
-    :returns: nothing
-
-    """
-    server = BiomartServer(host)
-    server.show_databases()
 
 def datasetsBM(host=biomart_host):
     """
@@ -27,8 +16,17 @@ def datasetsBM(host=biomart_host):
     :returns: nothing
 
     """
-    server = BiomartServer(host)
+    stdout_ = sys.stdout #Keep track of the previous value.
+    stream = StringIO()
+    sys.stdout = stream   
+    server = BiomartServer(biomart_host)
     server.show_datasets()
+    sys.stdout = stdout_ # restore the previous stdout.
+    variable = stream.getvalue() 
+    v=variable.replace("{"," ") 
+    v=v.replace("}"," ") 
+    v=v.replace(": ","\t")
+    print v
 
 def filtersBM(dataset,host=biomart_host):
     """
@@ -40,9 +38,18 @@ def filtersBM(dataset,host=biomart_host):
     :returns: nothing
 
     """
+    stdout_ = sys.stdout #Keep track of the previous value.
+    stream = StringIO()
+    sys.stdout = stream   
     server = BiomartServer(host)
     d=server.datasets[dataset]
     d.show_filters()
+    sys.stdout = stdout_ # restore the previous stdout.
+    variable = stream.getvalue() 
+    v=variable.replace("{"," ") 
+    v=v.replace("}"," ") 
+    v=v.replace(": ","\t")
+    print v
 
 def attributesBM(dataset,host=biomart_host):
     """
@@ -54,9 +61,18 @@ def attributesBM(dataset,host=biomart_host):
     :returns: nothing
 
     """
+    stdout_ = sys.stdout #Keep track of the previous value.
+    stream = StringIO()
+    sys.stdout = stream   
     server = BiomartServer(host)
     d=server.datasets[dataset]
     d.show_attributes()
+    sys.stdout = stdout_ # restore the previous stdout.
+    variable = stream.getvalue() 
+    v=variable.replace("{"," ") 
+    v=v.replace("}"," ") 
+    v=v.replace(": ","\t")
+    print v
 
 def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=None,host=biomart_host):
     """
