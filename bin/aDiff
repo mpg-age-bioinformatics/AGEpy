@@ -1,0 +1,497 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import argparse
+
+sys.stdout.flush()
+
+parser = argparse.ArgumentParser(formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-D", "--DAVID", help="Use this flag to perform DAVID GO enrichment analysis", action="store_true")
+parser.add_argument("-i", "--inputFolder", help="Cuffdiff output folder")
+parser.add_argument("-o", "--outputFolder", help="Output folder")
+parser.add_argument("-G", "--originalGTF", help="Original/downloaded GTF")
+parser.add_argument("-C", "--cuffcompareGTF", help="Merged cuffcompared GTF")
+parser.add_argument("-f", "--inputFiles", help="Implies -s. Use this option to select which *.diff files you wish to analyse.'.", default='gene_exp.diff promoters.diff splicing.diff cds.diff isoform_exp.diff')
+parser.add_argument("-s", "--shortOutputName", help="Use this option to select a short outpput name for each *.diff file used in '-f'. No '.' (dots) allowed.", default='geneexp prom splic cds iso')
+parser.add_argument("--sigOnly", help="Only create report tables for cuffdiff-labeled significantly changed genes", action="store_true")
+parser.add_argument("--TSV", help="For p values > = 0.05 write tables as tab separated values", action="store_true")
+parser.add_argument("--TSVall",help="Save p < 0.05 save tables as tab separated values in a folder called TSV", action="store_true")
+parser.add_argument("--description", help="Get a description of what this script does.", action="store_true")
+parser.add_argument("--listMarts", help="List biomaRt Marts",action="store_true")
+parser.add_argument("--mart", help="Your mart of choice.", default='ENSEMBL_MART_ENSEMBL')
+parser.add_argument("--listDatasets", help="List datasets for your mart", action="store_true")
+parser.add_argument("--dataset", help="Dataset of your choice.", default='celegans_gene_ensembl')
+parser.add_argument("--listFilters", help="List available filters", action="store_true")
+parser.add_argument("--filter", help="Filter to use to identify your genes.", default='ensembl_gene_id')
+parser.add_argument("--listAttributes", help="List available attributes for your dataset.", action="store_true")
+parser.add_argument("--outputBiotypes", help="Outputs/attributes for your biotypes data. Order has to be kept, ie. first IDs then biotype.", default='ensembl_gene_id gene_biotype')
+parser.add_argument("--outputGoterms", help="Outputs/attributes for your goterms data. Order has to be kept, ie. 1st gene_id, then go_id, then go_term_name", default='ensembl_gene_id go_id name_1006')
+parser.add_argument("--KEGG",help="Add KEGG annotations", action="store_true")
+parser.add_argument("--listKEGGorganisms", help="List KEGG organisms.", action="store_true")
+parser.add_argument("--KEGGorg", help="KEGG organism.", default='cel')
+parser.add_argument("--findKEGGdb", help="KEGG has DB identifier for each linked DB. Use this function to find the label of your DB, eg: 'ensembl-hsa', 'FlyBase'. This option requires --originalGTF and --KEGGorg", action="store_true")
+parser.add_argument("--KEGGdb", help="KEGG database linked to your ensembl organism.", default='EnsemblGenomes-Gn')
+parser.add_argument("--DAVIDid", help="DAVID's id for your dataset. List of ids available in http://david.abcc.ncifcrf.gov/content.jsp?file=DAVID_API.html#input_list", default='WORMBASE_GENE_ID')
+parser.add_argument("--DAVIDcat", help="DAVID's categories you wish to analyse. List of available categories in https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html#approved_list.", default='GOTERM_BP_FAT,GOTERM_CC_FAT,GOTERM_MF_FAT,KEGG_PATHWAY,PFAM,PROSITE,GENETIC_ASSOCIATION_DB_DISEASE,OMIM_DISEASE')
+parser.add_argument("-u", "--DAVIDuser", help="Your DAVID's user id. example: 'John.Doe@age.mpg.de'")
+parser.add_argument("--host", help="Ensembl host. Check http://www.ensembl.org/info/website/archives/index.html for older releases.", default="http://www.ensembl.org/biomart") 
+#parser.add_argument("--AGEpy", help="Install AGEpy package with pip") 
+parser.add_argument("--species", help="Species for string app query. eg. 'caenorhabditis elegans', 'drosophila melanogaster', 'mus musculus', 'homo sapiens'. Default='caenorhabditis elegans'", default='caenorhabditis elegans'
+parser.add_argument("--limit", help="Limit for string app query. Number of extra genes to recover. If None, limit=N(query_genes)*.25"
+parser.add_argument("--cuttoff", help="Confidence cuttoff for sting app query. Default=0.4", default=0.4)
+parser.add_argument("--taxon", help="Taxon id for string app query. For the species shown above, taxon id will be automatically identified.")
+parser.add_argument("--cytoscape_host", help="Host address for cytoscape.")
+parser.add_argument("--cytoscape_port", help="Cytoscape port.")
+args = parser.parse_args()
+
+
+if args.description:
+    print "\nThis script annotates gene_exp.diff, promoters.diff, splicing.diff, cds.diff, and isoform_exp.diff cuffdiff tables. \
+It generates 1 file for all results, 1 file for p<0.05, and 1 file/input table for q<0.05. \nFor significant values (i.e. q<0.05) it also generates \
+tables containg all pair-wise comparisons in different sheets as well as gene ontology enrichment files for biological processes (BP), \
+cellular component (CC), and molecular function (MF).\n \nRequired python packages:\na) pip install --user AGEpy \nb) pip install --user openpyxl==2.1.4 n\
+ \n \nRequired arguments: \n-i, -o, -G, -C \n \nExample: \nannotate_cuffdiff_output.py -D -u John.Doe@age.mpg.de -i /path/to/cuffdiff_output_folder \
+-G /path/to/original.gtf -C /path/to/merged_and_compared.gtf -o /path/to/python_output_folder\
+\n\n*************************************\nDeveloped by Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing\n\n"
+    sys.exit(0)
+
+#try:
+#    import AGEpy.AGEpy as age
+#except ImportError:
+#    print "You don't have AGEpy package installed.\nFollow the instructions on https://github.com/mpg-age-bioinformatics/AGEpy to install this package or use 'aDiff --AGEpy' to install it with pip."
+#    sys.exit(0)
+
+#if args.AGEpy:
+#    try:
+#        import pip
+#        print "With --AGEpy, only the AGEpy package and it's dependencies will be installed no analysis will performed"
+#        sys.stdout.flush()
+#        pip.main(['install','--user','AGEpy'])
+#        sys.exit(0)
+#    except ImportError:
+#        print "You don't have pip.\nPlease install pip first."
+#        sys.stdout.flush()
+#        sys.exit(0)
+
+import pandas as pd
+import numpy as np
+import time
+from datetime import datetime
+import shutil
+from biomart import BiomartServer
+
+############### FUNCTIONS ############
+
+if args.listMarts:
+    
+    #print(age.RdatabasesBM(host=args.host))
+    age.databasesBM(host=args.host)
+    sys.exit(0)
+
+if args.listDatasets:
+    #print(age.RdatasetsBM(args.mart,host=args.host))
+    age.datasetsBM(args.mart,host=args.host)
+    sys.exit(0)
+
+if args.listFilters:
+    #print(age.RfiltersBM(args.dataset,args.mart,host=args.host ))
+    age.filtersBM(args.dataset, host=args.host )
+    sys.exit(0)
+
+if args.listAttributes:
+    #print(age.RattributesBM(args.dataset,args.mart,host=args.host))
+    age.attributesBM(args.dataset,host=args.host)
+    sys.exit(0)
+
+if args.listKEGGorganisms:
+    print(age.organismsKEGG())
+    sys.exit(0)
+
+if args.findKEGGdb:
+    print "This option requires --originalGTF"
+    sys.stdout.flush()
+    gtf=age.readGTF(os.path.realpath(args.originalGTF))
+    print "GTF imported"
+    sys.stdout.flush()
+    gene_id = age.retrieve_GTF_field('gene_id',gtf)
+    gene_id = gene_id['gene_id'].tolist()
+    print(age.databasesKEGG(args.KEGGorg,gene_id))
+    sys.exit(0)
+
+
+################### paths to files #########################
+diff_out = os.path.realpath(args.inputFolder)
+if not args.originalGTF:
+  print "Error: no original GTF file provided"
+  sys.exit(65) 
+  # else on 'os.path.realpath'
+  #AttributeError: 'NoneType' object has no attribute 'startswith'
+  #Segmentation fault
+original_gtf = os.path.realpath(args.originalGTF)
+if not args.cuffcompareGTF:
+  print "Error: no cuffcompare GTF file provided"
+  sys.exit(65)
+merged_fixed_gtf = os.path.realpath(args.cuffcompareGTF)
+python_output = args.outputFolder
+genomes_folder=original_gtf.split('/')
+genomes_folder=genomes_folder[0:len(genomes_folder)-1]
+genomes_folder="/".join(genomes_folder)
+
+if not os.path.exists(python_output):
+    os.makedirs(python_output)
+python_output=os.path.realpath(python_output)
+
+if args.TSVall:
+    if not os.path.exists(python_output+"/TSV"):
+        os.makedirs(python_output+"/TSV")
+    TSVout=os.path.realpath(python_output+"/TSV")+"/"
+
+print "\nInput folder: "+diff_out
+sys.stdout.flush()
+print "Output folder: "+python_output
+sys.stdout.flush()
+print "Original GTF: "+original_gtf
+sys.stdout.flush()
+print "Cuffcompare curated GTF: "+merged_fixed_gtf
+sys.stdout.flush()
+print "Files being analysed: "+args.inputFiles
+sys.stdout.flush()
+print "Short output labels: "+args.shortOutputName
+sys.stdout.flush()
+
+if args.sigOnly:
+    print "\nReporting only significantly changed genes"
+    sig_choice = ['yes']
+    label_choice = ['diff_sig']
+else:
+    sig_choice = [0.05, 2, 'yes']
+    label_choice = ['diff_p.05','diff_all','diff_sig']
+
+if args.DAVID:
+    print "\nPerforming DAVID GO enrichment analysis"
+    print "\nYour DAVID user ID: "+args.DAVIDuser
+else:
+    print "\nUse -D if you want to perform DAVID GO enrichment analysis"
+
+sys.stdout.flush()
+
+in_files=args.inputFiles.split()
+
+out_labels=args.shortOutputName.split()
+
+data_output_biotypes=args.outputBiotypes.split()
+
+data_output_goterms=args.outputGoterms.split()
+
+def QueryBioMart(dataset,attributes,host=args.host):
+    server = BiomartServer( host )
+    organism=server.datasets[dataset]
+    response=organism.search({'attributes':attributes})
+    response=response.content.split("\n")
+    response=[s.split("\t") for s in response ]
+    response=pd.DataFrame(response,columns=attributes)
+    return response
+
+
+###################### START #####################
+
+os.chdir(diff_out)
+
+########## Get list of gene names and respective ids present in the data set
+
+if os.path.isfile(python_output+'/genes_table.txt'):
+    print "\nUsing already existing list of gene names and ids"
+    sys.stdout.flush()
+    genes=pd.read_table(python_output+'/genes_table.txt')
+    genes = genes['ensembl_gene_id'].tolist()
+
+else:
+    print "\nGetting list of gene names and respective ids present in the data set"
+    sys.stdout.flush()
+    genes = pd.DataFrame()
+    for file in ['gene_exp.diff', 'promoters.diff', 'splicing.diff', 'cds.diff', 'isoform_exp.diff']:
+        df = pd.read_table(file)
+        df = df[['gene']]
+        genes = pd.concat([genes,df]).drop_duplicates()
+    genes = genes.astype(str)
+    genes = pd.DataFrame(genes.gene.str.split(',').tolist())[0]
+    genes = genes.drop_duplicates()
+    genes = genes.tolist()
+    print "Imported list of differentially regulated genes"
+    sys.stdout.flush()
+
+    gtf=age.readGTF(original_gtf)
+    gene_id = age.retrieve_GTF_field('gene_id',gtf)
+    transcript_id=age.retrieve_GTF_field('transcript_id',gtf) 
+    transcript_gene=pd.concat([transcript_id,gene_id],axis=1)
+    transcript_gene.columns=["transcript_id","ensembl_gene_id"]
+    transcript_gene=transcript_gene.drop_duplicates()
+
+    mergeGTF=age.readGTF(merged_fixed_gtf)
+    gene_xloc=age.retrieve_GTF_field("gene_id", mergeGTF)
+    gene_id=age.retrieve_GTF_field("oId", mergeGTF)
+    gene_id.columns=["transcript_id"]
+
+    name_id=pd.concat([gene_xloc,gene_id],axis=1) #gene_name
+    name_id=name_id.drop_duplicates()
+    name_id.reset_index(inplace=True,drop=True)
+    
+    name_id=pd.merge(name_id,transcript_gene,on="transcript_id",how="left") 
+    name_id=name_id[['gene_id','ensembl_gene_id']].drop_duplicates() 
+    genes = name_id[['ensembl_gene_id']].drop_duplicates()['ensembl_gene_id'].tolist()
+    
+    name_id.to_csv(python_output+'/genes_table.txt', sep="\t",index=False)
+
+    del gtf, transcript_id, transcript_gene, mergeGTF, gene_xloc, gene_id, name_id
+    
+
+# Use BioMart to retrieve biotypes and gene ontoloty information
+# generate biotypes and go terms table using R/biomart output table.
+
+if os.path.isfile(genomes_folder+'/biotypes_go.txt'):
+    print "\nCopying already existing biotypes_go.txt file from genomes folder: "+str(genomes_folder)+"."
+    sys.stdout.flush()
+    shutil.copy(genomes_folder+'/biotypes_go.txt', python_output+'/biotypes_go.txt')
+
+elif os.path.isfile(python_output+'/biotypes_go.txt'):
+    print "\nUsing already existing biotypes_go.txt file"
+    sys.stdout.flush()
+else:
+    print "\nGenerating final biotypes and GO terms table"
+    sys.stdout.flush()
+
+    bio_go=QueryBioMart(args.dataset,['ensembl_gene_id',data_output_biotypes[1],data_output_goterms[1],data_output_goterms[2]])
+    bio_go.to_csv(python_output+'/biotypes_go_raw.txt', index=False, sep='\t')
+
+    name_id = pd.read_table(python_output+"/genes_table.txt", sep="\t")
+    ontology = bio_go.copy() #pd.read_table(python_output+"/biotypes_go_raw.txt")
+    ontology.columns = ['ensembl_gene_id','gene_biotype','GO_id','GO_term']
+
+    def CombineAnn(df):
+        return pd.Series(dict(ensembl_gene_id = '; '.join([ str(s) for s in list(set(df['ensembl_gene_id']))  if str(s) != "nan" ] ) ,\
+                           gene_biotype = '; '.join([ str(s) for s in list(set(df['gene_biotype'])) if str(s) != "nan" ]), \
+                           GO_id = '; '.join([ str(s) for s in list(set(df['GO_id'])) if str(s) != "nan" ] ) ,\
+                           GO_term = '; '.join([ str(s) for s in list(set(df['GO_term'])) if str(s) != "nan" ] ) ,\
+                          ) ) 
+
+    final=ontology.groupby(by="ensembl_gene_id", as_index=False).apply(CombineAnn)
+
+    final.reset_index(inplace=True, drop=True))
+    final.to_csv(python_output+"/biotypes_go.txt", sep= "\t")
+
+    del name_id, ontology, genes, ontology_gene, final
+
+# generate KEGG table
+
+if args.KEGG:
+
+    if os.path.isfile(genomes_folder+'/KEGG.txt'):
+        print "\nCopying already existing KEGG.txt file from genomes folder: "+str(genomes_folder)+"."
+        sys.stdout.flush()
+        shutil.copy(genomes_folder+'/KEGG.txt', python_output+'/KEGG.txt')
+
+    elif os.path.isfile(python_output+'/KEGG.txt'):
+        print "\nUsing already existing KEGG.txt file"
+        sys.stdout.flush()
+
+    else:
+        print "\n%s\tGenerating KEGG table\n" %(str(datetime.now())[:16])
+        sys.stdout.flush()
+        try:
+            df = age.KEGGmatrix(args.KEGGorg, args.dataset, args.mart) 
+            df = df[['ensembl_gene_id','KEGGid','pathIDs','pathName']] 
+        
+        except:
+            print "\n\n!!! For this organism it was not possible to collect KEGG annotations from biomaRt. Using KEGG. Available KEGG dbs might not be up-to-date.\n\n"
+            kegg_ens=age.ensembl_to_kegg(args.KEGGorg,args.KEGGdb)
+            paths, paths_ = age.pathwaysKEGG(args.KEGGorg)
+            kegg_ens['KEGGid']=kegg_ens['KEGGid'].astype(str)
+            paths['KEGGid']=paths['KEGGid'].astype(str)        
+            df=pd.merge(kegg_ens,paths,on=['KEGGid'],how='outer')
+            df=df[['ENSid','KEGGid','pathIDs','pathName']]
+        df.columns = ['ensembl_gene_id','KEGGids','pathIDs','pathName']
+        df.to_csv(python_output+"/KEGG.txt", sep= "\t", index=False)
+        del df,paths_
+
+
+# create excel report tables
+if args.TSV:
+    print "\nCreating excel report tables"
+    sys.stdout.flush()
+
+bio_go = pd.read_table(python_output+"/biotypes_go.txt", sep= "\t")
+name_id = pd.read_table(python_output+"/genes_table.txt", sep="\t")
+if args.KEGG:
+    KEGG = pd.read_table(python_output+"/KEGG.txt", sep="\t")
+
+final_labels=pd.DataFrame()
+
+if args.string:
+    homdf=age.FilterGOstring()
+    aging_genes=homdf[[args.organismtag+"_ensembl_gene_id","evidence"]].dropna()
+    aging_genes=aging_genes[aging_genes[args.organismtag+"_ensembl_gene_id"]!="None"]
+    aging_genes=aging_genes[args.organismtag+"_ensembl_gene_id"].tolist()
+    cytoscape_output=python_output+"/cytoscape"
+    if not os.path.isdir(cytoscape_output):
+        os.makedirs(cytoscape_output)
+
+for sig, label in zip(sig_choice,label_choice):
+    if sig != 'yes':
+        if sig >= 1:
+            if args.TSV:
+                print "For "+str(label)+" files will be saved as tsv"
+                sys.stdout.flush()
+            else:
+                writer = pd.ExcelWriter(python_output+'/'+label+'.xlsx')
+                print "\nWriting table "+label+".xlsx"
+                sys.stdout.flush()
+    
+        else:
+            if args.TSVall:
+                print "Saving files as TSV in %s" %TSVout
+                sys.stdout.flush()
+            else:
+                writer = pd.ExcelWriter(python_output+'/'+label+'.xlsx')
+                print "\nWriting table "+label+".xlsx"
+                sys.stdout.flush()
+
+    for imp, outshort in zip(in_files, out_labels):
+        df = pd.read_table(imp)
+        if len(df) == 0:
+            print "\n%s table is empty. Make sure the GTF reference you used for cuffdiff contains p_ids." %imp
+        else:
+            print "\nWorking on "+imp
+            sys.stdout.flush()
+
+            if sig == 'yes':
+                if not args.TSVall:
+                    writer = pd.ExcelWriter(python_output+'/'+label+'_'+outshort+'.xlsx')
+                    print "Writing table "+label+"_"+outshort+".xlsx"
+                    sys.stdout.flush()
+
+            df = df.sort_values(by=['p_value'])
+            df = df.sort_values(by=['q_value'])
+            if sig == 'yes':
+                df = df[df['significant'] == 'yes']
+            else:
+                df = df[df['p_value'] < sig]
+            df = df.reset_index()
+            df = pd.merge(name_id, df, on='gene_id',how="right" ) 
+            df = pd.merge(df, bio_go, how='left', on='ensembl_gene_id')
+            if args.KEGG:
+                df = pd.merge(df,KEGG, how='left', on='ensembl_gene_id') ### keep on from here
+            fl = df[['gene_id','gene','ensembl_gene_id']]
+            final_labels = pd.concat([final_labels,fl])
+            final_labels = final_labels.drop_duplicates()
+            if imp == 'isoform_exp.diff': # for isoform_exp.diff we want to have the transcript references
+                gtf=age.readGTF(merged_fixed_gtf)
+                t_id = age.retrieve_GTF_field('transcript_id',gtf)    
+                n_ref = age.retrieve_GTF_field('nearest_ref',gtf)
+
+                id_ref = pd.concat([t_id, n_ref], axis=1).drop_duplicates()
+
+                df = pd.merge(id_ref, df, how='right', left_on='transcript_id', right_on='test_id')
+
+            """for significant changes also report overlaps between the days, pair-wise, as well as go ontology enrichemnt for each table from DAVID"""
+            if sig == 'yes':
+
+                if args.DAVID:
+                    DAVIDall=pd.DataFrame()
+
+                samples=df[['sample_1','sample_2']].drop_duplicates().as_matrix()
+                for s in samples:
+                    sample1=s[0]
+                    sample2=s[1]
+
+                    df_pair = df[df['sample_1']==sample1][df['sample_2']==sample2]
+                    
+                    if args.string:
+                        target=cytoscape_output+'/'sample1+'_vs_'+sample2
+                        age.aDiffCytoscape(df_pair,aging_genes,target,species=args.species,limit=args.limit, cutoff=ags.cuttoff,taxon=args.taxon,cytoscape_host=args.cytoscape_host,cytoscape_port=args.cytoscape_port)
+    
+
+                    if args.DAVID:
+                        print "\nPerforming DAVID enrichment analysis on "+sample1+' vs. '+sample2
+                        sys.stdout.flush()
+                                        
+                        background=list(set(name_id['ensembl_gene_id'].tolist()))
+                        targets = list(set(df_pair['ensembl_gene_id'].tolist()))                    
+    
+                        if len(targets) > 0: 
+                            dfDAVID=age.DAVIDenrich(args.DAVIDid, args.DAVIDcat, user=args.DAVIDuser, ids=targets, ids_bg=background, name_bg = 'all_RNAseq_genes', name = 'changed_genes', verbose=True)
+                            if dfDAVID is not None:
+                                dfDAVID['sheet_name'] = sample1+'|'+sample2
+                                dfDAVID['file_name'] = "_"+label+"_"+outshort+".xlsx" 
+                                DAVIDall=pd.concat([DAVIDall,dfDAVID])
+
+                    df_pair.drop(['test_id','index','gene_id','Unnamed: 0'], axis=1, inplace=True)                                
+                    if imp not in ['gene_exp.diff','isoform_exp.diff']:
+                        df_pair.drop(['value_1','value_2','test_stat'], axis=1, inplace=True)
+
+                    if not args.TSVall:
+                        df_pair.to_excel(writer, sample1+'|'+sample2, index=False)
+                    else:                                
+                        df_pair.to_csv(TSVout+label+'_'+outshort+'_'+sample1+'_vs_'+sample2+'.tsv',sep="\t", index=False)                                    
+
+            df.drop(['test_id','index','gene_id','Unnamed: 0'], axis=1, inplace=True)
+
+            if imp not in ['gene_exp.diff','isoform_exp.diff']:
+                df.drop(['value_1','value_2','test_stat'], axis=1, inplace=True)
+
+            if sig == 'yes':
+                if not args.TSVall:
+                    df.to_excel(writer, 'ALL', index=False)
+                    writer.save()
+                else:
+                    df.to_csv(TSVout+label+'_'+outshort+'_ALL.tsv',sep="\t", index=False)
+                
+                if args.DAVID:
+                    fila=final_labels[[ 'ensembl_gene_id', 'gene' ]]
+                    fila.columns=['gene_id','gene_name']
+                    if len(DAVIDall) > 0:
+                        print "Writing DAVID output tables"
+                        sys.stdout.flush()
+                        file_names=list(set(DAVIDall['file_name'].tolist()))
+                        for f in file_names:
+                            dfFile=DAVIDall[DAVIDall['file_name']==f]
+                            catres=list(set(dfFile['categoryName'].tolist()))
+                            for c in catres:
+                                dfCAT=dfFile[dfFile['categoryName']==c]
+                                writerD = pd.ExcelWriter(python_output+'/'+c+f)    
+                                print "\nDoing %s:" %(c+f)
+                                sys.stdout.flush()
+                                for sheet in list(set(dfCAT['sheet_name'].tolist())):
+                                    print sheet
+                                    sys.stdout.flush()
+                                    dfSHEET=dfCAT[dfCAT['sheet_name']==sheet]
+                                    dfSHEET=age.id_nameDAVID(dfSHEET,name_id=fila)
+                                    dfSHEET=dfSHEET.drop(['sheet_name','file_name'],axis=1)
+                                    dfSHEET.to_excel(writerD, sheet, index=False)                                        
+                                writerD.save()
+
+
+        if sig != 'yes':
+            if sig >= 1:
+                if args.TSV:
+                    df.to_csv(python_output+'/'+outshort+'_'+'ALL.tsv',sep="\t", index=False)
+                else:
+                    df.to_excel(writer, outshort+'_'+'ALL', index=False)
+
+            else:
+                if not args.TSVall:
+                    df.to_excel(writer, outshort+'_'+'ALL', index=False) 
+
+            
+    if sig != 'yes':
+        if sig >= 1:
+            if args.TSV:
+                print "For "+str(label)+" files were saved as tsv" 
+            else:
+                writer.save()
+        else:
+            if not args.TSVall:
+                writer.save()
+
+print "\n\n*************************************\nDeveloped by the Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing \n\nbioinformatics@age.mpg.de\n\n"
+sys.exit()
