@@ -281,7 +281,7 @@ else:
     final.reset_index(inplace=True, drop=True)
     final.to_csv(python_output+"/biotypes_go.txt", sep= "\t")
 
-    del name_id, ontology, genes, ontology_gene, final
+    del name_id, ontology, genes, final
 
 # generate KEGG table
 
