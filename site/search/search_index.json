@@ -1,0 +1,109 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "AGEpy \n \n\n\nThis python package contains Bioinformatics tools developed at the\nBioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.\n\n\n\n\nMax Planck Institute for Biology of Ageing\n\nJoseph-Stelzmann-Str. 9b\n\nD-50931 Cologne\n\nGermany\n\n\n\n\nInstallation\n\n\npip\n\n\npip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.6.0.tar.gz --user\n\n\n\n\ngithub\n\n\nGet the latest release from github:\n\n\ngit clone https://github.com/mpg-age-bioinformatics/AGEpy\n\n\n\n\nInstall:\n\n\ncd AGEpy\npython setup.py install --user\n\n\n\n\nand then update to the latest release whenever required with:\n\n\ncd AGEpy\ngit pull\npython setup.py install --user --force\n\n\n\n\n\nAlternatively you can also install the package with a symlink, so that changes\nto the source files will be immediately available to users of the package on\nyour system:\n\n\ncd AGEpy\npython setup.py develop --user\n\n\n\n\nBe aware that with the develop option you won't be able to properly update once new scripts are added.\n\n\nHelp\n\n\nIn bash:\n\n\npydoc AGEpy.AGEpy\n\n\n\n\nIn python:\n\n\nhelp(\nAGEpy.AGEpy\n)\n\n\n\n\nExample usage\n\n\nimport AGEpy as age\n\ngtf=age.readGTF(\n/path/to/file.gtf\n)\n\ngtf.head()", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#agepy", 
+            "text": "This python package contains Bioinformatics tools developed at the\nBioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.   Max Planck Institute for Biology of Ageing \nJoseph-Stelzmann-Str. 9b \nD-50931 Cologne \nGermany", 
+            "title": "AGEpy"
+        }, 
+        {
+            "location": "/#installation", 
+            "text": "", 
+            "title": "Installation"
+        }, 
+        {
+            "location": "/#pip", 
+            "text": "pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.6.0.tar.gz --user", 
+            "title": "pip"
+        }, 
+        {
+            "location": "/#github", 
+            "text": "Get the latest release from github:  git clone https://github.com/mpg-age-bioinformatics/AGEpy  Install:  cd AGEpy\npython setup.py install --user  and then update to the latest release whenever required with:  cd AGEpy\ngit pull\npython setup.py install --user --force  Alternatively you can also install the package with a symlink, so that changes\nto the source files will be immediately available to users of the package on\nyour system:  cd AGEpy\npython setup.py develop --user  Be aware that with the develop option you won't be able to properly update once new scripts are added.", 
+            "title": "github"
+        }, 
+        {
+            "location": "/#help", 
+            "text": "In bash:  pydoc AGEpy.AGEpy  In python:  help( AGEpy.AGEpy )", 
+            "title": "Help"
+        }, 
+        {
+            "location": "/#example-usage", 
+            "text": "import AGEpy as age\n\ngtf=age.readGTF( /path/to/file.gtf )\n\ngtf.head()", 
+            "title": "Example usage"
+        }, 
+        {
+            "location": "/cookbook/", 
+            "text": "", 
+            "title": "Cookbook"
+        }, 
+        {
+            "location": "/modules/bed/", 
+            "text": "", 
+            "title": "bed"
+        }, 
+        {
+            "location": "/modules/biom/", 
+            "text": "", 
+            "title": "biom"
+        }, 
+        {
+            "location": "/modules/cytoscape/", 
+            "text": "", 
+            "title": "cytoscape"
+        }, 
+        {
+            "location": "/modules/david/", 
+            "text": "", 
+            "title": "david"
+        }, 
+        {
+            "location": "/modules/fasta/", 
+            "text": "", 
+            "title": "fasta"
+        }, 
+        {
+            "location": "/modules/go/", 
+            "text": "", 
+            "title": "go"
+        }, 
+        {
+            "location": "/modules/gtf/", 
+            "text": "", 
+            "title": "gtf"
+        }, 
+        {
+            "location": "/modules/homology/", 
+            "text": "", 
+            "title": "homology"
+        }, 
+        {
+            "location": "/modules/kegg/", 
+            "text": "", 
+            "title": "kegg"
+        }, 
+        {
+            "location": "/modules/meme/", 
+            "text": "", 
+            "title": "meme"
+        }, 
+        {
+            "location": "/modules/plots/", 
+            "text": "", 
+            "title": "plots"
+        }, 
+        {
+            "location": "/modules/sam/", 
+            "text": "", 
+            "title": "sam"
+        }, 
+        {
+            "location": "/executables/adiff/", 
+            "text": "", 
+            "title": "aDiff"
+        }
+    ]
+}
