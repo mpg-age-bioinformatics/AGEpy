@@ -13,32 +13,7 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
 We have started introducing some documentation [here]( https://github.com/mpg-age-bioinformatics/AGEpy/wiki).
 
-
 #### Installation
-
-##### Dependencies
-
-AGEpy requires *[R](https://www.r-project.org)* and the *[biomaRt](https://bioconductor.org/packages/release/bioc/html/biomaRt.html)* package for *R*.
-
-For installing *R* follow the instructions [here](https://www.r-project.org).
-
-Once you have installed *R* you are ready to install *biomaRt*:
-
-```R
-
-$ R
-
-> source("http://bioconductor.org/biocLite.R") 
-
-> biocLite()
-
-> biocLite("biomaRt") 
-
-> quit()
-
-```
-
-##### AGEpy
 
 ###### pip
 
@@ -81,6 +56,16 @@ python setup.py develop --user
 
 Be aware that with the develop option you won't be able to properly update once new scripts are added.
 
+#### Example usage
+
+```python
+import AGEpy as age
+
+gtf=age.readGTF("/path/to/file.gtf")
+
+gtf.head()
+```
+
 #### Help
 
 In bash:
@@ -93,16 +78,6 @@ In python:
 
 ```python
 help("AGEpy.AGEpy")
-```
-
-#### Example usage
-
-```python
-import AGEpy as age
-
-gtf=age.readGTF("/path/to/file.gtf")
-
-gtf.head()
 ```
 
 #### Scripts
