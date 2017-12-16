@@ -6,6 +6,9 @@ suds
 xlrd
 biomart
 matplotlib
-pyocclient
 xlsxwriter
--e git+https://github.com/mpg-age-bioinformatics/pyocclient.git#egg=pyocclient-0.1
+pybedtools
+wand
+paramiko
+ipaddress
+seaborn
