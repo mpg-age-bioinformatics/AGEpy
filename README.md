@@ -43,7 +43,7 @@ $ R
 ###### pip
 
 ```bash
-pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.5.0.tar.gz --user
+pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.6.0.tar.gz --user
 ```
 
 ###### github
