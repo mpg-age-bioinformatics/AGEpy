@@ -591,11 +591,25 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                        {"name":'main String network'},\
                       host=cytoscape_host, port=cytoscape_port)
     
+    # create network with edges only
+    response=cytoscape("network","select",\
+                   {"edgeList":"all",\
+                   "extendEdges":"true"},\
+                  host=cytoscape_host, port=cytoscape_port)
+    
+    response=cytoscape("network","create",\
+                   {"source":"current",\
+                    "nodeList":"selected"},\
+                  host=cytoscape_host, port=cytoscape_port)
+    
+    response=cytoscape("network","rename",\
+                       {"name":'main String network (edges only)'},\
+                      host=cytoscape_host, port=cytoscape_port)
     
     # top 10 changed genes > first neighbours
 
     response=cytoscape("network","set current",
-                       {"network":"main String network"},\
+                       {"network":"main String network (edges only)"},\
                       host=cytoscape_host, port=cytoscape_port)
     log2fcDf = getTableColumns('node',['log2(fold_change)'],host=cytoscape_host, port=cytoscape_port)
     log2fcDf['log2(fold_change)']=log2fcDf['log2(fold_change)'].apply(lambda x: abs(x))
@@ -630,7 +644,7 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
     
     #top 10 changed genes difusion
     response=cytoscape("network","set current",
-                       {"network":"main String network"},\
+                       {"network":"main String network (edges only)"},\
                       host=cytoscape_host, port=cytoscape_port)
     response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
                       host=cytoscape_host, port=cytoscape_port)
@@ -666,6 +680,8 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
     cyjs=MAKETMP()
     main_png=MAKETMP()
     main_pdf=MAKETMP()
+    edg_png=MAKETMP()
+    edg_pdf=MAKETMP()
     neig_png=MAKETMP()
     neig_pdf=MAKETMP()
     dif_png=MAKETMP()
@@ -696,6 +712,23 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                         "OutputFile":main_pdf},\
                       host=cytoscape_host, port=cytoscape_port)
 
+    
+    response=cytoscape("network","set current",
+                   {"network":"main String network (edges only)"},\
+                  host=cytoscape_host, port=cytoscape_port)
+    response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
+                      host=cytoscape_host, port=cytoscape_port)
+    sleep(5)
+    response=cytoscape("view", "export" , \
+                       {"options":"PNG",\
+                        "OutputFile":edg_png},\
+                      host=cytoscape_host, port=cytoscape_port)
+
+    response=cytoscape("view", "export" , \
+                       {"options":"PDF",\
+                        "OutputFile":edg_pdf},\
+                      host=cytoscape_host, port=cytoscape_port)
+    
     response=cytoscape("network","set current",
                        {"network":'top '+str(int(len(log2fcDf)*.10))+' changed firstNeighbors'},\
                       host=cytoscape_host, port=cytoscape_port)
@@ -736,9 +769,10 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
 
     ftp_client=ssh.open_sftp()
 
-    for f, extension, local in zip([cys,cyjs,main_png,main_pdf,neig_png,neig_pdf,dif_png,dif_pdf],\
+    for f, extension, local in zip([cys,cyjs,main_png,main_pdf,edg__png,edg_pdf,neig_png,neig_pdf,dif_png,dif_pdf],\
                                     [".cys",".cyjs",".png",".pdf",".png",".pdf",".png",".pdf"],\
                                     [target+".cys",target+".cyjs",target+".main.png",target+".main.pdf",\
+                                    target+".main.edges.png",target+".main.edges.pdf",\
                                     target+".topFirstNeighbors.png",target+".topFirstNeighbors.pdf",\
                                     target+".topDiffusion.png",target+".topDiffusion.pdf"]):
         ftp_client.get(f+extension,local)
