@@ -1,0 +1,5 @@
+theme: readthedocs
+site_name: AGEpy
+pages:
+  - Home: index.md
+  - Cookbook: cookbook.md
