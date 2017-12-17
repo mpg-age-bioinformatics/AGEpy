@@ -72,6 +72,12 @@
     <li class="toctree-l3"><a href="#writebed">writeBED</a></li>
     
 
+    <li class="toctree-l3"><a href="#dftobedtool">dfTObedtool</a></li>
+    
+
+    <li class="toctree-l3"><a href="#getpeaksexons">GetPeaksExons</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -170,7 +176,14 @@
               
                 <h3 id="getbednarrowpeakgz"><strong><em>GetBEDnarrowPeakgz</em></strong></h3>
 <p>Reads a gz compressed BED narrow peak file from a web address or local file and returns a pandas dataframe.</p>
-<p><strong>URL_or_PATH_TO_file:</strong> Source of input bed. Either a web link or a path to a local file.</p>
+<ul>
+<li>
+<p><strong><code>URL_or_PATH_TO_file</code></strong> source of input bed. Either a web link or a path to a local file.</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> a pandas dataframe of the inpud bed.</p>
+</li>
+</ul>
 <pre><code class="python">&gt;&gt;&gt; import AGEpy as age
 
 &gt;&gt;&gt; eCLIP_1_bednarrowPeak=&quot;https://www.encodeproject.org/files/ENCFF066PCT/@@download/ENCFF066PCT.bed.gz&quot;
@@ -195,8 +208,15 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 <hr />
 <h3 id="writebed"><strong><em>writeBED</em></strong></h3>
 <p>Writes a bed dataframe into a bed file.</p>
-<p><strong>inBED:</strong> A pandas dataframe with the contents of the bed file to be written.</p>
-<p><strong>file_path:</strong> Path to target file.</p>
+<ul>
+<li><strong><code>inBED</code></strong> a pandas dataframe with the contents of the bed file to be written.</li>
+<li>
+<p><strong><code>file_path</code></strong> path to target file.</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> nothing.</p>
+</li>
+</ul>
 <pre><code class="python">&gt;&gt;&gt; import AGEpy as age
 
 &gt;&gt;&gt; print bed.head()
@@ -217,6 +237,140 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 
 &gt;&gt;&gt; age.writeBED(bed,&quot;/path/to/file.bed&quot;)
 </code></pre>
+
+<hr />
+<h3 id="dftobedtool"><strong><em>dfTObedtool</em></strong></h3>
+<p>Transforms a pandas dataframe into a bedtool. Requires <code>bedtools</code> to be in your <code>path</code>.</p>
+<ul>
+<li><strong><code>df</code></strong> a pandas dataframe.</li>
+<li><strong><code>returns</code></strong> a bedtool.</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+
+&gt;&gt;&gt; print bed.head()
+
+chrom chromStart   chromEnd    name score strand       signalValue  \
+0  chr7  139371278  139371296  Peak_0  1000      +  5.09062636514014   
+1  chr7  139371257  139371278  Peak_1  1000      +   5.0840236303159   
+2  chr7  155781335  155781431  Peak_2  1000      +  3.70481328524336   
+3  chr7   87156569   87156676  Peak_3  1000      +  3.95023151551588   
+4  chr7  105073472  105073521  Peak_4  1000      +  4.14556204062503   
+
+     -log10(pValue) -log10(qvalue) peak  
+0  48.9834262537309             -1   -1  
+1  48.7463712698062             -1   -1  
+2  42.6519289009201             -1   -1  
+3  37.7848384917051             -1   -1  
+4  34.0756845242392             -1   -1
+
+&gt;&gt;&gt; bedtool=age.dfTObedtool(bed)
+&gt;&gt;&gt; print bedtool.head()
+
+chr7    139371278   139371296   Peak_0  1000    +   5.09062636514014    48.9834262537309    -1  -1
+chr7    139371257   139371278   Peak_1  1000    +   5.0840236303159 48.7463712698062    -1  -1
+chr7    155781335   155781431   Peak_2  1000    +   3.70481328524336    42.6519289009201    -1  -1
+chr7    87156569    87156676    Peak_3  1000    +   3.95023151551588    37.7848384917051    -1  -1
+chr7    105073472   105073521   Peak_4  1000    +   4.14556204062503    34.0756845242392    -1  -1
+chr7    128761857   128761952   Peak_5  1000    +   4.02131461357736    33.9350181783027    -1  -1
+chr7    121296414   121296454   Peak_6  1000    +   3.50632247892067    30.2512926812531    -1  -1
+chr7    139368342   139368352   Peak_7  1000    +   4.41912711395099    29.6666535015756    -1  -1
+chr7    87155583    87155635    Peak_8  1000    +   4.08769554637519    29.3752024210392    -1  -1
+chr7    105540000   105540028   Peak_9  1000    +   4.2212263105571 29.0451450847765    -1  -1
+
+&gt;&gt;&gt; print type(bed)
+
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+
+&gt;&gt;&gt; print type(bedtool)
+
+&lt;class 'pybedtools.bedtool.BedTool'&gt;
+</code></pre>
+
+<hr />
+<h3 id="getpeaksexons"><strong><em>GetPeaksExons</em></strong></h3>
+<p>Annotates a bedtool, BED narrow peak.</p>
+<ul>
+<li><strong><code>bed</code></strong> a pandas dataframe in bed format</li>
+<li>
+<p><strong><code>parsedGTF</code></strong> a parsed GTF file as outputed by parseGTF()</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> a Pandas dataframe</p>
+</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+
+&gt;&gt;&gt; print bed.head()
+
+chrom chromStart   chromEnd    name score strand       signalValue  \
+0  chr7  139371278  139371296  Peak_0  1000      +  5.09062636514014   
+1  chr7  139371257  139371278  Peak_1  1000      +   5.0840236303159   
+2  chr7  155781335  155781431  Peak_2  1000      +  3.70481328524336   
+3  chr7   87156569   87156676  Peak_3  1000      +  3.95023151551588   
+4  chr7  105073472  105073521  Peak_4  1000      +  4.14556204062503   
+
+     -log10(pValue) -log10(qvalue) peak  
+0  48.9834262537309             -1   -1  
+1  48.7463712698062             -1   -1  
+2  42.6519289009201             -1   -1  
+3  37.7848384917051             -1   -1  
+4  34.0756845242392             -1   -1
+
+&gt;&gt;&gt; GTF=age.readGTF(&quot;/beegfs/group_bit/data/projects/departments/Bioinformatics/bit_RNAseq_eCLIP/downloads/gencode.v24.primary_assembly.annotation.gtf&quot;)
+&gt;&gt;&gt; print GTF.head()
+
+seqname  source     feature  start    end score strand frame  \
+0    chr1  HAVANA        gene  11869  14409     .      +     .   
+1    chr1  HAVANA  transcript  11869  14409     .      +     .   
+2    chr1  HAVANA        exon  11869  12227     .      +     .   
+3    chr1  HAVANA        exon  12613  12721     .      +     .   
+4    chr1  HAVANA        exon  13221  14409     .      +     .   
+
+                                         attribute  
+0  gene_id &quot;ENSG00000223972.5&quot;; gene_type &quot;transc...&quot;  
+1  gene_id &quot;ENSG00000223972.5&quot;; transcript_id &quot;EN...&quot;  
+2  gene_id &quot;ENSG00000223972.5&quot;; transcript_id &quot;EN...&quot;  
+3  gene_id &quot;ENSG00000223972.5&quot;; transcript_id &quot;EN...&quot;  
+4  gene_id &quot;ENSG00000223972.5&quot;; transcript_id &quot;EN...&quot;  
+
+&gt;&gt;&gt; GTFpa=age.parseGTF(GTF)
+&gt;&gt;&gt; print GTFpa.head()
+
+seqname  source     feature  start    end score strand frame gene_status  \
+0    chr1  HAVANA        gene  11869  14409     .      +     .       KNOWN   
+1    chr1  HAVANA  transcript  11869  14409     .      +     .       KNOWN   
+2    chr1  HAVANA        exon  11869  12227     .      +     .       KNOWN   
+3    chr1  HAVANA        exon  12613  12721     .      +     .       KNOWN   
+4    chr1  HAVANA        exon  13221  14409     .      +     .       KNOWN   
+
+            havana_gene    ...               exon_id      transcript_id  \
+0  OTTHUMG00000000961.2    ...                   NaN                NaN   
+1  OTTHUMG00000000961.2    ...                   NaN  ENST00000456328.2   
+2  OTTHUMG00000000961.2    ...     ENSE00002234944.1  ENST00000456328.2   
+3  OTTHUMG00000000961.2    ...     ENSE00003582793.1  ENST00000456328.2   
+4  OTTHUMG00000000961.2    ...     ENSE00002312635.1  ENST00000456328.2   
+
+  exon_number  ont     havana_transcript ccdsid transcript_name  \
+0         NaN  NaN                   NaN    NaN             NaN   
+1         NaN  NaN  OTTHUMT00000362751.1    NaN     DDX11L1-002   
+2           1  NaN  OTTHUMT00000362751.1    NaN     DDX11L1-002   
+3           2  NaN  OTTHUMT00000362751.1    NaN     DDX11L1-002   
+4           3  NaN  OTTHUMT00000362751.1    NaN     DDX11L1-002   
+
+                            gene_type transcript_status gene_name  
+0  transcribed_unprocessed_pseudogene               NaN   DDX11L1  
+1  transcribed_unprocessed_pseudogene             KNOWN   DDX11L1  
+2  transcribed_unprocessed_pseudogene             KNOWN   DDX11L1  
+3  transcribed_unprocessed_pseudogene             KNOWN   DDX11L1  
+4  transcribed_unprocessed_pseudogene             KNOWN   DDX11L1
+
+&gt;&gt;&gt; bedAn=age.GetPeaksExons(bed,GTFpa)
+&gt;&gt;&gt; print bedAn.head()
+
+
+</code></pre>
+
+<hr />
               
             </div>
           </div>

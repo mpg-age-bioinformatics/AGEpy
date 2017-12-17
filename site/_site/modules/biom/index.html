@@ -70,6 +70,21 @@
     <a class="current" href="./">biom</a>
     <ul class="subnav">
             
+    <li class="toctree-l3"><a href="#datasetsbm">datasetsBM</a></li>
+    
+
+    <li class="toctree-l3"><a href="#datasetsbm_1">datasetsBM</a></li>
+    
+
+    <li class="toctree-l3"><a href="#attributesbm">attributesBM</a></li>
+    
+
+    <li class="toctree-l3"><a href="#querybm">queryBM</a></li>
+    
+
+    <li class="toctree-l3"><a href="#filtergostring">FilterGOstring</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -162,7 +177,106 @@
           <div role="main">
             <div class="section">
               
-                
+                <h3 id="datasetsbm"><strong><em>datasetsBM</em></strong></h3>
+<p>Lists BioMart datasets.</p>
+<ul>
+<li>
+<p><strong><code>host</code></strong> address of the host server, default='http://www.ensembl.org/biomart'</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> nothing</p>
+</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; datasetsBM()
+</code></pre>
+
+<hr />
+<h3 id="datasetsbm_1"><strong><em>datasetsBM</em></strong></h3>
+<p>Lists BioMart filters for a specific dataset.</p>
+<ul>
+<li><strong><code>dataset</code></strong> dataset to list filters of</li>
+<li>
+<p><strong><code>host</code></strong> address of the host server, default='http://www.ensembl.org/biomart'</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> nothing</p>
+</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; filtersBM()
+
+</code></pre>
+
+<hr />
+<h3 id="attributesbm"><strong><em>attributesBM</em></strong></h3>
+<p>Lists BioMart attributes for a specific dataset.</p>
+<ul>
+<li><strong><code>dataset</code></strong> dataset to list attributes of</li>
+<li>
+<p><strong><code>host</code></strong> address of the host server, default='http://www.ensembl.org/biomart'</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> nothing</p>
+</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; attributesBM()
+
+</code></pre>
+
+<hr />
+<h3 id="querybm"><strong><em>queryBM</em></strong></h3>
+<p>Queries BioMart.</p>
+<ul>
+<li><strong><code>query_filter</code></strong> one BioMart filter associated with the items being queried</li>
+<li><strong><code>query_items</code></strong> list of items to be queried (must assoiate with given filter)</li>
+<li><strong><code>query_querydic</code></strong> for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once.</li>
+<li><strong><code>query_attributes</code></strong> list of attributes to recover from BioMart</li>
+<li><strong><code>query_dataset</code></strong> dataset to query</li>
+<li>
+<p><strong><code>host</code></strong> address of the host server, default='http://www.ensembl.org/biomart'</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> a Pandas dataframe of the queried attributes</p>
+</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; queryDf=queryBM()
+
+
+</code></pre>
+
+<hr />
+<h3 id="filtergostring"><strong><em>FilterGOstring</em></strong></h3>
+<p>Filters GO terms based on given strings using ENSEMBL's biomart homology mapping.</p>
+<ul>
+<li><strong><code>names_filter</code></strong> list of substrings to filter GO names on. Default=["age-", "aging", "aged", 'aging', 'aging.', 'aging,']</li>
+<li><strong><code>exclude_names</code></strong> list of substrings to be used for exclusion of GO names. Default=["packaging","voltage","cleavage-",
+                       "stage-1","cage-like","message-specific",
+                       "damage-associated","stage-specific","foraging",
+                       "DNA-damaging","engaging","damaged","packaged"]</li>
+<li><strong><code>defs_filter</code></strong> list of substrings to filter GO defenitions on. Default=[" age-", " aging", " aged", ' aging', ' aging.', ' aging,']</li>
+<li><strong><code>exclude_defs</code></strong> list of substrings to be used for exclustion of GO defenitions. Default=["packaging","voltage","cleavage-",
+                         "stage-1","cage-like","message-specific",
+                         "damage-associated","stage-specific","foraging",
+                         "DNA-damaging","engaging","damaged","packaged"]</li>
+<li><strong><code>host</code></strong> biomart host server, default="http://www.ensembl.org/biomart"</li>
+<li><strong><code>HSA</code></strong> retrieved hsa dataframe</li>
+<li><strong><code>MUS</code></strong> retrieved mus dataframe</li>
+<li><strong><code>CEL</code></strong> retrieved cel dataframe</li>
+<li>
+<p><strong><code>DMEL</code></strong> retrieved dmel dataframe</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong>  homology_df, HSA, MUS, CEL, DMEL</p>
+</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; homology_df=FilterGOstring()
+
+
+</code></pre>
               
             </div>
           </div>
