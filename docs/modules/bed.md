@@ -1,4 +1,4 @@
-### ___GetBEDnarrowPeakgz___
+## ___GetBEDnarrowPeakgz___
 
 Reads a gz compressed BED narrow peak file from a web address or local file and returns a pandas dataframe.
 
@@ -29,7 +29,7 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 ```
 ___
 
-### ___writeBED___
+## ___writeBED___
 
 Writes a bed dataframe into a bed file.
 
@@ -61,7 +61,7 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 ```
 ___
 
-### ___dfTObedtool___
+## ___dfTObedtool___
 
 Transforms a pandas dataframe into a bedtool. Requires `bedtools` to be in your `path`.
 
@@ -112,7 +112,7 @@ chr7	105540000	105540028	Peak_9	1000	+	4.2212263105571	29.0451450847765	-1	-1
 
 ___
 
-### ___GetPeaksExons___
+## ___GetPeaksExons___
 
 Annotates a bedtool, BED narrow peak.
 
@@ -233,4 +233,9 @@ chrom  chromStart   chromEnd     name  score strand  signalValue  \
 3             8                       3300.707425            73.902289  
 4             5                        135.139064            22.210269  
 ```
+**gene_id_count**: number of intervals overlapping this gene
+
+**transcript_id_count**: number of intervals overlapping this transcript
+
+**exon_id_count**: number of intervals overlapping this exon
 ___

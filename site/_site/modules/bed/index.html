@@ -174,7 +174,7 @@
           <div role="main">
             <div class="section">
               
-                <h3 id="getbednarrowpeakgz"><strong><em>GetBEDnarrowPeakgz</em></strong></h3>
+                <h2 id="getbednarrowpeakgz"><strong><em>GetBEDnarrowPeakgz</em></strong></h2>
 <p>Reads a gz compressed BED narrow peak file from a web address or local file and returns a pandas dataframe.</p>
 <ul>
 <li>
@@ -206,7 +206,7 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 </code></pre>
 
 <hr />
-<h3 id="writebed"><strong><em>writeBED</em></strong></h3>
+<h2 id="writebed"><strong><em>writeBED</em></strong></h2>
 <p>Writes a bed dataframe into a bed file.</p>
 <ul>
 <li><strong><code>inBED</code></strong> a pandas dataframe with the contents of the bed file to be written.</li>
@@ -239,7 +239,7 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 </code></pre>
 
 <hr />
-<h3 id="dftobedtool"><strong><em>dfTObedtool</em></strong></h3>
+<h2 id="dftobedtool"><strong><em>dfTObedtool</em></strong></h2>
 <p>Transforms a pandas dataframe into a bedtool. Requires <code>bedtools</code> to be in your <code>path</code>.</p>
 <ul>
 <li><strong><code>df</code></strong> a pandas dataframe.</li>
@@ -287,7 +287,7 @@ chr7    105540000   105540028   Peak_9  1000    +   4.2212263105571 29.045145084
 </code></pre>
 
 <hr />
-<h3 id="getpeaksexons"><strong><em>GetPeaksExons</em></strong></h3>
+<h2 id="getpeaksexons"><strong><em>GetPeaksExons</em></strong></h2>
 <p>Annotates a bedtool, BED narrow peak.</p>
 <ul>
 <li><strong><code>bed</code></strong> a pandas dataframe in bed format</li>
@@ -367,9 +367,52 @@ seqname  source     feature  start    end score strand frame gene_status  \
 &gt;&gt;&gt; bedAn=age.GetPeaksExons(bed,GTFpa)
 &gt;&gt;&gt; print bedAn.head()
 
+chrom  chromStart   chromEnd     name  score strand  signalValue  \
+0  chr7   155781335  155781431   Peak_2   1000      +     3.704813   
+1  chr7   155781335  155781431   Peak_2   1000      +     3.704813   
+2  chr7   121296414  121296454   Peak_6   1000      +     3.506322   
+3  chr7    87155538   87155583  Peak_16   1000      +     4.077391   
+4  chr7   107904733  107904812  Peak_17   1000      +     3.674368   
 
+   -log10(pValue)  -log10(qvalue)  peak         ...           \
+0       42.651929              -1    -1         ...            
+1       42.651929              -1    -1         ...            
+2       30.251293              -1    -1         ...            
+3       22.798739              -1    -1         ...            
+4       21.118496              -1    -1         ...            
+
+              gene_id  exon_id_count  exon_id norm. mean -log10(pValue)  \
+0  ENSG00000184863.10              1                          42.651929   
+1  ENSG00000184863.10              1                          42.651929   
+2  ENSG00000106034.17              1                          30.251293   
+3  ENSG00000135164.18              3                        2951.868281   
+4  ENSG00000091140.12              1                          21.118496   
+
+  exon_id signalValue transcript_id_count  \
+0            3.704813                   1   
+1            3.704813                   1   
+2            3.506322                   1   
+3           42.703999                   3   
+4            3.674368                   1   
+
+  transcript_id norm. mean -log10(pValue)  transcript_id signalValue  \
+0                               42.651929                   3.704813   
+1                               42.651929                   3.704813   
+2                               30.251293                   3.506322   
+3                             2951.868281                  42.703999   
+4                               21.118496                   3.674368   
+
+  gene_id_count gene_id norm. mean -log10(pValue)  gene_id signalValue  
+0             4                        116.619012            17.830941  
+1             4                        116.619012            17.830941  
+2             2                         30.251293             2.144090  
+3             8                       3300.707425            73.902289  
+4             5                        135.139064            22.210269  
 </code></pre>
 
+<p><strong>gene_id_count</strong>: number of intervals overlapping this gene</p>
+<p><strong>transcript_id_count</strong>: number of intervals overlapping this transcript</p>
+<p><strong>exon_id_count</strong>: number of intervals overlapping this exon</p>
 <hr />
               
             </div>

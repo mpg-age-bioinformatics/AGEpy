@@ -74,6 +74,18 @@
     <a class="current" href="./">cytoscape</a>
     <ul class="subnav">
             
+    <li class="toctree-l3"><a href="#checkcytoscapeversion">checkCytoscapeVersion</a></li>
+    
+
+    <li class="toctree-l3"><a href="#cytoscape">cytoscape</a></li>
+    
+
+    <li class="toctree-l3"><a href="#result">result</a></li>
+    
+
+    <li class="toctree-l3"><a href="#gettablecolumns">getTableColumns</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -162,7 +174,83 @@
           <div role="main">
             <div class="section">
               
-                
+                <h2 id="checkcytoscapeversion"><strong><em>checkCytoscapeVersion</em></strong></h2>
+<p>Checks cytoscape version.</p>
+<ul>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, defaul=cytoscape_port</li>
+<li><strong><code>returns</code></strong> nothing</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; age.checkCytoscapeVersion()
+
+cytoscapeVersion 3.6.0
+apiVersion v1
+</code></pre>
+
+<hr />
+<h2 id="cytoscape"><strong><em>cytoscape</em></strong></h2>
+<p>General function for interacting with Cytoscape API.</p>
+<ul>
+<li><strong><code>namespace</code></strong> namespace where the request should be executed. eg. "string"</li>
+<li><strong><code>commnand</code></strong> command to execute. eg. "protein query"</li>
+<li><strong><code>PARAMs</code></strong> a dictionary with the parameters. Check your swagger normaly running on
+http://localhost:1234/v1/swaggerUI/swagger-ui/index.html?url=http://localhost:1234/v1/commands/swagger.json</li>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, default=cytoscape_port</li>
+<li><strong><code>method</code></strong> type of http call, ie. "POST" or "GET" or "HELP".</li>
+<li><strong><code>verbose</code></strong> print more information</li>
+<li><strong><code>returns</code></strong> For "POST" the data in the content's response. For "GET" None.</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; response=age.cytoscape(&quot;string&quot;,&quot;pubmed query&quot;,{&quot;pubmed&quot;:&quot;p53 p21&quot;,&quot;limit&quot;:&quot;50&quot;})
+&gt;&gt;&gt; print response
+
+{u'SUID': 37560}
+</code></pre>
+
+<hr />
+<h2 id="result"><strong><em>result</em></strong></h2>
+<p>Displays the current network.</p>
+<ul>
+<li><strong><code>filetype</code></strong> file type, default="PNG"</li>
+<li><strong><code>saveas</code></strong> /path/to/non/tmp/file.prefix</li>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, default=cytoscape_port</li>
+<li><strong><code>returns</code></strong> an image</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; response=age.result()
+&gt;&gt;&gt; response
+</code></pre>
+
+<p><img alt="cytoscape" src="../p53.png" /></p>
+<hr />
+<h2 id="gettablecolumns"><strong><em>getTableColumns</em></strong></h2>
+<p>Gets tables from cytoscape.</p>
+<ul>
+<li><strong><code>table</code></strong> table to retrieve eg. node</li>
+<li><strong><code>columns</code></strong> columns to retrieve in list format</li>
+<li><strong><code>namespace</code></strong> namepsace, default="default"</li>
+<li><strong><code>network</code></strong> a network name or id, default="current"</li>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, default=cytoscape_port</li>
+<li><strong><code>verbose</code></strong> print more information</li>
+<li><strong><code>returns</code></strong> a pandas dataframe</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; response=age.getTableColumns('node',['display name'])
+&gt;&gt;&gt; print response
+
+                     display name
+9606.ENSP00000367207          MYC
+9606.ENSP00000356150         MDM4
+9606.ENSP00000228872       CDKN1B
+9606.ENSP00000361021         PTEN
+9606.ENSP00000265734         CDK6
+</code></pre>
+
+<hr />
               
             </div>
           </div>
