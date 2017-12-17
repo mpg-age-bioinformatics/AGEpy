@@ -64,7 +64,7 @@ def cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_
     
     eg.
 
-    cytoscape("G","string","pubmed query",{"pubmed":"p53 p21","limit":"50"})
+    cytoscape("string","pubmed query",{"pubmed":"p53 p21","limit":"50"})
 
 
     """     
@@ -118,7 +118,7 @@ def getTableColumns(table, columns, namespace = "default", network = "current", 
     Gets tables from cytoscape
     
     :param table: table to retrieve eg. node
-    :param columns: columns to retrieve
+    :param columns: columns to retrieve in list format
     :param namespace: namepsace, default="default"
     :param network: a network name or id, default="current"
     :param host: cytoscape host address, default=cytoscape_host
@@ -409,12 +409,13 @@ def result(filetype="PNG",saveas=None, host=cytoscape_host,port=cytoscape_port):
     Checks the current network. 
     
     Note: works only on localhost
-    
-    :param outfile: name of the temporary outfile
+   
+    :param filetype: file type, default="PNG" 
+    :param saveas: /path/to/non/tmp/file.prefix
     :param host: cytoscape host address, default=cytoscape_host
     :param port: cytoscape port, default=1234
 
-    :returns: nothing
+    :returns: an image
     """
     sleep(1)
 
