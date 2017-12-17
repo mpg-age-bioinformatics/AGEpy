@@ -74,15 +74,15 @@ def attributesBM(dataset,host=biomart_host):
     v=v.replace(": ","\t")
     print v
 
-def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=None,host=biomart_host):
+def queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,query_dic=None,host=biomart_host):
     """
     Queries BioMart.
 
-    :param query_filtery: one BioMart filter associated with the items being queried
-    :param query_items: list of items to be queried (must assoiate with given filter)
-    :param query_querydic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once.
     :param query_attributes: list of attributes to recover from BioMart
     :param query_dataset: dataset to query
+    :param query_filter: one BioMart filter associated with the items being queried
+    :param query_items: list of items to be queried (must assoiate with given filter)
+    :param query_dic: for complex queries this option should be used instead of 'filters' and 'items' and a dictionary of filters provided here eg. querydic={"filter1":["item1","item2"],"filter2":["item3","item4"]}. If using querydic, don't query more than 350 items at once.
     :param host: address of the host server, default='http://www.ensembl.org/biomart'
 
     :returns: a Pandas dataframe of the queried attributes
@@ -92,14 +92,21 @@ def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=No
     d=server.datasets[query_dataset]
     res=[]
 
-    if query_dic is None:
-        chunks=[query_items[x:x+350] for x in xrange(0, len(query_items), 350)]
-        for c in chunks:
-            response=d.search({'filters':{query_filter:c},'attributes':query_attributes})
+    if not query_dic:
+        if query_items:
+            chunks=[query_items[x:x+350] for x in xrange(0, len(query_items), 350)]
+            for c in chunks:
+                response=d.search({'filters':{query_filter:c},'attributes':query_attributes})
+                for line in response.iter_lines():
+                    line = line.decode('utf-8')
+                    res.append(line.split("\t"))
+        else:
+            response=d.search({'attributes':query_attributes})
             for line in response.iter_lines():
                 line = line.decode('utf-8')
                 res.append(line.split("\t"))
-    else:
+    
+    elif query_dic:
         response=d.search({'filters':query_dic,'attributes':query_attributes})
         for line in response.iter_lines():
             line = line.decode('utf-8')
