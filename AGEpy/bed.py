@@ -68,20 +68,21 @@ def GetPeaksExons(bed,parsedGTF):
     Annotates a bedtool, BED narrow peak
 
     :param bed: a pandas dataframe in bed format
-    :param parsedGTF: a parsed GTF file as outputed by parseGTF() with the following columns: ['seqname', 'start', 'end', 'exon_id', 'score_exon', 'strand_exon']
+    :param parsedGTF: a parsed GTF file as outputed by parseGTF() with the following columns: ['seqname', 'start', 'end', 'feature', 'exon_id', 'score_exon', 'strand_exon']
 
     :returns: a Pandas dataframe
     """
 
     bedtool_AB=dfTObedtool(bed)
-    
-    cols=[bed.columns.tolist(),parsedGTF.columns.tolist(),["overlap"] ]
-    cols=[item for sublist in cols for item in sublist]
-    
+        
     exonsGTF=parsedGTF[parsedGTF["feature"]=="exon"]
     exonsGTF.reset_index(inplace=True, drop=True)
 
     exonsBED=GTFtoBED(exonsGTF, "exon_id")
+    
+    cols=[bed.columns.tolist(),exonsBED.columns.tolist(),["overlap"] ]
+    cols=[item for sublist in cols for item in sublist]
+   
     bedtool_exons=dfTObedtool(exonsBED)
 
     bedtool_target_exons=bedtool_AB.intersect(bedtool_exons, wo=True, s=True)
