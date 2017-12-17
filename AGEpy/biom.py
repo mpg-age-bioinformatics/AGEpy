@@ -108,8 +108,16 @@ def queryBM(query_filter,query_items,query_attributes,query_dataset,query_dic=No
     res.columns=query_attributes
     return res
 
-def FilterGOstring(names_filter=None,exclude_names=None,\
-                   defs_filter=None,exclude_defs=None,\
+def FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'aging,'],\
+                   exclude_names=["packaging","voltage","cleavage-",\
+                       "stage-1","cage-like","message-specific",\
+                       "damage-associated","stage-specific","foraging",\
+                       "DNA-damaging","engaging","damaged","packaged"],\
+                   defs_filter=[" age-", " aging", " aged", ' aging', ' aging.', ' aging,'],\
+                   exclude_defs=["packaging","voltage","cleavage-",\
+                         "stage-1","cage-like","message-specific",\
+                         "damage-associated","stage-specific","foraging",\
+                         "DNA-damaging","engaging","damaged","packaged"],\
                    host=biomart_host,\
                    HSA=None,MUS=None,CEL=None,DMEL=None):
     
@@ -131,20 +139,6 @@ def FilterGOstring(names_filter=None,exclude_names=None,\
     
     """
     
-
-    if not names_filter:
-        names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'aging,']
-        exclude_names=["packaging","voltage","cleavage-",\
-                       "stage-1","cage-like","message-specific",\
-                       "damage-associated","stage-specific","foraging",\
-                       "DNA-damaging","engaging","damaged","packaged"]
-
-        defs_filter=[" age-", " aging", " aged", ' aging', ' aging.', ' aging,']
-        exclude_defs=["packaging","voltage","cleavage-",\
-                         "stage-1","cage-like","message-specific",\
-                         "damage-associated","stage-specific","foraging",\
-                         "DNA-damaging","engaging","damaged","packaged"]
-
     if type(HSA) == type(None):
         queries={'hsapiens_gene_ensembl':["ensembl_gene_id","external_gene_name", \
                                           "go_id","name_1006","definition_1006"],\
