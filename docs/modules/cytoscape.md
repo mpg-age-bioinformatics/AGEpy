@@ -21,7 +21,7 @@ General function for interacting with Cytoscape API.
 * **`namespace`** namespace where the request should be executed. eg. "string"
 * **`commnand`** command to execute. eg. "protein query"
 * **`PARAMs`** a dictionary with the parameters. Check your swagger normaly running on
-http://localhost:1234/v1/swaggerUI/swagger-ui/index.html?url=http://localhost:1234/v1/commands/swagger.json
+'http://localhost:1234/v1/swaggerUI/swagger-ui/index.html?url=http://localhost:1234/v1/commands/swagger.json'
 * **`host`** cytoscape host address, default=cytoscape_host
 * **`port`** cytoscape port, default=cytoscape_port
 * **`method`** type of http call, ie. "POST" or "GET" or "HELP".
