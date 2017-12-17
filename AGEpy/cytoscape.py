@@ -769,7 +769,7 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
 
     ftp_client=ssh.open_sftp()
 
-    for f, extension, local in zip([cys,cyjs,main_png,main_pdf,edg__png,edg_pdf,neig_png,neig_pdf,dif_png,dif_pdf],\
+    for f, extension, local in zip([cys,cyjs,main_png,main_pdf,edg_png,edg_pdf,neig_png,neig_pdf,dif_png,dif_pdf],\
                                     [".cys",".cyjs",".png",".pdf",".png",".pdf",".png",".pdf"],\
                                     [target+".cys",target+".cyjs",target+".main.png",target+".main.pdf",\
                                     target+".main.edges.png",target+".main.edges.pdf",\

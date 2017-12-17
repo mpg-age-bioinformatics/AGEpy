@@ -68,7 +68,7 @@ def GetPeaksExons(bed,parsedGTF):
     Annotates a bedtool, BED narrow peak
 
     :param bed: a pandas dataframe in bed format
-    :param parsedGTF: a parsed GTF file as outputed by parseGTF() with the following columns: ['seqname', 'start', 'end', 'feature', 'exon_id', 'score_exon', 'strand_exon']
+    :param parsedGTF: a parsed GTF file as outputed by parseGTF() with the following columns
 
     :returns: a Pandas dataframe
     """
@@ -79,8 +79,18 @@ def GetPeaksExons(bed,parsedGTF):
     exonsGTF.reset_index(inplace=True, drop=True)
 
     exonsBED=GTFtoBED(exonsGTF, "exon_id")
-    
-    cols=[bed.columns.tolist(),exonsBED.columns.tolist(),["overlap"] ]
+    exonsBED.columns=['chrom', 'chromStart', 'chromEnd', 'exon_id', 'score', 'strand']
+    exonsBEDcols=exonsBED.columns.tolist()
+
+    bedcols=bed.columns.tolist()
+    exonsBEDcols_=[]
+    for c in exonsBEDcols:
+        if c in bedcols:
+            exonsBEDcols_.append(c+"_exon")
+        else:
+            exonsBEDcols_.append(c)
+
+    cols=[bedcols,exonsBEDcols_,["overlap"] ]
     cols=[item for sublist in cols for item in sublist]
    
     bedtool_exons=dfTObedtool(exonsBED)
@@ -118,13 +128,13 @@ def GetPeaksExons(bed,parsedGTF):
         tmp.columns=[field,"%s norm. mean -log10(pValue)" %str(field)]
         df=pd.merge(df,tmp,on=field,how="left")
 
-        tmp=df[[field,'name',"signal_Value"]].drop_duplicates()
+        tmp=df[[field,'name',"signalValue"]].drop_duplicates()
         tmp=tmp.drop(["name"],axis=1)
-        tmp["signal_Value"]=tmp["signal_Value"].astype(float)
-        tmp=tmp.groupby(field).apply(lambda l: reduce(lambda x, y: x*y, l["signal_Value"]) )
+        tmp["signalValue"]=tmp["signalValue"].astype(float)
+        tmp=tmp.groupby(field).apply(lambda l: reduce(lambda x, y: x*y, l["signalValue"]) )
         tmp=pd.DataFrame(tmp)
         tmp.reset_index(inplace=True,drop=False)
-        tmp.columns=[field,"%s signal_Value" %str(field)]
+        tmp.columns=[field,"%s signalValue" %str(field)]
         df=pd.merge(df,tmp,on=field,how="left")
 
         return df
@@ -160,10 +170,10 @@ def GetPeaksExons(bed,parsedGTF):
 
 
 
-        tmp=df[[field,'transcript_id',"transcript_id signal_Value"]].drop_duplicates()
+        tmp=df[[field,'transcript_id',"transcript_id signalValue"]].drop_duplicates()
         tmp=tmp.drop(["transcript_id"],axis=1)
-        tmp["transcript_id signal_Value"]=tmp["transcript_id signal_Value"].astype(float)
-        tmp.columns=[field,"%s signal_Value" %str(field)]
+        tmp["transcript_id signalValue"]=tmp["transcript_id signalValue"].astype(float)
+        tmp.columns=[field,"%s signalValue" %str(field)]
         tmp=tmp.groupby(field, as_index=False).sum()
         df=pd.merge(df,tmp,on=field,how="left")
 
