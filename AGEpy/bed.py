@@ -76,7 +76,7 @@ def GetPeaksExons(bed,parsedGTF):
     bedtool_AB=dfTObedtool(bed)
     
     cols=[bed.columns.tolist(),parsedGTF.columns.tolist(),["overlap"] ]
-    cols=
+    cols=[item for sublist in cols for item in sublist]
     
     exonsGTF=parsedGTF[parsedGTF["feature"]=="exon"]
     exonsGTF.reset_index(inplace=True, drop=True)
@@ -84,13 +84,8 @@ def GetPeaksExons(bed,parsedGTF):
     exonsBED=GTFtoBED(exonsGTF, "exon_id")
     bedtool_exons=dfTObedtool(exonsBED)
 
-
-
     bedtool_target_exons=bedtool_AB.intersect(bedtool_exons, wo=True, s=True)
-    dfTargetE=pd.read_table(bedtool_target_exons.fn, names=["chrom","chromStart","chromEnd","name","score",\
-                                                            "strand","signal_Value","-log10(pValue)",\
-                                                            "-log10(qValue)","peak",'seqname', 'start', 'end', \
-                                                            'exon_id', 'score_exon', 'strand_exon', "overlap"])
+    dfTargetE=pd.read_table(bedtool_target_exons.fn, names=cols)
     ExonsTransGenes=parsedGTF[["exon_id","transcript_id","gene_id"]].drop_duplicates()
     dfTargets=pd.merge(dfTargetE,ExonsTransGenes,on=["exon_id"],how="left")
     dfTargets["count"]=1
