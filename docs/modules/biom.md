@@ -3,7 +3,6 @@
 Lists BioMart datasets.
 
 * **`host`** address of the host server, default='http://www.ensembl.org/biomart'
-
 * **`returns`** nothing
 
 ```python

@@ -82,6 +82,15 @@
     <a class="current" href="./">fasta</a>
     <ul class="subnav">
             
+    <li class="toctree-l3"><a href="#getfasta">getFasta</a></li>
+    
+
+    <li class="toctree-l3"><a href="#writefasta">writeFasta</a></li>
+    
+
+    <li class="toctree-l3"><a href="#rewritefasta">rewriteFasta</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -162,7 +171,66 @@
           <div role="main">
             <div class="section">
               
-                
+                <h2 id="getfasta"><strong><em>getFasta</em></strong></h2>
+<p>Retrieves a sequence from an opened multifasta file.</p>
+<ul>
+<li><strong><code>opened_file</code></strong> an opened multifasta file eg. opened_file=open("/path/to/file.fa",'r+')</li>
+<li><strong><code>sequence_name</code></strong> the name of the sequence to be retrieved eg. for '&gt;2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)</li>
+<li><strong><code>returns</code></strong> a string with the sequence of interest</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; fafile=&quot;/path/to/GRCm38.dna.primary_assembly.fa&quot;
+&gt;&gt;&gt; with open(fafile, &quot;r&quot;) as fastafile:
+...     chr2=age.getFasta(fastafile, &quot;2&quot;)
+&gt;&gt;&gt; print len(chr2)
+
+182113224
+
+&gt;&gt;&gt; print chr2[82113224:82113284]
+
+AGGGTGAATGATGTTTCTGGTACAGTGTACCAGTAAACCTAGCAGTAGGAGCATCAGTAT
+</code></pre>
+
+<hr />
+<h2 id="writefasta"><strong><em>writeFasta</em></strong></h2>
+<p>Writes a fasta sequence into a file.</p>
+<ul>
+<li><strong><code>sequence</code></strong> a string with the sequence to be written</li>
+<li><strong><code>sequence_name</code></strong> name of the the fasta sequence</li>
+<li><strong><code>output_file</code></strong> /path/to/file.fa to be written</li>
+<li><strong><code>returns</code></strong> nothing</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print len(chr2)
+
+182113224
+
+&gt;&gt;&gt; print chr2[82113224:82113284]
+
+AGGGTGAATGATGTTTCTGGTACAGTGTACCAGTAAACCTAGCAGTAGGAGCATCAGTAT
+
+&gt;&gt;&gt; age.writeFasta(chr2,&quot;2 my version of this sequence&quot;,&quot;/path/to/out/file.fa&quot;)
+</code></pre>
+
+<hr />
+<h2 id="rewritefasta"><strong><em>rewriteFasta</em></strong></h2>
+<p>Rewrites a specific sequence in a multifasta file while keeping the sequence header.</p>
+<ul>
+<li><strong><code>sequence</code></strong> a string with the sequence to be written</li>
+<li><strong><code>sequence_name</code></strong> the name of the sequence to be retrieved eg. for '&gt;2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)</li>
+<li><strong><code>fasta_in</code></strong> /path/to/original.fa</li>
+<li><strong><code>fasta_out</code></strong> /path/to/destination.fa</li>
+<li><strong><code>returns</code></strong> nothing</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; fafile=&quot;/path/to/GRCm38.dna.primary_assembly.fa&quot;
+&gt;&gt;&gt; with open(fafile, &quot;r&quot;) as fastafile:
+...     chr2=age.getFasta(fastafile, &quot;2&quot;)
+&gt;&gt;&gt; chr2=chr2.strip(&quot;N&quot;)
+&gt;&gt;&gt; age.rewriteFasta(chr2, &quot;2&quot;, fafile, &quot;/path/to/modified/file.fa&quot;)
+</code></pre>
+
+<hr />
               
             </div>
           </div>
