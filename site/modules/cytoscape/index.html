@@ -86,6 +86,24 @@
     <li class="toctree-l3"><a href="#gettablecolumns">getTableColumns</a></li>
     
 
+    <li class="toctree-l3"><a href="#loadtabledata">loadTableData</a></li>
+    
+
+    <li class="toctree-l3"><a href="#simple_defaults">simple_defaults</a></li>
+    
+
+    <li class="toctree-l3"><a href="#create_styles">create_styles</a></li>
+    
+
+    <li class="toctree-l3"><a href="#update_style">update_style</a></li>
+    
+
+    <li class="toctree-l3"><a href="#mapvisualproperty">mapVisualProperty</a></li>
+    
+
+    <li class="toctree-l3"><a href="#adiffcytoscape">aDiffCytoscape</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -251,6 +269,215 @@ apiVersion v1
 </code></pre>
 
 <hr />
+<h2 id="loadtabledata"><strong><em>loadTableData</em></strong></h2>
+<p>Loads tables into cytoscape.</p>
+<ul>
+<li><strong><code>df</code></strong> a pandas dataframe to load</li>
+<li><strong><code>df_key</code></strong> key column in df, defaul="index"</li>
+<li><strong><code>table</code></strong> target table, default="node"</li>
+<li><strong><code>table_key_column</code></strong> table key column, default="name"</li>
+<li><strong><code>network</code></strong> a network name or id, default="current"</li>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, default=cytoscape_port</li>
+<li><strong><code>verbose</code></strong> print more information</li>
+<li><strong><code>returns</code></strong> output of put request</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print df.head()
+
+                     display name
+9606.ENSP00000367207          MYC
+9606.ENSP00000356150         MDM4
+9606.ENSP00000228872       CDKN1B
+9606.ENSP00000361021         PTEN
+9606.ENSP00000265734         CDK6
+
+&gt;&gt;&gt; def MarkCKDs(x):
+...    if &quot;CDK&quot; in x:
+...        res=&quot;yes&quot;
+...    else:
+...        res=&quot;not&quot;
+...    return res
+&gt;&gt;&gt; df[&quot;CDK&quot;]=df[&quot;display name&quot;].apply( lambda x: MarkCKDs(x) )
+&gt;&gt;&gt; print df.head()
+
+                     display name  CDK
+9606.ENSP00000367207          MYC  not
+9606.ENSP00000356150         MDM4  not
+9606.ENSP00000228872       CDKN1B  yes
+9606.ENSP00000361021         PTEN  not
+9606.ENSP00000265734         CDK6  yes
+
+&gt;&gt;&gt; response=age.loadTableData(df[[&quot;CDK&quot;]])
+</code></pre>
+
+<hr />
+<h2 id="simple_defaults"><strong><em>simple_defaults</em></strong></h2>
+<p>Simplifies default layouts.</p>
+<ul>
+<li><strong><code>defaults_dic</code></strong> a dictionary of the form { visualProperty_A:value_A, visualProperty_B:value_B, ..}</li>
+<li><strong><code>returns</code></strong> a list of dictionaries with each item corresponding to a given key in defaults_dic</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; defaults_dic={&quot;NODE_SHAPE&quot;:&quot;ellipse&quot;,\
+                  &quot;NODE_SIZE&quot;:60,\
+                  &quot;NODE_FILL_COLOR&quot;:&quot;#AAAAAA&quot;,\
+                  &quot;EDGE_TRANSPARENCY&quot;:120}
+&gt;&gt;&gt; defaults_list=age.simple_defaults(defaults_dic)
+&gt;&gt;&gt; print defaults_list
+
+[{'visualProperty': 'NODE_SIZE', 'value': 60}, \
+{'visualProperty': 'NODE_FILL_COLOR', 'value': '#AAAAAA'}, \
+{'visualProperty': 'NODE_SHAPE', 'value': 'ellipse'}, \
+{'visualProperty': 'EDGE_TRANSPARENCY', 'value': 120}]
+</code></pre>
+
+<hr />
+<h2 id="create_styles"><strong><em>create_styles</em></strong></h2>
+<p>Creates a new visual style.</p>
+<ul>
+<li><strong><code>title</code></strong> title of the visual style</li>
+<li><strong><code>defaults</code></strong> a list of dictionaries for each visualProperty</li>
+<li><strong><code>mappings</code></strong> a list of dictionaries for each visualProperty</li>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, default=cytoscape_port</li>
+<li><strong><code>retunrs</code></strong> nothing</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print defaults_list
+
+[{'visualProperty': 'NODE_SIZE', 'value': 60}, \
+{'visualProperty': 'NODE_FILL_COLOR', 'value': '#AAAAAA'}, \
+{'visualProperty': 'NODE_SHAPE', 'value': 'ellipse'}, \
+{'visualProperty': 'EDGE_TRANSPARENCY', 'value': 120}]
+
+&gt;&gt;&gt; response=age.create_styles(&quot;newStyle&quot;,defaults=defaults_list)
+</code></pre>
+
+<hr />
+<h2 id="update_style"><strong><em>update_style</em></strong></h2>
+<p>Updates a visual style.</p>
+<ul>
+<li><strong><code>title</code></strong> title of the visual style</li>
+<li><strong><code>defaults</code></strong> a list of dictionaries for each visualProperty</li>
+<li><strong><code>mappings</code></strong> a list of dictionaries for each visualProperty</li>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, default=cytoscape_port</li>
+<li><strong><code>retunrs</code></strong> nothing</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print new_defaults_list
+
+[{'visualProperty': 'NODE_SIZE', 'value': 80}, \
+{'visualProperty': 'NODE_FILL_COLOR', 'value': '#AAAAAA'}, \
+{'visualProperty': 'NODE_SHAPE', 'value': 'ellipse'}, \
+{'visualProperty': 'EDGE_TRANSPARENCY', 'value': 120}]
+
+&gt;&gt;&gt; response=age.update_style(&quot;newStyle&quot;,defaults=defaults_list)
+</code></pre>
+
+<hr />
+<h2 id="mapvisualproperty"><strong><em>mapVisualProperty</em></strong></h2>
+<p>Generates a dictionary for a given visual property</p>
+<ul>
+<li><strong><code>visualProperty</code></strong> visualProperty</li>
+<li><strong><code>mappingType</code></strong> mappingType</li>
+<li><strong><code>mappingColumn</code></strong> mappingColumn</li>
+<li><strong><code>lower</code></strong> for "continuous" mappings a list of the form [value,rgb_string]</li>
+<li><strong><code>center</code></strong> for "continuous" mappings a list of the form [value,rgb_string]</li>
+<li><strong><code>upper</code></strong> for "continuous" mappings a list of the form [value,rgb_string]</li>
+<li><strong><code>discrete</code></strong> for discrete mappings, a list of lists of the form [ list_of_keys, list_of_values ]</li>
+<li><strong><code>network</code></strong> a network name or id, default="current"</li>
+<li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
+<li><strong><code>port</code></strong> cytoscape port, default=cytoscape_port</li>
+<li><strong><code>retunrs</code></strong> a dictionary for the respective visual property</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; import matplotlib
+
+&gt;&gt;&gt; NODE_LABEL=age.mapVisualProperty(&quot;NODE_LABEL&quot;,&quot;passthrough&quot;,&quot;display name&quot;)
+&gt;&gt;&gt; print NODE_LABEL
+
+{'mappingType': 'passthrough', 'visualProperty': 'NODE_LABEL', 'mappingColumnType': u'String', 'mappingColumn': 'display name'}
+
+&gt;&gt;&gt; NODE_SHAPE=age.mapVisualProperty('NODE_SHAPE','discrete','CDK',\
+                                     discrete=[ [&quot;yes&quot;,&quot;not&quot;], \
+                                     [&quot;DIAMOND&quot;, &quot;ellipse&quot;] ])
+
+&gt;&gt;&gt; NODE_SIZE=age.mapVisualProperty('NODE_SIZE','discrete','CDK',\
+                                    discrete=[ [&quot;yes&quot;,&quot;not&quot;],\
+                                    [&quot;100.0&quot;,&quot;60.0&quot;] ])
+
+# imagine you have a log2(fold_change) column in your cytoscape table
+&gt;&gt;&gt; cmap = matplotlib.cm.get_cmap(&quot;bwr&quot;)
+&gt;&gt;&gt; norm = matplotlib.colors.Normalize(vmin=-4, vmax=4)
+&gt;&gt;&gt; min_color=matplotlib.colors.rgb2hex(cmap(norm(-4)))
+&gt;&gt;&gt; center_color=matplotlib.colors.rgb2hex(cmap(norm(0)))
+&gt;&gt;&gt; max_color=matplotlib.colors.rgb2hex(cmap(norm(4)))  
+&gt;&gt;&gt; NODE_FILL_COLOR=age.mapVisualProperty('NODE_FILL_COLOR','continuous','log2(fold_change)',\
+                                      lower=[-4,min_color],center=[0.0,center_color],upper=[4,max_color])
+</code></pre>
+
+<hr />
+<h2 id="adiffcytoscape"><strong><em>aDiffCytoscape</em></strong></h2>
+<p>Plots tables from aDiff/cuffdiff into cytoscape using String protein queries.
+Uses top changed genes as well as first neighbours and difusion fo generate subnetworks.</p>
+<ul>
+<li><strong><code>df</code></strong>  df as outputed by aDiff for differential gene expression</li>
+<li><strong><code>aging_genes</code></strong> ENS gene ids to be labeled with a diagonal</li>
+<li><strong><code>target</code></strong> target destination for saving files without prefix. eg. "/beegfs/group_bit/home/JBoucas/test/N2_vs_daf2"</li>
+<li><strong><code>species</code></strong> species for string app query. eg. "caenorhabditis elegans", "drosophila melanogaster", "mus musculus", "homo sapiens"</li>
+<li><strong><code>limit</code></strong> limit for string app query. Number of extra genes to recover. If None, limit=N(query_genes)*.25</li>
+<li><strong><code>cuttoff</code></strong> confidence cuttoff for sting app query. Default=0.4</li>
+<li><strong><code>taxon</code></strong> taxon id for string app query. For the species shown above, taxon id will be automatically identified</li>
+<li><strong><code>cytoscape_host</code></strong> host address for cytoscape, default=cytoscape_host</li>
+<li><strong><code>cytoscape_port</code></strong> cytoscape port, defaut=cytoscape_port</li>
+<li><strong><code>returns</code></strong> nothing</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print genes[:10]
+
+['WBGene00008288', 'WBGene00002169', 'WBGene00008733', 'WBGene00004178', 'WBGene00004178', 'WBGene00004179', 'WBGene00004179', 'WBGene00020581', 'WBGene00001877', 'WBGene00001881']
+
+&gt;&gt;&gt; print df.head()
+
+ensembl_gene_id            gene            locus sample_1 sample_2 status  \
+0  WBGene00022275        Y74C9A.1    I:43732-44677       N2     daf2     OK   
+1  WBGene00004418  F53G12.9,rpl-7  I:111037-113672       N2     daf2     OK   
+2  WBGene00018774  F53G12.9,rpl-7  I:111037-113672       N2     daf2     OK   
+3  WBGene00018772        F53G12.4  I:134336-137282       N2     daf2     OK   
+4  WBGene00018958        F56C11.6  I:171339-175991       N2     daf2     OK   
+
+     value_1      value_2  log2(fold_change)  test_stat  p_value   q_value  \
+0     0.195901     0.986634           2.332390    2.32959  0.00570  0.031216   
+1  3354.820000  2463.480000          -0.445539   -2.71381  0.00005  0.000556   
+2  3354.820000  2463.480000          -0.445539   -2.71381  0.00005  0.000556   
+3     1.235670     2.992460           1.276040    3.16508  0.00005  0.000556   
+4     2.651180     3.795600           0.517696    1.73994  0.00410  0.024157   
+
+significant                                              GO_id  \
+0         yes                                                NaN   
+1         yes  GO:0003735; GO:0000463; GO:0044822; GO:0002181...   
+2         yes                                                NaN   
+3         yes                                                NaN   
+4         yes                 GO:0016787; GO:0005615; GO:0004104   
+
+                                           GO_term    gene_biotype  \
+0                                                NaN  protein_coding   
+1  structural constituent of ribosome; maturation...  protein_coding   
+2                                                NaN  protein_coding   
+3                                                NaN  protein_coding   
+4  hydrolase activity; extracellular space; choli...  protein_coding   
+
+  NormInt evidence  
+0 -0.356904       no  
+1  3.458609       no  
+2  3.458609       no  
+3  0.283965       no  
+4  0.501360       no  
+
+&gt;&gt;&gt; age.aDiffCytoscape(df,genes,&quot;/u/home/JBoucas/cytoscape/cyto&quot;)
+</code></pre>
               
             </div>
           </div>
