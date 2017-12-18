@@ -175,7 +175,7 @@ def loadTableData(df, df_key='index',table="node", \
     Loads tables into cytoscape
     
     :param df: a pandas dataframe to load
-    :param df_key: key column in df
+    :param df_key: key column in df, default="index"
     :param table: target table, default="node"
     :param table_key_column: table key column, default="name"
     :param network: a network name or id, default="current"
@@ -241,7 +241,7 @@ def simple_defaults(defaults_dic):
     
     :param defaults_dic: a dictionary of the form { visualProperty_A:value_A, visualProperty_B:value_B, ..}
     
-    :returns: a list of dictionaries with each item corresponing to a given key in defaults_dic
+    :returns: a list of dictionaries with each item corresponding to a given key in defaults_dic
     """
      
     defaults=[]
@@ -451,8 +451,8 @@ def result(filetype="PNG",saveas=None, host=cytoscape_host,port=cytoscape_port):
 def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=None, cutoff=0.4,\
                   taxon=None,cytoscape_host=cytoscape_host,cytoscape_port=cytoscape_port):
     """
-    Plots tables from aDiff into cytoscape
-    
+    Plots tables from aDiff/cuffdiff into cytoscape using String protein queries. 
+    Uses top changed genes as well as first neighbours and difusion fo generate subnetworks. 
     
     :param df: df as outputed by aDiff for differential gene expression
     :param aging_genes: ENS gene ids to be labeled with a diagonal
