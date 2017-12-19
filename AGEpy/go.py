@@ -2,6 +2,7 @@ import pandas as pd
 import urllib2
 import StringIO
 import gzip
+import sys
 
 
 def getGeneAssociation(URL_or_file):

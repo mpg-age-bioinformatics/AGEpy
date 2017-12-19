@@ -128,12 +128,12 @@ def id_nameDAVID(df,GTF=None,name_id=None):
 
     return enrichN
 
-def DAVIDgetGeneAttribute(x,parsedGTF,refCol="ensembl_gene_id",fieldTOretrieve="gene_name"):
+def DAVIDgetGeneAttribute(x,df,refCol="ensembl_gene_id",fieldTOretrieve="gene_name"):
     """
     Returns a list of gene names for given gene ids.
 
     :param x: a string with the list of IDs separated by ', '
-    :param parsedGTF: a parsed GTF with at least refcCol and fieldTOretrieve as retrieved from parsedGTF()
+    :param df: a dataframe with the reference column and a the column to retrieve
     :param refCol: the header of the column containing the identifiers
     :param fieldTOretrieve: the field to retrieve from parsedGTF eg. 'gene_name'
 

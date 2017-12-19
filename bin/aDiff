@@ -92,7 +92,7 @@ if args.listMarts:
 
 if args.listDatasets:
     #print(age.RdatasetsBM(args.mart,host=args.host))
-    age.datasetsBM(args.mart,host=args.host)
+    age.datasetsBM(host=args.host)
     sys.exit(0)
 
 if args.listFilters:
