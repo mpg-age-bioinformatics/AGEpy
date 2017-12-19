@@ -40,7 +40,6 @@ Writes a bed dataframe into a bed file.
 
 ```python
 >>> import AGEpy as age
-
 >>> print bed.head()
 
 chrom chromStart   chromEnd    name score strand       signalValue  \
@@ -70,7 +69,6 @@ Transforms a pandas dataframe into a bedtool. Requires `bedtools` to be in your 
 
 ```python
 >>> import AGEpy as age
-
 >>> print bed.head()
 
 chrom chromStart   chromEnd    name score strand       signalValue  \
@@ -123,7 +121,6 @@ Annotates a bedtool, BED narrow peak.
 
 ```python
 >>> import AGEpy as age
-
 >>> print bed.head()
 
 chrom chromStart   chromEnd    name score strand       signalValue  \
