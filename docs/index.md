@@ -39,7 +39,6 @@ and then update to the latest release whenever required with:
 cd AGEpy
 git pull
 python setup.py install --user --force
-
 ```
 
 Alternatively you can also install the package with a symlink, so that changes
