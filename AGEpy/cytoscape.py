@@ -157,9 +157,13 @@ def getTableColumns(table, columns, namespace = "default", network = "current", 
     for c in columns:
         ncols.append(c.replace(" ","%20") )
     for c in ncols:
-        col=target(c)
-        df=pd.concat([df,col],axis=1)
-        
+        try:
+            col=target(c)
+            df=pd.concat([df,col],axis=1)
+        except:
+            print "Could not find "+c
+            sys.stdout.flush()        
+
     df.index=df["name"].tolist()
     df=df.drop(["name"],axis=1)
     
@@ -264,7 +268,22 @@ def update_style(title,defaults=None,mappings=None,host=cytoscape_host,port=cyto
     
     :retunrs: nothing
     """
-    
+
+    if defaults: 
+        defaults_=[]    
+        for d in defaults:
+            if d:
+                defaults_.append(d)
+        defaults=defaults_
+
+    if mappings:
+        mappings_=[]
+        for m in mappings:
+            if m:
+                mappings_.append(m)
+        mappings=mappings_
+
+
     URL="http://"+str(host)+":"+str(port)+"/v1/styles/"+str(title)
     if verbose:
         print URL
@@ -316,6 +335,20 @@ def create_styles(title,defaults=None,mappings=None,host=cytoscape_host,port=cyt
     :retunrs: nothing
     """   
     
+    if defaults:
+        defaults_=[]
+        for d in defaults:
+            if d:
+                defaults_.append(d)
+        defaults=defaults_
+
+    if mappings:
+        mappings_=[]
+        for m in mappings:
+            if m:
+                mappings_.append(m)
+        mappings=mappings_
+
     try:
         update_style(title,defaults=defaults,mappings=mappings,host=host,port=port)
         print "Existing style was updated."
@@ -375,11 +408,16 @@ def mapVisualProperty(visualProperty,mappingType,mappingColumn,\
         response = response.read()
         response = json.loads(response)
 
+    mappingColumnType=None
     for r in response:
         if r["name"]==mappingColumn:
             mappingColumnType=r["type"]
             break
-            
+    if not mappingColumnType:
+        print "For mappingType: "+mappingType+" it was not possible to find a  mappingColumnType."
+        sys.stdout.flush()
+    
+        
     PARAMS={"mappingType" : mappingType,\
             "mappingColumn" : mappingColumn,
             "mappingColumnType" : mappingColumnType,
@@ -401,8 +439,14 @@ def mapVisualProperty(visualProperty,mappingType,mappingColumn,\
     if discrete:
         PARAMS["map"]=[]
         for k,v in zip(discrete[0],discrete[1]):
-            PARAMS["map"].append({ "key":k,"value":v})        
-    return PARAMS
+            PARAMS["map"].append({ "key":k,"value":v})
+    
+    if not mappingColumnType:
+        res=None
+    else:
+        res=PARAMS    
+
+    return res
 
 def result(filetype="PNG",saveas=None, host=cytoscape_host,port=cytoscape_port):
     """
@@ -562,35 +606,36 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
     
     # apply mappings - reds - to Normalized expression (as in MA plots) to border color and border size
     NormIntDf = getTableColumns('node',['NormInt'],host=cytoscape_host, port=cytoscape_port)
-    min_NormInt = min(NormIntDf.dropna()['NormInt'].tolist())
-    max_NormInt = max(NormIntDf.dropna()['NormInt'].tolist())
-    cent_NormInt = np.mean([min_NormInt,max_NormInt])
+    if 'NormInt' in NormIntDf.columns.tolist():
+        min_NormInt = min(NormIntDf.dropna()['NormInt'].tolist())
+        max_NormInt = max(NormIntDf.dropna()['NormInt'].tolist())
+        cent_NormInt = np.mean([min_NormInt,max_NormInt])
 
-    cmap = matplotlib.cm.get_cmap("Reds")
-    norm = matplotlib.colors.Normalize(vmin=min_NormInt, vmax=max_NormInt)
-    min_color=matplotlib.colors.rgb2hex(cmap(norm(np.mean([min_NormInt,max_NormInt]))))
-    center_color=matplotlib.colors.rgb2hex(cmap(norm(cent_NormInt)))
-    max_color=matplotlib.colors.rgb2hex(cmap(norm(max_NormInt)))  
+        cmap = matplotlib.cm.get_cmap("Reds")
+        norm = matplotlib.colors.Normalize(vmin=min_NormInt, vmax=max_NormInt)
+        min_color=matplotlib.colors.rgb2hex(cmap(norm(np.mean([min_NormInt,max_NormInt]))))
+        center_color=matplotlib.colors.rgb2hex(cmap(norm(cent_NormInt)))
+        max_color=matplotlib.colors.rgb2hex(cmap(norm(max_NormInt)))  
 
-    NODE_BORDER_PAINT=mapVisualProperty('NODE_BORDER_PAINT','continuous','NormInt',\
-                         lower=[min_NormInt,min_color],center=[np.mean([min_NormInt,max_NormInt]),center_color],upper=[max_NormInt,max_color],\
-                                       host=cytoscape_host, port=cytoscape_port)
-    update_style("dataStyle",mappings=[NODE_BORDER_PAINT],\
-                host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("vizmap", "apply", {"styles":"dataStyle"},\
-                      host=cytoscape_host, port=cytoscape_port)
+        NODE_BORDER_PAINT=mapVisualProperty('NODE_BORDER_PAINT','continuous','NormInt',\
+                             lower=[min_NormInt,min_color],center=[np.mean([min_NormInt,max_NormInt]),center_color],upper=[max_NormInt,max_color],\
+                                           host=cytoscape_host, port=cytoscape_port)
+        update_style("dataStyle",mappings=[NODE_BORDER_PAINT],\
+                    host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("vizmap", "apply", {"styles":"dataStyle"},\
+                          host=cytoscape_host, port=cytoscape_port)
 
-    NODE_BORDER_WIDTH=mapVisualProperty('NODE_BORDER_WIDTH','continuous','NormInt',\
-                         lower=[min_NormInt,2],center=[np.mean([min_NormInt,max_NormInt]),4],upper=[max_NormInt,8],\
-                                       host=cytoscape_host, port=cytoscape_port)
-    update_style("dataStyle",mappings=[NODE_BORDER_WIDTH],\
-                host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("vizmap", "apply", {"styles":"dataStyle"},\
-                      host=cytoscape_host, port=cytoscape_port)
+        NODE_BORDER_WIDTH=mapVisualProperty('NODE_BORDER_WIDTH','continuous','NormInt',\
+                          lower=[min_NormInt,2],center=[np.mean([min_NormInt,max_NormInt]),4],upper=[max_NormInt,8],\
+                                           host=cytoscape_host, port=cytoscape_port)
+        update_style("dataStyle",mappings=[NODE_BORDER_WIDTH],\
+                    host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("vizmap", "apply", {"styles":"dataStyle"},\
+                          host=cytoscape_host, port=cytoscape_port)
 
-    response=cytoscape("network","rename",\
-                       {"name":'main String network'},\
-                      host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","rename",\
+                           {"name":'main String network'},\
+                          host=cytoscape_host, port=cytoscape_port)
     
     # create network with edges only
     response=cytoscape("network","select",\
@@ -613,63 +658,64 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                        {"network":"main String network (edges only)"},\
                       host=cytoscape_host, port=cytoscape_port)
     log2fcDf = getTableColumns('node',['log2(fold_change)'],host=cytoscape_host, port=cytoscape_port)
-    log2fcDf['log2(fold_change)']=log2fcDf['log2(fold_change)'].apply(lambda x: abs(x))
-    log2fcDf=log2fcDf.sort_values(by=['log2(fold_change)'],ascending=False)
-    top_nodes=log2fcDf.index.tolist()[:int(len(log2fcDf)*.10)]
-    response=cytoscape("network","select",
-                       {"nodeList":"name:"+",".join(top_nodes)},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","select",
-                       {"firstNeighbors":"",\
-                        "direction":"any",\
-                        "network":"current"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","create",
-                       {"source":"current",\
-                        "nodeList":"selected"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","select",
-                       {"edgeList":"all",\
-                       "extendEdges":"true"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","delete",
-                       {"nodeList":"unselected"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
-                      host=cytoscape_host)
-    response=cytoscape("layout", "force-directed",\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","rename",\
-                       {"name":'top '+str(int(len(log2fcDf)*.10))+' changed firstNeighbors'},\
-                      host=cytoscape_host, port=cytoscape_port)
+    if 'log2(fold_change)' in log2fcDf.columns.tolist():
+        log2fcDf['log2(fold_change)']=log2fcDf['log2(fold_change)'].apply(lambda x: abs(x))
+        log2fcDf=log2fcDf.sort_values(by=['log2(fold_change)'],ascending=False)
+        top_nodes=log2fcDf.index.tolist()[:int(len(log2fcDf)*.10)]
+        response=cytoscape("network","select",
+                           {"nodeList":"name:"+",".join(top_nodes)},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","select",
+                           {"firstNeighbors":"",\
+                            "direction":"any",\
+                            "network":"current"},\
+                           host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","create",
+                           {"source":"current",\
+                            "nodeList":"selected"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","select",
+                           {"edgeList":"all",\
+                           "extendEdges":"true"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","delete",
+                           {"nodeList":"unselected"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
+                          host=cytoscape_host)
+        response=cytoscape("layout", "force-directed",\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","rename",\
+                           {"name":'top '+str(int(len(log2fcDf)*.10))+' changed firstNeighbors'},\
+                          host=cytoscape_host, port=cytoscape_port)
     
-    #top 10 changed genes difusion
-    response=cytoscape("network","set current",
-                       {"network":"main String network (edges only)"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","select",
-                       {"nodeList":"name:"+",".join(top_nodes)},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("diffusion","diffuse",host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","create",
-                       {"source":"current",\
-                        "nodeList":"selected"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","select",
-                       {"edgeList":"all",\
-                       "extendEdges":"true"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","delete",
-                       {"nodeList":"unselected"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("layout", "force-directed",host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","rename",\
-                       {"name":'top '+str(int(len(log2fcDf)*.10))+' changed diffusion'},\
-                      host=cytoscape_host, port=cytoscape_port)
+        #top 10 changed genes difusion
+        response=cytoscape("network","set current",
+                           {"network":"main String network (edges only)"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","select",
+                           {"nodeList":"name:"+",".join(top_nodes)},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("diffusion","diffuse",host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","create",
+                           {"source":"current",\
+                          "nodeList":"selected"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","select",
+                           {"edgeList":"all",\
+                           "extendEdges":"true"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","delete",
+                           {"nodeList":"unselected"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("layout", "force-directed",host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","rename",\
+                           {"name":'top '+str(int(len(log2fcDf)*.10))+' changed diffusion'},\
+                          host=cytoscape_host, port=cytoscape_port)
     
     def MAKETMP():
         (fd, f) = tempfile.mkstemp()
@@ -730,40 +776,49 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                         "OutputFile":edg_pdf},\
                       host=cytoscape_host, port=cytoscape_port)
     
-    response=cytoscape("network","set current",
-                       {"network":'top '+str(int(len(log2fcDf)*.10))+' changed firstNeighbors'},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    sleep(5)
 
-    response=cytoscape("view", "export" , \
-                       {"options":"PNG",\
-                        "OutputFile":neig_png},\
-                      host=cytoscape_host, port=cytoscape_port)
+    try:
+        response=cytoscape("network","set current",
+                           {"network":'top '+str(int(len(log2fcDf)*.10))+' changed firstNeighbors'},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        sleep(5)
 
-    response=cytoscape("view", "export" , \
-                       {"options":"PDF",\
-                        "OutputFile":neig_pdf},\
-                      host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("view", "export" , \
+                           {"options":"PNG",\
+                            "OutputFile":neig_png},\
+                          host=cytoscape_host, port=cytoscape_port)
 
-    response=cytoscape("network","set current",
-                       {"network":'top '+str(int(len(log2fcDf)*.10))+' changed diffusion'},\
-                      host=cytoscape_host, port=cytoscape_port)
-    response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
-                      host=cytoscape_host, port=cytoscape_port)
-    sleep(5)
+        response=cytoscape("view", "export" , \
+                           {"options":"PDF",\
+                            "OutputFile":neig_pdf},\
+                          host=cytoscape_host, port=cytoscape_port)
+    except:
+        print "No "+"changed firstNeighbors"
+        sys.stdout.flush()
 
-    response=cytoscape("view", "export" , \
-                       {"options":"PNG",\
-                        "OutputFile":dif_png},\
-                      host=cytoscape_host, port=cytoscape_port)
+    try:
+        response=cytoscape("network","set current",
+                           {"network":'top '+str(int(len(log2fcDf)*.10))+' changed diffusion'},\
+                          host=cytoscape_host, port=cytoscape_port)
+        response=cytoscape("network","deselect",{"edgeList":"all", "nodeList":"all"},\
+                          host=cytoscape_host, port=cytoscape_port)
+        sleep(5)
 
-    response=cytoscape("view", "export" , \
-                       {"options":"PDF",\
-                        "OutputFile":dif_pdf},\
-                      host=cytoscape_host, port=cytoscape_port)
-    
+        response=cytoscape("view", "export" , \
+                           {"options":"PNG",\
+                            "OutputFile":dif_png},\
+                          host=cytoscape_host, port=cytoscape_port)
+
+        response=cytoscape("view", "export" , \
+                           {"options":"PDF",\
+                            "OutputFile":dif_pdf},\
+                          host=cytoscape_host, port=cytoscape_port)
+    except:
+        print "No "+"changed diffusion"
+        sys.stdout.flush()    
+
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(cytoscape_host)
@@ -776,5 +831,10 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                                     target+".main.edges.png",target+".main.edges.pdf",\
                                     target+".topFirstNeighbors.png",target+".topFirstNeighbors.pdf",\
                                     target+".topDiffusion.png",target+".topDiffusion.pdf"]):
-        ftp_client.get(f+extension,local)
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("rm "+f+extension )
+        try:
+            ftp_client.get(f+extension,local)
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("rm "+f+extension )
+        except:
+            print "No "+local
+            sys.stdout.flush()
+    
