@@ -8,6 +8,6 @@ Selectes motifs from a meme file based on the number of sites.
 
 ```python
 >>> import AGEpy as age
->>> age.("/path/to/input.meme","/path/to/output.meme", 15)
+>>> age.filterMotifs("/path/to/input.meme","/path/to/output.meme", 15)
 ```
 ___

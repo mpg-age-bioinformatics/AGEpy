@@ -98,6 +98,24 @@
     <a class="current" href="./">kegg</a>
     <ul class="subnav">
             
+    <li class="toctree-l3"><a href="#organismskegg">organismsKEGG</a></li>
+    
+
+    <li class="toctree-l3"><a href="#databaseskegg">databasesKEGG</a></li>
+    
+
+    <li class="toctree-l3"><a href="#ensembl_to_kegg">ensembl_to_kegg</a></li>
+    
+
+    <li class="toctree-l3"><a href="#ecs_idskegg">ecs_idsKEGG</a></li>
+    
+
+    <li class="toctree-l3"><a href="#idskegg">idsKEGG</a></li>
+    
+
+    <li class="toctree-l3"><a href="#pathwayskegg">pathwaysKEGG</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -162,7 +180,131 @@
           <div role="main">
             <div class="section">
               
-                
+                <h2 id="organismskegg"><strong><em>organismsKEGG</em></strong></h2>
+<p>Lists all organisms present in the KEGG database.</p>
+<ul>
+<li><strong><code>returns</code></strong> a dataframe containing one organism per row.</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; KEGGo=age.organismsKEGG()
+&gt;&gt;&gt; print KEGGo.head()
+
+0    1                                                  2  \
+0  T01001  hsa                               Homo sapiens (human)   
+1  T01005  ptr                       Pan troglodytes (chimpanzee)   
+2  T02283  pps                              Pan paniscus (bonobo)   
+3  T02442  ggo  Gorilla gorilla gorilla (western lowland gorilla)   
+4  T01416  pon                  Pongo abelii (Sumatran orangutan)   
+
+                                 3  
+0  Eukaryotes;Animals;Vertebrates;Mammals  
+1  Eukaryotes;Animals;Vertebrates;Mammals  
+2  Eukaryotes;Animals;Vertebrates;Mammals  
+3  Eukaryotes;Animals;Vertebrates;Mammals  
+4  Eukaryotes;Animals;Vertebrates;Mammals
+</code></pre>
+
+<hr />
+<h2 id="databaseskegg"><strong><em>databasesKEGG</em></strong></h2>
+<p>Finds KEGG database identifiers for a respective organism given example ensembl ids.</p>
+<ul>
+<li><strong><code>organism</code></strong> an organism as listed in organismsKEGG()</li>
+<li><strong><code>ens_ids</code></strong> a list of ensenbl ids of the respective organism</li>
+<li><strong><code>returns</code></strong> nothing if no database was found, or a string if a database was found</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print sigGenes[:10]
+
+['ENSG00000272449', 'ENSG00000130762', 'ENSG00000083444', 'ENSG00000162493', 'ENSG00000253368', 'ENSG00000235912', 'ENSG00000169174', 'ENSG00000240563', 'ENSG00000200174', 'ENSG00000162607']
+
+&gt;&gt;&gt; KEGGd=age.databasesKEGG(&quot;hsa&quot;,sigGenes)
+
+For hsa the following db was found: Ensembl
+
+&gt;&gt;&gt; print KEGGd.head()
+
+Ensembl
+</code></pre>
+
+<hr />
+<h2 id="ensembl_to_kegg"><strong><em>ensembl_to_kegg</em></strong></h2>
+<p>Looks up KEGG mappings of KEGG ids to ensembl ids.</p>
+<ul>
+<li><strong><code>organism</code></strong> an organisms as listed in organismsKEGG()</li>
+<li><strong><code>kegg_db</code></strong> a matching KEGG db as reported in databasesKEGG</li>
+<li><strong><code>returns</code></strong> a Pandas dataframe of with 'KEGGid' and 'ENSid'.</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; KEGGi=age.ensembl_to_kegg(&quot;hsa&quot;,&quot;Ensembl&quot;)
+
+KEGG API: http://rest.genome.jp/link/Ensembl/hsa
+
+&gt;&gt;&gt; print KEGGi.head()
+
+KEGGid            ENSid
+0      hsa:1  ENSG00000121410
+1     hsa:10  ENSG00000156006
+2    hsa:100  ENSG00000196839
+3   hsa:1000  ENSG00000170558
+4  hsa:10000  ENSG00000117020
+</code></pre>
+
+<hr />
+<h2 id="ecs_idskegg"><strong><em>ecs_idsKEGG</em></strong></h2>
+<p>Uses KEGG to retrieve all ids and respective ecs for a given KEGG organism.</p>
+<ul>
+<li><strong><code>organism</code></strong> an organisms as listed in organismsKEGG()</li>
+<li><strong><code>returns</code></strong> a Pandas dataframe of with 'ec' and 'KEGGid'.</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; KEGGie=age.ecs_idsKEGG(&quot;hsa&quot;)
+&gt;&gt;&gt; print KEGGie.head()
+
+ec    KEGGid
+0   ec:2.7.11.1  hsa:9344
+1   ec:2.7.11.1  hsa:5894
+2   ec:2.7.11.1   hsa:673
+3   ec:2.7.12.2  hsa:5607
+4  ec:2.7.11.24  hsa:5598
+</code></pre>
+
+<hr />
+<h2 id="idskegg"><strong><em>idsKEGG</em></strong></h2>
+<p>Uses KEGG to retrieve all ids for a given KEGG organism.</p>
+<ul>
+<li><strong><code>organism</code></strong> an organism as listed in organismsKEGG()</li>
+<li><strong><code>returns</code></strong> a Pandas dataframe of with 'gene_name' and 'KEGGid'.</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; KEGGids = age.idsKEGG(&quot;hsa&quot;)
+&gt;&gt;&gt; print KEGGids.head()
+
+gene_name         KEGGid
+0      uncharacterized LOC100287010  hsa:100287010
+1      uncharacterized LOC100288846  hsa:100288846
+2                      DKFZp434L192     hsa:222029
+3  uncharacterized protein FLJ30679     hsa:146512
+4      uncharacterized LOC100128288  hsa:100128288
+</code></pre>
+
+<hr />
+<h2 id="pathwayskegg"><strong><em>pathwaysKEGG</em></strong></h2>
+<p>Retrieves all pathways for a given organism.</p>
+<ul>
+<li><strong><code>organism</code></strong> an organism as listed in organismsKEGG()</li>
+<li><strong><code>returns df</code></strong> a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.</li>
+<li><strong><code>df_</code></strong> a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; KEGGp, KEGGp_ =age.pathwaysKEGG(&quot;hsa&quot;)
+&gt;&gt;&gt; print KEGGp.head()
+
+&gt;&gt;&gt; print KEGGp_.head()
+
+
+</code></pre>
+
+<hr />
               
             </div>
           </div>

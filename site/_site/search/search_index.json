@@ -247,17 +247,47 @@
         }, 
         {
             "location": "/modules/kegg/", 
-            "text": "", 
+            "text": "organismsKEGG\n\n\nLists all organisms present in the KEGG database.\n\n\n\n\nreturns\n a dataframe containing one organism per row.\n\n\n\n\n import AGEpy as age\n\n KEGGo=age.organismsKEGG()\n\n print KEGGo.head()\n\n0    1                                                  2  \\\n0  T01001  hsa                               Homo sapiens (human)   \n1  T01005  ptr                       Pan troglodytes (chimpanzee)   \n2  T02283  pps                              Pan paniscus (bonobo)   \n3  T02442  ggo  Gorilla gorilla gorilla (western lowland gorilla)   \n4  T01416  pon                  Pongo abelii (Sumatran orangutan)   \n\n                                 3  \n0  Eukaryotes;Animals;Vertebrates;Mammals  \n1  Eukaryotes;Animals;Vertebrates;Mammals  \n2  Eukaryotes;Animals;Vertebrates;Mammals  \n3  Eukaryotes;Animals;Vertebrates;Mammals  \n4  Eukaryotes;Animals;Vertebrates;Mammals\n\n\n\n\n\n\ndatabasesKEGG\n\n\nFinds KEGG database identifiers for a respective organism given example ensembl ids.\n\n\n\n\norganism\n an organism as listed in organismsKEGG()\n\n\nens_ids\n a list of ensenbl ids of the respective organism\n\n\nreturns\n nothing if no database was found, or a string if a database was found\n\n\n\n\n import AGEpy as age\n\n print sigGenes[:10]\n\n['ENSG00000272449', 'ENSG00000130762', 'ENSG00000083444', 'ENSG00000162493', 'ENSG00000253368', 'ENSG00000235912', 'ENSG00000169174', 'ENSG00000240563', 'ENSG00000200174', 'ENSG00000162607']\n\n\n KEGGd=age.databasesKEGG(\nhsa\n,sigGenes)\n\nFor hsa the following db was found: Ensembl\n\n\n print KEGGd.head()\n\nEnsembl\n\n\n\n\n\n\nensembl_to_kegg\n\n\nLooks up KEGG mappings of KEGG ids to ensembl ids.\n\n\n\n\norganism\n an organisms as listed in organismsKEGG()\n\n\nkegg_db\n a matching KEGG db as reported in databasesKEGG\n\n\nreturns\n a Pandas dataframe of with 'KEGGid' and 'ENSid'.\n\n\n\n\n import AGEpy as age\n\n KEGGi=age.ensembl_to_kegg(\nhsa\n,\nEnsembl\n)\n\nKEGG API: http://rest.genome.jp/link/Ensembl/hsa\n\n\n print KEGGi.head()\n\nKEGGid            ENSid\n0      hsa:1  ENSG00000121410\n1     hsa:10  ENSG00000156006\n2    hsa:100  ENSG00000196839\n3   hsa:1000  ENSG00000170558\n4  hsa:10000  ENSG00000117020\n\n\n\n\n\n\necs_idsKEGG\n\n\nUses KEGG to retrieve all ids and respective ecs for a given KEGG organism.\n\n\n\n\norganism\n an organisms as listed in organismsKEGG()\n\n\nreturns\n a Pandas dataframe of with 'ec' and 'KEGGid'.\n\n\n\n\n import AGEpy as age\n\n KEGGie=age.ecs_idsKEGG(\nhsa\n)\n\n print KEGGie.head()\n\nec    KEGGid\n0   ec:2.7.11.1  hsa:9344\n1   ec:2.7.11.1  hsa:5894\n2   ec:2.7.11.1   hsa:673\n3   ec:2.7.12.2  hsa:5607\n4  ec:2.7.11.24  hsa:5598\n\n\n\n\n\n\nidsKEGG\n\n\nUses KEGG to retrieve all ids for a given KEGG organism.\n\n\n\n\norganism\n an organism as listed in organismsKEGG()\n\n\nreturns\n a Pandas dataframe of with 'gene_name' and 'KEGGid'.\n\n\n\n\n import AGEpy as age\n\n KEGGids = age.idsKEGG(\nhsa\n)\n\n print KEGGids.head()\n\ngene_name         KEGGid\n0      uncharacterized LOC100287010  hsa:100287010\n1      uncharacterized LOC100288846  hsa:100288846\n2                      DKFZp434L192     hsa:222029\n3  uncharacterized protein FLJ30679     hsa:146512\n4      uncharacterized LOC100128288  hsa:100128288\n\n\n\n\n\n\npathwaysKEGG\n\n\nRetrieves all pathways for a given organism.\n\n\n\n\norganism\n an organism as listed in organismsKEGG()\n\n\nreturns df\n a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.\n\n\ndf_\n a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below\n\n\n\n\n import AGEpy as age\n\n KEGGp, KEGGp_ =age.pathwaysKEGG(\nhsa\n)\n\n print KEGGp.head()\n\n\n print KEGGp_.head()", 
             "title": "kegg"
         }, 
         {
+            "location": "/modules/kegg/#organismskegg", 
+            "text": "Lists all organisms present in the KEGG database.   returns  a dataframe containing one organism per row.    import AGEpy as age  KEGGo=age.organismsKEGG()  print KEGGo.head()\n\n0    1                                                  2  \\\n0  T01001  hsa                               Homo sapiens (human)   \n1  T01005  ptr                       Pan troglodytes (chimpanzee)   \n2  T02283  pps                              Pan paniscus (bonobo)   \n3  T02442  ggo  Gorilla gorilla gorilla (western lowland gorilla)   \n4  T01416  pon                  Pongo abelii (Sumatran orangutan)   \n\n                                 3  \n0  Eukaryotes;Animals;Vertebrates;Mammals  \n1  Eukaryotes;Animals;Vertebrates;Mammals  \n2  Eukaryotes;Animals;Vertebrates;Mammals  \n3  Eukaryotes;Animals;Vertebrates;Mammals  \n4  Eukaryotes;Animals;Vertebrates;Mammals", 
+            "title": "organismsKEGG"
+        }, 
+        {
+            "location": "/modules/kegg/#databaseskegg", 
+            "text": "Finds KEGG database identifiers for a respective organism given example ensembl ids.   organism  an organism as listed in organismsKEGG()  ens_ids  a list of ensenbl ids of the respective organism  returns  nothing if no database was found, or a string if a database was found    import AGEpy as age  print sigGenes[:10]\n\n['ENSG00000272449', 'ENSG00000130762', 'ENSG00000083444', 'ENSG00000162493', 'ENSG00000253368', 'ENSG00000235912', 'ENSG00000169174', 'ENSG00000240563', 'ENSG00000200174', 'ENSG00000162607']  KEGGd=age.databasesKEGG( hsa ,sigGenes)\n\nFor hsa the following db was found: Ensembl  print KEGGd.head()\n\nEnsembl", 
+            "title": "databasesKEGG"
+        }, 
+        {
+            "location": "/modules/kegg/#ensembl_to_kegg", 
+            "text": "Looks up KEGG mappings of KEGG ids to ensembl ids.   organism  an organisms as listed in organismsKEGG()  kegg_db  a matching KEGG db as reported in databasesKEGG  returns  a Pandas dataframe of with 'KEGGid' and 'ENSid'.    import AGEpy as age  KEGGi=age.ensembl_to_kegg( hsa , Ensembl )\n\nKEGG API: http://rest.genome.jp/link/Ensembl/hsa  print KEGGi.head()\n\nKEGGid            ENSid\n0      hsa:1  ENSG00000121410\n1     hsa:10  ENSG00000156006\n2    hsa:100  ENSG00000196839\n3   hsa:1000  ENSG00000170558\n4  hsa:10000  ENSG00000117020", 
+            "title": "ensembl_to_kegg"
+        }, 
+        {
+            "location": "/modules/kegg/#ecs_idskegg", 
+            "text": "Uses KEGG to retrieve all ids and respective ecs for a given KEGG organism.   organism  an organisms as listed in organismsKEGG()  returns  a Pandas dataframe of with 'ec' and 'KEGGid'.    import AGEpy as age  KEGGie=age.ecs_idsKEGG( hsa )  print KEGGie.head()\n\nec    KEGGid\n0   ec:2.7.11.1  hsa:9344\n1   ec:2.7.11.1  hsa:5894\n2   ec:2.7.11.1   hsa:673\n3   ec:2.7.12.2  hsa:5607\n4  ec:2.7.11.24  hsa:5598", 
+            "title": "ecs_idsKEGG"
+        }, 
+        {
+            "location": "/modules/kegg/#idskegg", 
+            "text": "Uses KEGG to retrieve all ids for a given KEGG organism.   organism  an organism as listed in organismsKEGG()  returns  a Pandas dataframe of with 'gene_name' and 'KEGGid'.    import AGEpy as age  KEGGids = age.idsKEGG( hsa )  print KEGGids.head()\n\ngene_name         KEGGid\n0      uncharacterized LOC100287010  hsa:100287010\n1      uncharacterized LOC100288846  hsa:100288846\n2                      DKFZp434L192     hsa:222029\n3  uncharacterized protein FLJ30679     hsa:146512\n4      uncharacterized LOC100128288  hsa:100128288", 
+            "title": "idsKEGG"
+        }, 
+        {
+            "location": "/modules/kegg/#pathwayskegg", 
+            "text": "Retrieves all pathways for a given organism.   organism  an organism as listed in organismsKEGG()  returns df  a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.  df_  a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below    import AGEpy as age  KEGGp, KEGGp_ =age.pathwaysKEGG( hsa )  print KEGGp.head()  print KEGGp_.head()", 
+            "title": "pathwaysKEGG"
+        }, 
+        {
             "location": "/modules/meme/", 
-            "text": "filterMotifs\n\n\nSelectes motifs from a meme file based on the number of sites.\n\n \nmemeFile\n MEME file to be read\n\n \noutFile\n MEME file to be written\n\n \nminSites\n minimum number of sites each motif needs to have to be valid\n\n \nreturns\n nothing\n\n\n import AGEpy as age\n\n age.(\n/path/to/input.meme\n,\n/path/to/output.meme\n, 15)", 
+            "text": "filterMotifs\n\n\nSelectes motifs from a meme file based on the number of sites.\n\n \nmemeFile\n MEME file to be read\n\n \noutFile\n MEME file to be written\n\n \nminSites\n minimum number of sites each motif needs to have to be valid\n\n \nreturns\n nothing\n\n\n import AGEpy as age\n\n age.filterMotifs(\n/path/to/input.meme\n,\n/path/to/output.meme\n, 15)", 
             "title": "meme"
         }, 
         {
             "location": "/modules/meme/#filtermotifs", 
-            "text": "Selectes motifs from a meme file based on the number of sites.   memeFile  MEME file to be read   outFile  MEME file to be written   minSites  minimum number of sites each motif needs to have to be valid   returns  nothing   import AGEpy as age  age.( /path/to/input.meme , /path/to/output.meme , 15)", 
+            "text": "Selectes motifs from a meme file based on the number of sites.   memeFile  MEME file to be read   outFile  MEME file to be written   minSites  minimum number of sites each motif needs to have to be valid   returns  nothing   import AGEpy as age  age.filterMotifs( /path/to/input.meme , /path/to/output.meme , 15)", 
             "title": "filterMotifs"
         }, 
         {
