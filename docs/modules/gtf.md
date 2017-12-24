@@ -199,7 +199,7 @@ seqname  source     feature  start    end score strand frame  \
 ```
 ___
 
-## ___MAPGenoToTrans___
+## ___GetTransPosition___
 
 Maps a genome position to transcript positon.
 
