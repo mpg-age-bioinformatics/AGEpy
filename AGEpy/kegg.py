@@ -176,7 +176,7 @@ def pathwaysKEGG(organism):
     
     def CombineAnn(df):
         return pd.Series(dict(KEGGid = ', '.join([ s for s in list(set(df['KEGGid']))  if str(s) != "nan" ] ) , 
-                    pathID = ', '.join([ s for s in list(set(df['pathID'])) if str(s) != "nan" ]),
+                    pathIDs = ', '.join([ s for s in list(set(df['pathID'])) if str(s) != "nan" ]),
                     pathName = ', '.join([ s for s in list(set(df['pathName'])) if str(s) != "nan" ] )  ) ) 
     
     df=df.groupby('KEGGid',as_index=True).apply(CombineAnn)
@@ -288,26 +288,21 @@ def expKEGG(organism,names_KEGGids):
 
 rbiomart_host="www.ensembl.org"
 
-def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=rbiomart_host,links=True,dfexp=None,kegg_db=None ):
+def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=biomart_host,links=True,dfexp=None,kegg_db=None ):
     """
     This looks for all KEGG annotatios of an organism in biomaRt and the respective pathways in KEGG.
-
-    :param dfexp: a Pandas dataframe with the following columns: 'ensembl_gene_id', 'log2FC'
     :param organism: a KEGG organism identifier
     :param dataset: a biomaRt dataset
     :param database: a biomaRt database
     :param query_attributes: biomaRt query attributes, the name can change but the output should stay in the same order ie. 'ensembl_gene_id','kegg_enzyme'
     :param host: biomaRt_host
     :param links: if True, returns df_links
-    :param dfexp: a Pandas dataframe with the folowing columns 'KEGGid' and 'log2FC'
+    :param dfexp: a Pandas dataframe with the following columns: 'ensembl_gene_id', 'log2FC'
     :param kegg_db: a KEGG database as recovered by the databasesKEGG function
-
-
     :returns df: a Pandas dataframe with the 'KEGGid','pathsIDs','pathName','ensembl_gene_id','kegg_enzyme'
     :returns df_: a matrix with a column for each KEGG pathway for a given organism and the expression values in the respective dfexp in parameter
     :returns fullmatrix: a matrix with a column for each KEGG pathway for a given organism
     :returns df_links: a dataframe with links for each pathway and the links in the dfexp highlighted red (if df_links.
-
     """
     try:
         # Get all ensembl gene ids and keeg enzyme labels from biomaRt
@@ -352,7 +347,8 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
 
     df=pd.merge(df, biomaRt_output, how="outer",on=['KEGGid']).drop_duplicates()
     df=df[df['KEGGid'].astype(str)!="nan"]
-    df=df.sort('ensembl_gene_id')
+    df=df.sort_values(by=['ensembl_gene_id'])
+    #print df.head()
     df=df.drop_duplicates(subset=['KEGGid','pathIDs','pathName','kegg_enzyme' ])
     df=df.reset_index()
     if not isinstance(dfexp, pd.DataFrame):
@@ -377,7 +373,7 @@ def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id',
 
         df_=pd.merge(dfexp,df_,on=['KEGGid'],how="left")
         df_=df_.dropna(subset=['KEGGid','ensembl_gene_id'])
-        df_=df_.sort(columns=cols)
+        df_=df_.sort_values(by=cols)
 
         def get_expression(df_,col,expDic=expDic):
             v=df_[col]
