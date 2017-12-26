@@ -111,6 +111,7 @@ def id_nameDAVID(df,GTF=None,name_id=None):
         ids=pd.DataFrame(data=ids.split(", "))
         ids.columns=['geneIds']
         ids['geneIds']=ids['geneIds'].map(str.lower)
+        GTF['gene_id']=GTF['gene_id'].astype(str)
         GTF['gene_id']=GTF['gene_id'].map(str.lower)
         ids=pd.merge(ids, GTF, how='left', left_on='geneIds', right_on='gene_id')
         names=ids['gene_name'].tolist()
@@ -143,7 +144,7 @@ def DAVIDgetGeneAttribute(x,df,refCol="ensembl_gene_id",fieldTOretrieve="gene_na
     l=x.split(", ")
     l=[ s.upper() for s in l ]
     tmpdf=pd.DataFrame({refCol:l},index=range(len(l)))
-    df_fix=parsedGTF[[refCol,fieldTOretrieve]].drop_duplicates()
+    df_fix=df[[refCol,fieldTOretrieve]].drop_duplicates()
     df_fix[refCol]=df_fix[refCol].apply(lambda x: x.upper())
     ids=pd.merge(tmpdf,df_fix,how="left",on=[refCol])
     ids=ids[fieldTOretrieve].tolist()

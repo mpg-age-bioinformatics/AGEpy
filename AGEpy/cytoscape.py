@@ -551,6 +551,7 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                      host=cytoscape_host, port=cytoscape_port)
 
     # String protein query
+    query_genes=[ str(s) for s in query_genes ]
     response=cytoscape("string", "protein query",\
                       {"query":",".join(query_genes),\
                        "cutoff":str(cutoff),\

@@ -20,7 +20,7 @@ def organismsKEGG():
     """
     Lists all organisms present in the KEGG database.
 
-    :returns: a list of lists containing one organism per list.
+    :returns: a dataframe containing one organism per row.
 
     """
     organisms=urlopen("http://rest.kegg.jp/list/organism").read()
@@ -28,6 +28,8 @@ def organismsKEGG():
     #for o in organisms:
     #    print o
     #    sys.stdout.flush()
+    organisms=[ s.split("\t") for s in organisms ]
+    organisms=pd.DataFrame(organisms)
     return organisms
 
 
@@ -147,15 +149,13 @@ def idsKEGG(organism):
 def pathwaysKEGG(organism):
     """
     Retrieves all pathways for a given organism.
-
     :param organism: an organism as listed in organismsKEGG()
-
     :returns df: a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.
     :returns df_: a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below
     """
 
-    #print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
-    #sys.stdout.flush()
+    print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
+    sys.stdout.flush()
     kegg_paths=urlopen("http://rest.kegg.jp/list/pathway/"+organism).read()
     kegg_paths=kegg_paths.split("\n")
     final=[]
@@ -163,48 +163,32 @@ def pathwaysKEGG(organism):
         final.append(k.split("\t"))
     df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
     df.columns=['pathID','pathName']
-    print "Collecting genes for " + str(len(df)) + " pathways"
-    sys.stdout.flush()
-    df_pg=pd.DataFrame()
-    for i in df['pathID'].tolist():
-        print i+" ",
-        sys.stdout.flush()
-        path_genes=urlopen("http://rest.kegg.jp/link/genes/"+i).read()
-        path_genes=path_genes.split("\n")
-        final=[]
-        for k in path_genes:
-            final.append(k.split("\t"))
-        final.pop()
-        if len(final[0]) is not 2:
-          print " skipped (no genes found in data)"
-          continue
-        print str(len(final)) + " gene(s) assigned"
-        df_tmp=pd.DataFrame(final[0:len(final)])[[0,1]]
-        df_tmp.columns=['pathID','KEGGid']
-        df_pg=pd.concat([df_pg,df_tmp])
-    df=pd.merge(df,df_pg,on=["pathID"], how="outer")
-    KEGGids=list(set(df['KEGGid'].tolist()))
-    print "Merging final table"
-    sys.stdout.flush()
-    df_final=pd.DataFrame()
-    for k in KEGGids:
-        df_tmp=df[df['KEGGid']==k]
-        pathIDs=", ".join(df_tmp['pathID'].tolist())
-        pathName=", ".join(df_tmp['pathName'].tolist())
-        d={'KEGGid':k,'pathIDs':pathIDs,'pathName':pathName}
-        df_tmp=pd.DataFrame(d,index=[0])
-        df_final=pd.concat([df_final,df_tmp])
-    df_final=df_final.dropna()
 
-    df_=df[['KEGGid']].drop_duplicates()
-    for i in list(set(df['pathID'].tolist())):
-        tmp=df[df['pathID']==i]
-        N=": ".join([i,tmp["pathName"].tolist()[0]])
-        tmp=tmp[['KEGGid']]
-        tmp.columns=[N]
-        df_=pd.merge(df_,tmp,left_on=['KEGGid'],right_on=[N],how="outer")
-
-    return df_final, df_
+    print "KEGG API: http://rest.kegg.jp/link/"+organism+"/pathway/"
+    sys.stdout.flush()
+    kegg_paths_genes=urlopen("http://rest.kegg.jp/link/"+organism+"/pathway/").read()
+    kegg_paths_genes=kegg_paths_genes.split("\n")
+    kegg_paths_genes=[ s.split("\t") for s in kegg_paths_genes ]
+    kegg_paths_genes=pd.DataFrame(kegg_paths_genes)
+    kegg_paths_genes.columns=['pathID','KEGGid']
+    
+    df=pd.merge(kegg_paths_genes,df,on=["pathID"],how="outer")
+    
+    def CombineAnn(df):
+        return pd.Series(dict(KEGGid = ', '.join([ s for s in list(set(df['KEGGid']))  if str(s) != "nan" ] ) , 
+                    pathID = ', '.join([ s for s in list(set(df['pathID'])) if str(s) != "nan" ]),
+                    pathName = ', '.join([ s for s in list(set(df['pathName'])) if str(s) != "nan" ] )  ) ) 
+    
+    df=df.groupby('KEGGid',as_index=True).apply(CombineAnn)
+    df.reset_index(inplace=True, drop=True)
+    
+    df_=kegg_paths_genes[['KEGGid']].drop_duplicates()
+    for c in list(set(kegg_paths_genes["pathID"].tolist())):
+        tmp=kegg_paths_genes[kegg_paths_genes["pathID"]==c][["KEGGid"]].drop_duplicates().dropna()
+        tmp.columns=[c]
+        df_=pd.merge(df_,tmp,left_on=["KEGGid"],right_on=[c],how="outer")
+    
+    return df, df_
 
 
 def biomaRtTOkegg(df):

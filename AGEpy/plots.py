@@ -126,7 +126,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
                 barAn=str(len(fcs))+" (NS)"
         else:
             barAn=len(fcs)
-        ax1.text(df.ix[i,'Enrichment']+m*.02, pos+0.25, barAn, ha='left', va='bottom')
+        ax1.text(df.ix[i,'Enrichment']+m*.02, pos, barAn, ha='left', va='bottom')
 
     ax1.set_yticks(arrangment+0.4)
     ax1.set_yticklabels(df['Term'].tolist())
@@ -183,7 +183,9 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     -inf or inf enrichments will come out as min found float or max found float, respectively.
 
     :param df: pandas dataframe with the following columns - 'Enrichment', 'Significant', 'Annotated', 'Term', and 'log2fc'.
-               For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term.
+               'Annotated'i stands for number of genes annotated with the respective GO term.
+                As reported in DAVID by listHits. 
+                For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term.
                eg. '-inf,-1,2,3.4,3.66,inf'
     :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png
     :param figure_title: Figure title.
@@ -244,8 +246,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     allup=[]
 
     for i,pos in zip(df.index.tolist(),arrangment):
-        f=df.ix[i,'Enrichment']
-        sigN=df.ix[i,'Significant']
+        f=df.ix[i,'Enrichment']#sigN=df.ix[i,'Significant']
         ann=float(df.ix[i,'Annotated'])
 
         if ann!=maxAn:
@@ -363,6 +364,7 @@ def MA(df,title,figName,c, daType="counts",nbins=10,perc=.5,deg=3,eq=True,spline
     :param per: log2(fold change) percentil to which the splines will be fitted
     :param deg: degress of freedom used to fit the splines
     :param eq: if true assumes for each bin that the lower and upper values are equally distant to 0, taking the smaller distance for both
+    :param splines: plot splines, default=True
     :param spec: list of ids to be highlighted
     :param Targets: list of ids that will be highlighted if outside of the fitted splines
     :param ylim: a list of limits to apply on the y-axis of the plot

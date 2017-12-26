@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import urllib2
 
 def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
                   genefile="homologene.data",\
