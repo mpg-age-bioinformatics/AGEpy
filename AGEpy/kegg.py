@@ -288,17 +288,18 @@ def expKEGG(organism,names_KEGGids):
 
 rbiomart_host="www.ensembl.org"
 
-def KEGGmatrix(organism, dataset, database, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=biomart_host,links=True,dfexp=None,kegg_db=None ):
+def KEGGmatrix(organism, dataset, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=biomart_host,links=True,dfexp=None,kegg_db=None, database=None ):
     """
-    This looks for all KEGG annotatios of an organism in biomaRt and the respective pathways in KEGG.
+    Looks for all KEGG annotatios of an organism in biomart and the respective pathways in KEGG. It can also retrieve links to pathways figures with red labeled genes provided in a dataframe.
+
     :param organism: a KEGG organism identifier
     :param dataset: a biomaRt dataset
-    :param database: a biomaRt database
     :param query_attributes: biomaRt query attributes, the name can change but the output should stay in the same order ie. 'ensembl_gene_id','kegg_enzyme'
     :param host: biomaRt_host
     :param links: if True, returns df_links
     :param dfexp: a Pandas dataframe with the following columns: 'ensembl_gene_id', 'log2FC'
     :param kegg_db: a KEGG database as recovered by the databasesKEGG function
+    :param database: a biomaRt database, depecrated, default=None.
     :returns df: a Pandas dataframe with the 'KEGGid','pathsIDs','pathName','ensembl_gene_id','kegg_enzyme'
     :returns df_: a matrix with a column for each KEGG pathway for a given organism and the expression values in the respective dfexp in parameter
     :returns fullmatrix: a matrix with a column for each KEGG pathway for a given organism
