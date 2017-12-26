@@ -2,6 +2,8 @@
 
 Reads a gz compressed BED narrow peak file from a web address or local file and returns a pandas dataframe.
 
+`writeBED(inBED, file_path)`
+
 * **`URL_or_PATH_TO_file`** source of input bed. Either a web link or a path to a local file.
 
 * **`returns`** a pandas dataframe of the inpud bed.

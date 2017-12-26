@@ -220,7 +220,7 @@ ensembl_gene_id    log2FC
 3  ENSG00000162493 -0.638433
 4  ENSG00000253368  0.654517
 
->>> results=KEGGmatrix("hsa",'hsapiens_gene_ensembl', dfexp=dge, kegg_db="Ensembl" )
+>>> results=age.KEGGmatrix("hsa",'hsapiens_gene_ensembl', dfexp=dge, kegg_db="Ensembl" )
 
 >>> print results[0]
 
