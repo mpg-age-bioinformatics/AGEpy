@@ -16,7 +16,7 @@ Ageing.
 Read the Docs
 ^^^^^^^^^^^^^
 
-We have started introducing some documentation `here`_.
+`agepy.readthedocs.io`_
 
-.. _here: https://bioinformatics.age.mpg.de/AGEpy
+.. _agepy.readthedocs.io: http://agepy.readthedocs.io
 .. _https://bioinformatics.age.mpg.de: https://bioinformatics.age.mpg.de
