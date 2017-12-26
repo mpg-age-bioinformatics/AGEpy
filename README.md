@@ -12,7 +12,7 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
 #### Read the Docs
 
-We have started introducing some documentation [here]( https://github.com/mpg-age-bioinformatics/AGEpy/wiki).
+[agepy.readthedocs.io](http://agepy.readthedocs.io)
 
 #### Installation
 
