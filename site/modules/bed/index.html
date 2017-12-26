@@ -68,14 +68,38 @@
             
     <li class="toctree-l3"><a href="#getbednarrowpeakgz">GetBEDnarrowPeakgz</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l4" href="#getbednarrowpeakgzurl_or_path_to_file">GetBEDnarrowPeakgz(URL_or_PATH_TO_file)</a></li>
+        
+        </ul>
+    
 
     <li class="toctree-l3"><a href="#writebed">writeBED</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#writebedinbed-file_path">writeBED(inBED, file_path)</a></li>
+        
+        </ul>
     
 
     <li class="toctree-l3"><a href="#dftobedtool">dfTObedtool</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l4" href="#dftobedtooldf">dfTObedtool(df)</a></li>
+        
+        </ul>
+    
 
     <li class="toctree-l3"><a href="#getpeaksexons">GetPeaksExons</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#getpeaksexonsbedparsedgtf">GetPeaksExons(bed,parsedGTF)</a></li>
+        
+        </ul>
     
 
     </ul>
@@ -176,6 +200,7 @@
               
                 <h2 id="getbednarrowpeakgz"><strong><em>GetBEDnarrowPeakgz</em></strong></h2>
 <p>Reads a gz compressed BED narrow peak file from a web address or local file and returns a pandas dataframe.</p>
+<h3 id="getbednarrowpeakgzurl_or_path_to_file"><em><code>GetBEDnarrowPeakgz(URL_or_PATH_TO_file)</code></em></h3>
 <ul>
 <li>
 <p><strong><code>URL_or_PATH_TO_file</code></strong> source of input bed. Either a web link or a path to a local file.</p>
@@ -208,6 +233,7 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 <hr />
 <h2 id="writebed"><strong><em>writeBED</em></strong></h2>
 <p>Writes a bed dataframe into a bed file.</p>
+<h3 id="writebedinbed-file_path"><em><code>writeBED(inBED, file_path)</code></em></h3>
 <ul>
 <li><strong><code>inBED</code></strong> a pandas dataframe with the contents of the bed file to be written.</li>
 <li>
@@ -240,6 +266,7 @@ chrom chromStart   chromEnd    name score strand       signalValue  \
 <hr />
 <h2 id="dftobedtool"><strong><em>dfTObedtool</em></strong></h2>
 <p>Transforms a pandas dataframe into a bedtool. Requires <code>bedtools</code> to be in your <code>path</code>.</p>
+<h3 id="dftobedtooldf"><em><code>dfTObedtool(df)</code></em></h3>
 <ul>
 <li><strong><code>df</code></strong> a pandas dataframe.</li>
 <li><strong><code>returns</code></strong> a bedtool.</li>
@@ -287,6 +314,7 @@ chr7    105540000   105540028   Peak_9  1000    +   4.2212263105571 29.045145084
 <hr />
 <h2 id="getpeaksexons"><strong><em>GetPeaksExons</em></strong></h2>
 <p>Annotates a bedtool, BED narrow peak.</p>
+<h3 id="getpeaksexonsbedparsedgtf"><em><code>GetPeaksExons(bed,parsedGTF)</code></em></h3>
 <ul>
 <li><strong><code>bed</code></strong> a pandas dataframe in bed format</li>
 <li>

@@ -3,6 +3,8 @@
 Queries the DAVID database for an enrichment analysis.
 Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == "type" tag and categories ==  "annot" tag.
 
+### *`DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2)`*
+
 * **`database`** A string for the database to query, e.g. 'WORMBASE_GENE_ID'
 * **`categories`** A comma separated string with databases
 * **`user`**  A user ID registered at DAVID for querying
@@ -68,6 +70,8 @@ ___
 ## ___DAVIDgetGeneAttribute___
 
 Returns a list of gene names for given gene ids.
+
+### *`DAVIDgetGeneAttribute(x, df, refCol="ensembl_gene_id", fieldTOretrieve="gene_name")`*
 
 * **`x`** a string with the list of IDs separated by ', '
 * **`df`**  a dataframe with the reference column and a the column to retrieve
@@ -194,4 +198,4 @@ popTotals foldEnrichment         bonferroni          benjamini  \
 3  1.89889814083e-37  ife-5, Y105E8A.20, tsn-1, yars-1, ife-3, C14C1...  
 4   6.7431553467e-37  ife-5, tsn-1, C14C10.1, ife-3, rps-30, Y51H4A....  
 ```
-___ 
+___

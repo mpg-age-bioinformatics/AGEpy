@@ -296,7 +296,7 @@ gene_name         KEGGid
 <ul>
 <li><strong><code>organism</code></strong> an organism as listed in organismsKEGG()</li>
 <li><strong><code>returns df</code></strong> a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.</li>
-<li><strong><code>df_</code></strong> a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below</li>
+<li><strong><code>returns df_</code></strong> a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below</li>
 </ul>
 <pre><code class="python">&gt;&gt;&gt; import AGEpy as age
 &gt;&gt;&gt; KEGGp, KEGGp_ =age.pathwaysKEGG(&quot;hsa&quot;)
@@ -391,7 +391,7 @@ ensembl_gene_id    log2FC
 3  ENSG00000162493 -0.638433
 4  ENSG00000253368  0.654517
 
-&gt;&gt;&gt; results=KEGGmatrix(&quot;hsa&quot;,'hsapiens_gene_ensembl', dfexp=dge, kegg_db=&quot;Ensembl&quot; )
+&gt;&gt;&gt; results=age.KEGGmatrix(&quot;hsa&quot;,'hsapiens_gene_ensembl', dfexp=dge, kegg_db=&quot;Ensembl&quot; )
 
 &gt;&gt;&gt; print results[0]
 

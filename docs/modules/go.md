@@ -3,6 +3,9 @@
 This function collects GO annotation from http://geneontology.org/page/download-annotations.
 
 * **`URL_or_file`** either a link to a file on geneontology.org eg. http://geneontology.org/gene-associations/gene_association.fb.gz or the path for the respective  downloded .gz file.
+
+### *`getGeneAssociation(URL_or_file)`*
+
 * **`returns`** a Pandas dataframe with the parsed table.
 
 ```python

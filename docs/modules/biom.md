@@ -2,6 +2,8 @@
 
 Lists BioMart datasets.
 
+### *`datasetsBM(host=biomart_host)`*
+
 * **`host`** address of the host server, default='http://www.ensembl.org/biomart'
 * **`returns`** nothing
 
@@ -33,6 +35,8 @@ ___
 ## ___filtersBM___
 
 Lists BioMart filters for a specific dataset.
+
+### *`filtersBM(dataset,host=biomart_host)`*
 
 * **`dataset`** dataset to list filters of
 * **`host`** address of the host server, default='http://www.ensembl.org/biomart'
@@ -72,6 +76,8 @@ ___
 
 Lists BioMart attributes for a specific dataset.
 
+### *`attributesBM(dataset,host=biomart_host)`*
+
 * **`dataset`** dataset to list attributes of
 * **`host`** address of the host server, default='http://www.ensembl.org/biomart'
 
@@ -105,6 +111,8 @@ ___
 ## ___queryBM___
 
 Queries BioMart.
+
+### *`queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,query_dic=None,host=biomart_host)`*
 
 * **`query_attributes`** list of attributes to recover from BioMart
 * **`query_dataset`** dataset to query
@@ -141,6 +149,8 @@ ___
 ## ___FilterGOstring___
 
 Filters GO terms based on given strings using ENSEMBL's biomart homology mapping.
+
+### *`FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'aging,'], exclude_names=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], defs_filter=[" age-", " aging", " aged", ' aging', ' aging.', ' aging,'], exclude_defs=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], host=biomart_host, HSA=None,MUS=None,CEL=None,DMEL=None)`*
 
 * **`names_filter`** list of substrings to filter GO names on. Default=["age-", "aging", "aged", 'aging', 'aging.', 'aging,']
 * **`exclude_names`** list of substrings to be used for exclusion of GO names. Default=["packaging","voltage","cleavage-",
