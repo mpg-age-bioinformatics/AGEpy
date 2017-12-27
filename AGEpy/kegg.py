@@ -287,6 +287,7 @@ def expKEGG(organism,names_KEGGids):
     return df_fA, paths
 
 rbiomart_host="www.ensembl.org"
+biomart_host="http://www.ensembl.org/biomart"
 
 def KEGGmatrix(organism, dataset, query_attributes=['ensembl_gene_id','kegg_enzyme'], host=biomart_host,links=True,dfexp=None,kegg_db=None, database=None ):
     """
