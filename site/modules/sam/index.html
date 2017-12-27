@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>sam - AGEpy</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "sam";
+    var mkdocs_page_input_path = "modules/sam.md";
+    var mkdocs_page_url = "/modules/sam/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> AGEpy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../cookbook/">Cookbook</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Modules</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../bed/">bed</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../biom/">biom</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../cytoscape/">cytoscape</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../david/">david</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../fasta/">fasta</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../go/">go</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../gtf/">gtf</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../homology/">homology</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../kegg/">kegg</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../meme/">meme</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../plots/">plots</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">sam</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#readsam">readSAM</a></li>
+    
+
+    <li class="toctree-l3"><a href="#writesam">writeSAM</a></li>
+    
+
+    <li class="toctree-l3"><a href="#samflags">SAMflags</a></li>
+    
+
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Executables</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../executables/adiff/">aDiff</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../executables/obo2tsv/">obo2tsv</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">AGEpy</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Modules &raquo;</li>
+        
+      
+    
+    <li>sam</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="readsam"><strong><em>readSAM</em></strong></h2>
+<p>Reads and parses a sam file.</p>
+<p><strong><code>readSAM(SAMfile,header=False)</code></strong></p>
+<ul>
+<li><strong><code>SAMfile</code></strong> /path/to/file.sam</li>
+<li><strong><code>header</code></strong> logical, if True, reads the header information</li>
+<li><strong><code>returns</code></strong> a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' and a list of the headers if header=True</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; SAMdf=age.readSAM(&quot;sample1.sam&quot;)
+&gt;&gt;&gt; print SAMdf.head()
+
+CIGAR  \
+0  J00137:91:HJG75BBXX:6:1101:27458:1244    4     *         0    0       *   
+1   J00137:91:HJG75BBXX:6:1101:2483:1226    4     *         0    0       *   
+2   J00137:91:HJG75BBXX:6:1101:6593:1244   16    II  11210427  255  2S146M   
+3   J00137:91:HJG75BBXX:6:1101:9293:1244    0     I  10433525  255    150M   
+4  J00137:91:HJG75BBXX:6:1101:13271:1244   16   III   5277278  255    150M   
+
+RNEXT PNEXT TLEN                                                SEQ  \
+0     *     0    0  CCAAAATCAGTTACAAAAAAATTAAATATCGAGTTCCTCCCCCAGA...   
+1     *     0    0  ACGTGACCGATGGTTGGCATGGCACGCATACCACGGAAGCGTCTGC...   
+2     *     0    0  AACAACAGCAGCAGCAGATTTACCAAAGGTTCCCAGCAAGACTAAT...   
+3     *     0    0  CTTGATTGTACTGCTGTGGTGGACCGCGTGGTCCTCCTTGTTGGTT...   
+4     *     0    0  GGACATGATGATCATGGCCACGACTCTCATGGACATAGTCATGATC...   
+
+                                              QUAL  
+0  AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ...  
+1  A-&lt;AF7FF-AF-A&lt;--F-7&lt;FAA7FFF7-&lt;-&lt;F7JF---7--77J7...  
+2  7-AA7JF)JJJF&lt;--7FF--7--AAA--&lt;A7&lt;--&lt;&lt;A-7-A-&lt;&lt;FJ...  
+3  AAFFFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ...  
+4  JFFAJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJ...
+</code></pre>
+
+<hr />
+<h2 id="writesam"><strong><em>writeSAM</em></strong></h2>
+<p>Writes a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' into a sam file.</p>
+<p><strong><code>writeSAM(sam, SAMfile, header=None)</code></strong></p>
+<ul>
+<li><strong><code>sam</code></strong> pandas dataframe to be writen</li>
+<li><strong><code>SAMfile</code></strong> /path/to/file.sam</li>
+<li><strong><code>returns</code></strong> nothing</li>
+</ul>
+<pre><code>&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; age.writeSAM(SAMdf,&quot;modified.sam&quot;)
+</code></pre>
+
+<hr />
+<h2 id="samflags"><strong><em>SAMflags</em></strong></h2>
+<p>Explains a SAM flag.</p>
+<p><strong><code>SAMflags(x)</code></strong></p>
+<ul>
+<li><strong><code>x</code></strong> flag</li>
+<li><strong><code>returns</code></strong> complete SAM flag explanation</li>
+</ul>
+<pre><code>&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print age.SAMflags(64)
+</code></pre>
+
+<p>["0: Read unpaired",
+ "0:  Read not mapped in proper pair",
+ "0:  Read mapped",
+ "0:  Mate mapped",
+ "0:  Read direct strand",
+ "0:  Mate direct strand",
+ "1:  First in pair",
+ "0:  First in pair",
+ "0:  Primary alignment",
+ "0:  Read passes platform/vendor quality checks",
+ "0:  Read is not PCR or optical duplicate",
+ "0:  Not supplementary alignment"]</p>
+<hr />
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../executables/adiff/" class="btn btn-neutral float-right" title="aDiff">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../plots/" class="btn btn-neutral" title="plots"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../plots/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../../executables/adiff/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
+
+</body>
+</html>

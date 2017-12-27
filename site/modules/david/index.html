@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>david - AGEpy</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "david";
+    var mkdocs_page_input_path = "modules/david.md";
+    var mkdocs_page_url = "/modules/david/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> AGEpy</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../cookbook/">Cookbook</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Modules</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../bed/">bed</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../biom/">biom</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../cytoscape/">cytoscape</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">david</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#davidenrich">DAVIDenrich</a></li>
+    
+
+    <li class="toctree-l3"><a href="#davidgetgeneattribute">DAVIDgetGeneAttribute</a></li>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../fasta/">fasta</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../go/">go</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../gtf/">gtf</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../homology/">homology</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../kegg/">kegg</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../meme/">meme</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../plots/">plots</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../sam/">sam</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Executables</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../executables/adiff/">aDiff</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../executables/obo2tsv/">obo2tsv</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">AGEpy</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Modules &raquo;</li>
+        
+      
+    
+    <li>david</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="davidenrich"><strong><em>DAVIDenrich</em></strong></h2>
+<p>Queries the DAVID database for an enrichment analysis.
+Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == "type" tag and categories ==  "annot" tag.</p>
+<p><strong><code>DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2)</code></strong></p>
+<ul>
+<li><strong><code>database</code></strong> A string for the database to query, e.g. 'WORMBASE_GENE_ID'</li>
+<li><strong><code>categories</code></strong> A comma separated string with databases</li>
+<li><strong><code>user</code></strong>  A user ID registered at DAVID for querying</li>
+<li><strong><code>ids</code></strong>  A list with identifiers</li>
+<li><strong><code>name</code></strong>  A string with the name for the query set</li>
+<li><strong><code>ids_bg</code></strong>  A list with the background identifiers to enrich against, 'None' for whole set</li>
+<li><strong><code>name_bg</code></strong>  A string with the name for the background set</li>
+<li><strong><code>p</code></strong>  Maximum p value for enrichment of a term</li>
+<li><strong><code>n</code></strong>  Minimum number of genes within a term</li>
+<li><strong><code>ct</code></strong>  Maybe another threshold</li>
+<li><strong><code>returns</code></strong>  None if no ids match the queried database, or a pandas dataframe with results</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print sigGenes[:10]
+
+[u'WBGene00022275', u'WBGene00004418', u'WBGene00018774',
+ u'WBGene00018772', u'WBGene00018958', u'WBGene00021662',
+ u'WBGene00255594', u'WBGene00021658', u'WBGene00021026',
+ u'WBGene00022042']
+
+&gt;&gt;&gt; categories=['GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT', 'KEGG_PATHWAY','BIOCARTA', 'PFAM', 'PROSITE' ]
+&gt;&gt;&gt; DAVIDdf=age.DAVIDenrich('WORMBASE_GENE_ID', categories, 'email.registered@david.com', sigGenes)
+&gt;&gt;&gt; print DAVIDdf.head()
+
+categoryName                                     termName listHits  \
+0  GOTERM_BP_FAT                       GO:0006412~translation      177   
+1  GOTERM_BP_FAT         GO:0006518~peptide metabolic process      198   
+2  GOTERM_BP_FAT      GO:0043043~peptide biosynthetic process      177   
+3  GOTERM_BP_FAT        GO:0043604~amide biosynthetic process      180   
+4  GOTERM_BP_FAT  GO:0043603~cellular amide metabolic process      206   
+
+     percent               ease  \
+0  5.85704831238  4.32627669357e-43   
+1  6.55195234944  1.36601477909e-42   
+2  5.85704831238  4.04090150003e-42   
+3  5.95632031767  1.05565138148e-40   
+4  6.81667769689  3.74871147863e-40   
+
+                                         geneIds listTotals popHits  \
+0  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     379   
+1  WBGENE00002063, WBGENE00006626, WBGENE00007584...       1878     455   
+2  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     384   
+3  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     402   
+4  WBGENE00002063, WBGENE00006626, WBGENE00007584...       1878     499   
+
+popTotals foldEnrichment         bonferroni          benjamini  \
+0     11221  2.79042292227  1.28576943333e-39  1.28576943333e-39   
+1     11221  2.60009830425  4.05979592345e-39  2.02989796172e-39   
+2     11221  2.75408929047  1.20095592581e-38  4.00318641936e-39   
+3     11221   2.6753612131  3.13739590576e-37  7.84348976441e-38   
+4     11221  2.46662227543  1.11411705145e-36   2.2282341029e-37   
+
+            afdr  
+0  7.78207551683e-40  
+1  2.45717759656e-39  
+2  7.26874466353e-39  
+3  1.89889814083e-37  
+4   6.7431553467e-37  
+</code></pre>
+
+<hr />
+<h2 id="davidgetgeneattribute"><strong><em>DAVIDgetGeneAttribute</em></strong></h2>
+<p>Returns a list of gene names for given gene ids.</p>
+<p><strong><code>DAVIDgetGeneAttribute(x, df, refCol="ensembl_gene_id", fieldTOretrieve="gene_name")</code></strong></p>
+<ul>
+<li><strong><code>x</code></strong> a string with the list of IDs separated by ', '</li>
+<li><strong><code>df</code></strong>  a dataframe with the reference column and a the column to retrieve</li>
+<li><strong><code>refCol</code></strong> the header of the column containing the identifiers</li>
+<li><strong><code>fieldTOretrieve</code></strong> the field to retrieve from parsedGTF eg. 'gene_name'</li>
+<li><strong><code>returns</code></strong> list of fieldTOretrieve separeted by ', ' in the same order as the given in x</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print df.head()
+
+ensembl_gene_id            gene            locus sample_1 sample_2 status  \
+0  WBGene00022275        Y74C9A.1    I:43732-44677       N2     daf2     OK   
+1  WBGene00004418  F53G12.9,rpl-7  I:111037-113672       N2     daf2     OK   
+2  WBGene00018774  F53G12.9,rpl-7  I:111037-113672       N2     daf2     OK   
+3  WBGene00018772        F53G12.4  I:134336-137282       N2     daf2     OK   
+4  WBGene00018958        F56C11.6  I:171339-175991       N2     daf2     OK   
+
+     value_1      value_2  log2(fold_change)  test_stat  p_value   q_value  \
+0     0.195901     0.986634           2.332390    2.32959  0.00570  0.031216   
+1  3354.820000  2463.480000          -0.445539   -2.71381  0.00005  0.000556   
+2  3354.820000  2463.480000          -0.445539   -2.71381  0.00005  0.000556   
+3     1.235670     2.992460           1.276040    3.16508  0.00005  0.000556   
+4     2.651180     3.795600           0.517696    1.73994  0.00410  0.024157   
+
+significant                                              GO_id  \
+0         yes                                                NaN   
+1         yes  GO:0003735; GO:0000463; GO:0044822; GO:0002181...   
+2         yes                                                NaN   
+3         yes                                                NaN   
+4         yes                 GO:0016787; GO:0005615; GO:0004104   
+
+                                           GO_term    gene_biotype  \
+0                                                NaN  protein_coding   
+1  structural constituent of ribosome; maturation...  protein_coding   
+2                                                NaN  protein_coding   
+3                                                NaN  protein_coding   
+4  hydrolase activity; extracellular space; choli...  protein_coding   
+
+  NormInt evidence  
+0 -0.356904       no  
+1  3.458609       no  
+2  3.458609       no  
+3  0.283965       no  
+4  0.501360       no  
+
+&gt;&gt;&gt; print DAVIDdf.head()
+
+categoryName                                     termName listHits  \
+0  GOTERM_BP_FAT                       GO:0006412~translation      177   
+1  GOTERM_BP_FAT         GO:0006518~peptide metabolic process      198   
+2  GOTERM_BP_FAT      GO:0043043~peptide biosynthetic process      177   
+3  GOTERM_BP_FAT        GO:0043604~amide biosynthetic process      180   
+4  GOTERM_BP_FAT  GO:0043603~cellular amide metabolic process      206   
+
+     percent               ease  \
+0  5.85704831238  4.32627669357e-43   
+1  6.55195234944  1.36601477909e-42   
+2  5.85704831238  4.04090150003e-42   
+3  5.95632031767  1.05565138148e-40   
+4  6.81667769689  3.74871147863e-40   
+
+                                         geneIds listTotals popHits  \
+0  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     379   
+1  WBGENE00002063, WBGENE00006626, WBGENE00007584...       1878     455   
+2  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     384   
+3  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     402   
+4  WBGENE00002063, WBGENE00006626, WBGENE00007584...       1878     499   
+
+popTotals foldEnrichment         bonferroni          benjamini  \
+0     11221  2.79042292227  1.28576943333e-39  1.28576943333e-39   
+1     11221  2.60009830425  4.05979592345e-39  2.02989796172e-39   
+2     11221  2.75408929047  1.20095592581e-38  4.00318641936e-39   
+3     11221   2.6753612131  3.13739590576e-37  7.84348976441e-38   
+4     11221  2.46662227543  1.11411705145e-36   2.2282341029e-37   
+
+            afdr  
+0  7.78207551683e-40  
+1  2.45717759656e-39  
+2  7.26874466353e-39  
+3  1.89889814083e-37  
+4   6.7431553467e-37  
+
+&gt;&gt;&gt; gene_names=df[[&quot;ensembl_gene_id&quot;,&quot;gene&quot;]].drop_duplicates()
+&gt;&gt;&gt; DAVIDdf[&quot;gene_names&quot;]=DAVIDdf[&quot;geneIds&quot;].apply(lambda x: \
+                              age.DAVIDgetGeneAttribute(x,\
+                              gene_names,\
+                              refCol=&quot;ensembl_gene_id&quot;,\
+                              fieldTOretrieve=&quot;gene&quot;))
+&gt;&gt;&gt; print DAVIDdf.head()
+
+categoryName                                     termName listHits  \
+0  GOTERM_BP_FAT                       GO:0006412~translation      177   
+1  GOTERM_BP_FAT         GO:0006518~peptide metabolic process      198   
+2  GOTERM_BP_FAT      GO:0043043~peptide biosynthetic process      177   
+3  GOTERM_BP_FAT        GO:0043604~amide biosynthetic process      180   
+4  GOTERM_BP_FAT  GO:0043603~cellular amide metabolic process      206   
+
+     percent               ease  \
+0  5.85704831238  4.32627669357e-43   
+1  6.55195234944  1.36601477909e-42   
+2  5.85704831238  4.04090150003e-42   
+3  5.95632031767  1.05565138148e-40   
+4  6.81667769689  3.74871147863e-40   
+
+                                         geneIds listTotals popHits  \
+0  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     379   
+1  WBGENE00002063, WBGENE00006626, WBGENE00007584...       1878     455   
+2  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     384   
+3  WBGENE00002063, WBGENE00013678, WBGENE00006626...       1878     402   
+4  WBGENE00002063, WBGENE00006626, WBGENE00007584...       1878     499   
+
+popTotals foldEnrichment         bonferroni          benjamini  \
+0     11221  2.79042292227  1.28576943333e-39  1.28576943333e-39   
+1     11221  2.60009830425  4.05979592345e-39  2.02989796172e-39   
+2     11221  2.75408929047  1.20095592581e-38  4.00318641936e-39   
+3     11221   2.6753612131  3.13739590576e-37  7.84348976441e-38   
+4     11221  2.46662227543  1.11411705145e-36   2.2282341029e-37   
+
+            afdr                                         gene_names  
+0  7.78207551683e-40  ife-5, Y105E8A.20, tsn-1, yars-1, ife-3, C14C1...  
+1  2.45717759656e-39  ife-5, tsn-1, C14C10.1, ife-3, rps-30, iff-2, ...  
+2  7.26874466353e-39  ife-5, Y105E8A.20, tsn-1, yars-1, ife-3, C14C1...  
+3  1.89889814083e-37  ife-5, Y105E8A.20, tsn-1, yars-1, ife-3, C14C1...  
+4   6.7431553467e-37  ife-5, tsn-1, C14C10.1, ife-3, rps-30, Y51H4A....  
+</code></pre>
+
+<hr />
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../fasta/" class="btn btn-neutral float-right" title="fasta">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../cytoscape/" class="btn btn-neutral" title="cytoscape"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../cytoscape/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../fasta/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
+
+</body>
+</html>
