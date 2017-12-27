@@ -1,4 +1,4 @@
-## AGEpy [![Build Status](https://travis-ci.org/mpg-age-bioinformatics/AGEpy.svg?branch=master)](https://travis-ci.org/mpg-age-bioinformatics/AGEpy) [![PyPI version](https://badge.fury.io/py/AGEpy.svg)](https://badge.fury.io/py/AGEpy) ![ReadtheDocs](https://readthedocs.org/projects/pip/badge/)
+## AGEpy [![Build Status](https://travis-ci.org/mpg-age-bioinformatics/AGEpy.svg?branch=master)](https://travis-ci.org/mpg-age-bioinformatics/AGEpy) [![PyPI version](https://badge.fury.io/py/AGEpy.svg)](https://badge.fury.io/py/AGEpy) ![ReadtheDocs](https://readthedocs.org/projects/agepy/badge/?version=latest)
 
 This python package contains Bioinformatics tools developed at the
 Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
@@ -12,7 +12,7 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
 #### Read the Docs
 
-We have started introducing some documentation [here]( https://github.com/mpg-age-bioinformatics/AGEpy/wiki).
+[agepy.readthedocs.io](http://agepy.readthedocs.io)
 
 #### Installation
 
