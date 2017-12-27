@@ -57,6 +57,15 @@
     <a class="current" href="./">Cookbook</a>
     <ul class="subnav">
             
+    <li class="toctree-l2"><a href="#importing">Importing</a></li>
+    
+
+    <li class="toctree-l2"><a href="#help">Help</a></li>
+    
+
+    <li class="toctree-l2"><a href="#example-usage">Example usage</a></li>
+    
+
     </ul>
 	    </li>
           
@@ -158,7 +167,33 @@
           <div role="main">
             <div class="section">
               
-                
+                <h3 id="importing">Importing</h3>
+<p>All functions in the AGEpy pakcage can be accessed using:</p>
+<pre><code class="python">import AGEpy as age
+help(age.readGTF)
+</code></pre>
+
+<p>Alternatively, functions from the different modules can be accessed with for example:</p>
+<pre><code class="python">from AGEpy import gtf
+help(gtf.readGTF)
+</code></pre>
+
+<h3 id="help">Help</h3>
+<p>In bash:</p>
+<pre><code class="bash">pydoc AGEpy.AGEpy
+</code></pre>
+
+<p>In python:</p>
+<pre><code class="python">help(&quot;AGEpy.AGEpy&quot;)
+</code></pre>
+
+<h3 id="example-usage">Example usage</h3>
+<pre><code class="python">import AGEpy as age
+
+gtf=age.readGTF(&quot;/path/to/file.gtf&quot;)
+
+gtf.head()
+</code></pre>
               
             </div>
           </div>

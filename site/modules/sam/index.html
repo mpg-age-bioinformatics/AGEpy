@@ -172,10 +172,13 @@
             <div class="section">
               
                 <h2 id="readsam"><strong><em>readSAM</em></strong></h2>
-<p>Reads and parses a sam file.
-<em> <strong><code>SAMfile</code></strong> /path/to/file.sam
-</em> <strong><code>header</code></strong> logical, if True, reads the header information
-* <strong><code>returns</code></strong> a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' and a list of the headers if header=True</p>
+<p>Reads and parses a sam file.</p>
+<p><strong><code>readSAM(SAMfile,header=False)</code></strong></p>
+<ul>
+<li><strong><code>SAMfile</code></strong> /path/to/file.sam</li>
+<li><strong><code>header</code></strong> logical, if True, reads the header information</li>
+<li><strong><code>returns</code></strong> a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' and a list of the headers if header=True</li>
+</ul>
 <pre><code class="python">&gt;&gt;&gt; import AGEpy as age
 &gt;&gt;&gt; SAMdf=age.readSAM(&quot;sample1.sam&quot;)
 &gt;&gt;&gt; print SAMdf.head()
@@ -204,43 +207,41 @@ RNEXT PNEXT TLEN                                                SEQ  \
 
 <hr />
 <h2 id="writesam"><strong><em>writeSAM</em></strong></h2>
-<p>Writes a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' into a sam file
-<em> <strong><code>sam</code></strong> pandas dataframe to be writen
-</em> <strong><code>SAMfile</code></strong> /path/to/file.sam
-* <strong><code>returns</code></strong> nothing</p>
-<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+<p>Writes a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' into a sam file.</p>
+<p><strong><code>writeSAM(sam, SAMfile, header=None)</code></strong></p>
+<ul>
+<li><strong><code>sam</code></strong> pandas dataframe to be writen</li>
+<li><strong><code>SAMfile</code></strong> /path/to/file.sam</li>
+<li><strong><code>returns</code></strong> nothing</li>
+</ul>
+<pre><code>&gt;&gt;&gt; import AGEpy as age
 &gt;&gt;&gt; age.writeSAM(SAMdf,&quot;modified.sam&quot;)
 </code></pre>
 
 <hr />
 <h2 id="samflags"><strong><em>SAMflags</em></strong></h2>
 <p>Explains a SAM flag.</p>
+<p><strong><code>SAMflags(x)</code></strong></p>
 <ul>
 <li><strong><code>x</code></strong> flag</li>
-<li><strong><code>returns</code></strong> complete SAM flag explanaition</li>
+<li><strong><code>returns</code></strong> complete SAM flag explanation</li>
 </ul>
-<p>```python</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>import AGEpy as age
-print age.SAMflags(64)</p>
-</blockquote>
-</blockquote>
-</blockquote>
-<p>['0: Read unpaired',
- '0: Read not mapped in proper pair',
- '0: Read mapped',
- '0: Mate mapped',
- '0: Read direct strand',
- '0: Mate direct strand',
- '1: First in pair',
- '0: First in pair',
- '0: Primary alignment',
- '0: Read passes platform/vendor quality checks',
- '0: Read is not PCR or optical duplicate',
- '0: Not supplementary alignment']
- ```</p>
+<pre><code>&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; print age.SAMflags(64)
+</code></pre>
+
+<p>["0: Read unpaired",
+ "0:  Read not mapped in proper pair",
+ "0:  Read mapped",
+ "0:  Mate mapped",
+ "0:  Read direct strand",
+ "0:  Mate direct strand",
+ "1:  First in pair",
+ "0:  First in pair",
+ "0:  Primary alignment",
+ "0:  Read passes platform/vendor quality checks",
+ "0:  Read is not PCR or optical duplicate",
+ "0:  Not supplementary alignment"]</p>
 <hr />
               
             </div>

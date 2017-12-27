@@ -2,7 +2,7 @@
 
 Reads a gz compressed BED narrow peak file from a web address or local file and returns a pandas dataframe.
 
-### *`GetBEDnarrowPeakgz(URL_or_PATH_TO_file)`*
+**`GetBEDnarrowPeakgz(URL_or_PATH_TO_file)`**
 
 * **`URL_or_PATH_TO_file`** source of input bed. Either a web link or a path to a local file.
 
@@ -35,7 +35,7 @@ ___
 
 Writes a bed dataframe into a bed file.
 
-### *`writeBED(inBED, file_path)`*
+**`writeBED(inBED, file_path)`**
 
 * **`inBED`** a pandas dataframe with the contents of the bed file to be written.
 * **`file_path`** path to target file.
@@ -68,7 +68,7 @@ ___
 
 Transforms a pandas dataframe into a bedtool. Requires `bedtools` to be in your `path`.
 
-### *`dfTObedtool(df)`*
+**`dfTObedtool(df)`**
 
 * **`df`** a pandas dataframe.
 * **`returns`** a bedtool.
@@ -120,7 +120,7 @@ ___
 
 Annotates a bedtool, BED narrow peak.
 
-### *`GetPeaksExons(bed,parsedGTF)`*
+**`GetPeaksExons(bed,parsedGTF)`**
 
 * **`bed`** a pandas dataframe in bed format
 * **`parsedGTF`** a parsed GTF file as outputed by parseGTF()

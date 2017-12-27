@@ -2,7 +2,7 @@
 
 Checks cytoscape version.
 
-### *`CheckResponse(r)`*
+**`CheckResponse(r)`**
 
 * **`host`** cytoscape host address, default=cytoscape_host
 * **`port`** cytoscape port, defaul=cytoscape_port
@@ -20,7 +20,7 @@ ___
 
 General function for interacting with Cytoscape API.
 
-### *`cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_port,method="POST",verbose=False)`*
+**`cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_port,method="POST",verbose=False)`**
 
 * **`namespace`** namespace where the request should be executed. eg. "string"
 * **`commnand`** command to execute. eg. "protein query"
@@ -44,7 +44,7 @@ ___
 
 Displays the current network.
 
-### *`result(filetype="PNG", saveas=None, host=cytoscape_host, port=cytoscape_port)`*
+**`result(filetype="PNG", saveas=None, host=cytoscape_host, port=cytoscape_port)`**
 
 * **`filetype`** file type, default="PNG"
 * **`saveas`** /path/to/non/tmp/file.prefix
@@ -64,7 +64,7 @@ ___
 
 Gets tables from cytoscape.
 
-### *`getTableColumns(table, columns, namespace = "default", network = "current", host=cytoscape_host,port=cytoscape_port,verbose=False)`*
+**`getTableColumns(table, columns, namespace = "default", network = "current", host=cytoscape_host,port=cytoscape_port,verbose=False)`**
 
 * **`table`** table to retrieve eg. node
 * **`columns`** columns to retrieve in list format
@@ -92,7 +92,7 @@ ___
 
 Loads tables into cytoscape.
 
-### *`loadTableData(df, df_key='index',table="node", table_key_column = "name", network="current", namespace="default", host=cytoscape_host, port=cytoscape_port, verbose=False)`*
+**`loadTableData(df, df_key='index',table="node", table_key_column = "name", network="current", namespace="default", host=cytoscape_host, port=cytoscape_port, verbose=False)`**
 
 * **`df`** a pandas dataframe to load
 * **`df_key`** key column in df, defaul="index"
@@ -139,7 +139,7 @@ ___
 
 Simplifies default layouts.
 
-### *`simple_defaults(defaults_dic)`*
+**`simple_defaults(defaults_dic)`**
 
 * **`defaults_dic`** a dictionary of the form { visualProperty_A:value_A, visualProperty_B:value_B, ..}
 * **`returns`** a list of dictionaries with each item corresponding to a given key in defaults_dic
@@ -164,7 +164,7 @@ ___
 
 Creates a new visual style.
 
-### *`create_styles(title,defaults=None,mappings=None,host=cytoscape_host,port=cytoscape_port)`*
+**`create_styles(title,defaults=None,mappings=None,host=cytoscape_host,port=cytoscape_port)`**
 
 * **`title`** title of the visual style
 * **`defaults`** a list of dictionaries for each visualProperty
@@ -190,7 +190,7 @@ ___
 
 Updates a visual style.
 
-### *`update_style(title, defaults=None, mappings=None, host=cytoscape_host, port=cytoscape_port, verbose=False)`*
+**`update_style(title, defaults=None, mappings=None, host=cytoscape_host, port=cytoscape_port, verbose=False)`**
 
 * **`title`** title of the visual style
 * **`defaults`** a list of dictionaries for each visualProperty
@@ -216,7 +216,7 @@ ___
 
 Generates a dictionary for a given visual property
 
-### *`mapVisualProperty(visualProperty, mappingType, mappingColumn, lower=None,center=None,upper=None, discrete=None, network="current",table="node", namespace="default", host=cytoscape_host, port=cytoscape_port, verbose=False)`*
+**`mapVisualProperty(visualProperty, mappingType, mappingColumn, lower=None,center=None,upper=None, discrete=None, network="current",table="node", namespace="default", host=cytoscape_host, port=cytoscape_port, verbose=False)`**
 
 * **`visualProperty`** visualProperty
 * **`mappingType`** mappingType
@@ -263,7 +263,7 @@ ___
 Plots tables from aDiff/cuffdiff into cytoscape using String protein queries.
 Uses top changed genes as well as first neighbours and difusion fo generate subnetworks.
 
-### *`aDiffCytoscape(df, aging_genes, target, species="caenorhabditis elegans", limit=None, cutoff=0.4, taxon=None, cytoscape_host=cytoscape_host, cytoscape_port=cytoscape_port)`*
+**`aDiffCytoscape(df, aging_genes, target, species="caenorhabditis elegans", limit=None, cutoff=0.4, taxon=None, cytoscape_host=cytoscape_host, cytoscape_port=cytoscape_port)`**
 
 * **`df`**  df as outputed by aDiff for differential gene expression
 * **`aging_genes`** ENS gene ids to be labeled with a diagonal

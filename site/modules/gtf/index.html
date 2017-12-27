@@ -108,6 +108,9 @@
     <li class="toctree-l3"><a href="#mapgenototrans">MAPGenoToTrans</a></li>
     
 
+    <li class="toctree-l3"><a href="#gtftobed">GTFtoBED</a></li>
+    
+
     <li class="toctree-l3"><a href="#gettransposition">GetTransPosition</a></li>
     
 
@@ -186,6 +189,7 @@
                 <h2 id="readgtf"><strong><em>readGTF</em></strong></h2>
 <p>Reads a GTF file and labels the respective columns in agreement with GTF file standards:
 'seqname','source','feature','start','end','score','strand','frame','attribute'.</p>
+<p><strong><code>readGTF(infile)</code></strong></p>
 <ul>
 <li><strong><code>infile</code></strong> /path/to/file.gtf</li>
 <li><strong><code>returns</code></strong> a Pandas dataframe of the respective GTF</li>
@@ -212,6 +216,7 @@ seqname  source     feature  start    end score strand frame  \
 <hr />
 <h2 id="retrieve_gtf_field"><strong><em>retrieve_GTF_field</em></strong></h2>
 <p>Returns a field of choice from the attribute column of the GTF.</p>
+<p><strong><code>retrieve_GTF_field(field,gtf)</code></strong></p>
 <ul>
 <li><strong><code>field</code></strong> field to be retrieved</li>
 <li><strong><code>returns</code></strong> a Pandas dataframe with one column containing the field of choice</li>
@@ -255,6 +260,7 @@ seqname  source     feature  start    end score strand frame  \
 <hr />
 <h2 id="attributesgtf"><strong><em>attributesGTF</em></strong></h2>
 <p>List the type of attributes in a the attribute section of a GTF file</p>
+<p><strong><code>attributesGTF(inGTF)</code></strong></p>
 <ul>
 <li><strong><code>inGTF</code></strong> GTF dataframe to be analysed</li>
 <li><strong><code>returns</code></strong> a list of attributes present in the attribute section</li>
@@ -269,6 +275,7 @@ seqname  source     feature  start    end score strand frame  \
 <hr />
 <h2 id="parsegtf"><strong><em>parseGTF</em></strong></h2>
 <p>Reads an extracts all attributes in the attributes section of a GTF and constructs a new dataframe wiht one collumn per attribute instead of the attributes column.</p>
+<p><strong><code>parseGTF(inGTF)</code></strong></p>
 <ul>
 <li><strong><code>inGTF</code></strong> GTF dataframe to be parsed</li>
 <li><strong><code>returns</code></strong> a dataframe of the orignal input GTF with attributes parsed</li>
@@ -325,6 +332,7 @@ seqname  source     feature  start    end score strand frame gene_status  \
 <hr />
 <h2 id="writegtf"><strong><em>writeGTF</em></strong></h2>
 <p>Write a GTF dataframe into a file.</p>
+<p><strong><code>writeGTF(inGTF,file_path)</code></strong></p>
 <ul>
 <li><strong><code>inGTF</code></strong> GTF dataframe to be written. It should either have 9 columns with the last one being the "attributes" section or more than 9 columns where all columns after the 8th will be colapsed into one.</li>
 <li><strong><code>file_path</code></strong> /path/to/the/file.gtf</li>
@@ -337,6 +345,7 @@ seqname  source     feature  start    end score strand frame gene_status  \
 <hr />
 <h2 id="mapgenototrans"><strong><em>MAPGenoToTrans</em></strong></h2>
 <p>Gets all positions of all bases in an exon.</p>
+<p><strong><code>MAPGenoToTrans(parsedGTF,feature)</code></strong></p>
 <ul>
 <li><strong><code>df</code></strong> a Pandas dataframe with 'start','end', and 'strand' information for each entry. df must contain ['seqname','feature','start','end','strand','frame','gene_id',  'transcript_id','exon_id','exon_number']</li>
 <li><strong><code>feature</code></strong> feature upon wich to generate the map, eg. 'exon' or 'transcript'</li>
@@ -373,8 +382,22 @@ seqname  source     feature  start    end score strand frame  \
 </code></pre>
 
 <hr />
+<h2 id="gtftobed"><strong><em>GTFtoBED</em></strong></h2>
+<p>Transform a GTF dataframe into a bed dataframe</p>
+<p><strong><code>GTFtoBED(inGTF,name)</code></strong></p>
+<ul>
+<li><strong><code>inGTF</code></strong> GTF dataframe for transformation</li>
+<li><strong><code>name</code></strong> field of the GTF data frame to be use for the bed 'name' positon</li>
+<li><strong><code>returns</code></strong> a bed dataframe with the corresponding bed fiels: 'chrom','chromStart','chromEnd','name','score','strand'</li>
+</ul>
+<pre><code class="python">&gt;&gt;&gt; import AGEpy as age
+&gt;&gt;&gt; bed = age.GTFtoBED(GTF, &quot;gene_id&quot;)
+</code></pre>
+
+<hr />
 <h2 id="gettransposition"><strong><em>GetTransPosition</em></strong></h2>
 <p>Maps a genome position to transcript positon.</p>
+<p><strong><code>GetTransPosition(df, field, dic, refCol="transcript_id")</code></strong></p>
 <ul>
 <li><strong><code>df</code></strong> a Pandas dataframe</li>
 <li><strong><code>field</code></strong> the head of the column containing the genomic position</li>

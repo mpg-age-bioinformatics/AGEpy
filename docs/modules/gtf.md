@@ -3,7 +3,7 @@
 Reads a GTF file and labels the respective columns in agreement with GTF file standards:
 'seqname','source','feature','start','end','score','strand','frame','attribute'.
 
-### *`readGTF(infile)`*
+**`readGTF(infile)`**
 
 * **`infile`** /path/to/file.gtf
 * **`returns`** a Pandas dataframe of the respective GTF
@@ -33,7 +33,7 @@ ___
 
 Returns a field of choice from the attribute column of the GTF.
 
-### *`retrieve_GTF_field(field,gtf)`*
+**`retrieve_GTF_field(field,gtf)`**
 
 * **`field`** field to be retrieved
 * **`returns`** a Pandas dataframe with one column containing the field of choice
@@ -80,7 +80,7 @@ ___
 
 List the type of attributes in a the attribute section of a GTF file
 
-### *`attributesGTF(inGTF)`*
+**`attributesGTF(inGTF)`**
 
 * **`inGTF`** GTF dataframe to be analysed
 * **`returns`** a list of attributes present in the attribute section
@@ -97,7 +97,7 @@ ___
 
 Reads an extracts all attributes in the attributes section of a GTF and constructs a new dataframe wiht one collumn per attribute instead of the attributes column.
 
-### *`parseGTF(inGTF)`*
+**`parseGTF(inGTF)`**
 
 * **`inGTF`** GTF dataframe to be parsed
 * **`returns`** a dataframe of the orignal input GTF with attributes parsed
@@ -157,7 +157,7 @@ ___
 
 Write a GTF dataframe into a file.
 
-### *`writeGTF(inGTF,file_path)`*
+**`writeGTF(inGTF,file_path)`**
 
 * **`inGTF`** GTF dataframe to be written. It should either have 9 columns with the last one being the "attributes" section or more than 9 columns where all columns after the 8th will be colapsed into one.
 * **`file_path`** /path/to/the/file.gtf
@@ -173,7 +173,7 @@ ___
 
 Gets all positions of all bases in an exon.
 
-### *`MAPGenoToTrans(parsedGTF,feature)`*
+**`MAPGenoToTrans(parsedGTF,feature)`**
 
 * **`df`** a Pandas dataframe with 'start','end', and 'strand' information for each entry. df must contain ['seqname','feature','start','end','strand','frame','gene_id',  'transcript_id','exon_id','exon_number']
 * **`feature`** feature upon wich to generate the map, eg. 'exon' or 'transcript'
@@ -215,7 +215,7 @@ ___
 
 Transform a GTF dataframe into a bed dataframe
 
-### *`GTFtoBED(inGTF,name)`*
+**`GTFtoBED(inGTF,name)`**
 
 * **`inGTF`** GTF dataframe for transformation
 * **`name`** field of the GTF data frame to be use for the bed 'name' positon
@@ -230,7 +230,7 @@ ___
 
 Maps a genome position to transcript positon.
 
-### *`GetTransPosition(df, field, dic, refCol="transcript_id")`*
+**`GetTransPosition(df, field, dic, refCol="transcript_id")`**
 
 * **`df`** a Pandas dataframe
 * **`field`** the head of the column containing the genomic position

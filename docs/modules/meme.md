@@ -1,6 +1,9 @@
 ## ___filterMotifs___
 
 Selectes motifs from a meme file based on the number of sites.
+
+**`filterMotifs(memeFile,outFile, minSites)`**
+
 * **`memeFile`** MEME file to be read
 * **`outFile`** MEME file to be written
 * **`minSites`** minimum number of sites each motif needs to have to be valid

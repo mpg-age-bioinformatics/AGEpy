@@ -72,47 +72,17 @@
             
     <li class="toctree-l3"><a href="#datasetsbm">datasetsBM</a></li>
     
-        <ul>
-        
-            <li><a class="toctree-l4" href="#datasetsbmhostbiomart_host">datasetsBM(host=biomart_host)</a></li>
-        
-        </ul>
-    
 
     <li class="toctree-l3"><a href="#filtersbm">filtersBM</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#filtersbmdatasethostbiomart_host">filtersBM(dataset,host=biomart_host)</a></li>
-        
-        </ul>
     
 
     <li class="toctree-l3"><a href="#attributesbm">attributesBM</a></li>
     
-        <ul>
-        
-            <li><a class="toctree-l4" href="#attributesbmdatasethostbiomart_host">attributesBM(dataset,host=biomart_host)</a></li>
-        
-        </ul>
-    
 
     <li class="toctree-l3"><a href="#querybm">queryBM</a></li>
     
-        <ul>
-        
-            <li><a class="toctree-l4" href="#querybmquery_attributesquery_datasetquery_filternonequery_itemsnonequery_dicnonehostbiomart_host">queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,query_dic=None,host=biomart_host)</a></li>
-        
-        </ul>
-    
 
     <li class="toctree-l3"><a href="#filtergostring">FilterGOstring</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#filtergostringnames_filterage-aging-aged-aging-aging-aging-exclude_namespackagingvoltagecleavage-stage-1cage-likemessage-specific-damage-associatedstage-specificforaging-dna-damagingengagingdamagedpackaged-defs_filter-age-aging-aged-aging-aging-aging-exclude_defspackagingvoltagecleavage-stage-1cage-likemessage-specific-damage-associatedstage-specificforaging-dna-damagingengagingdamagedpackaged-hostbiomart_host-hsanonemusnonecelnonedmelnone">FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'aging,'], exclude_names=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], defs_filter=[" age-", " aging", " aged", ' aging', ' aging.', ' aging,'], exclude_defs=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], host=biomart_host, HSA=None,MUS=None,CEL=None,DMEL=None)</a></li>
-        
-        </ul>
     
 
     </ul>
@@ -209,7 +179,7 @@
               
                 <h2 id="datasetsbm"><strong><em>datasetsBM</em></strong></h2>
 <p>Lists BioMart datasets.</p>
-<h3 id="datasetsbmhostbiomart_host"><em><code>datasetsBM(host=biomart_host)</code></em></h3>
+<p><strong><code>datasetsBM(host=biomart_host)</code></strong></p>
 <ul>
 <li><strong><code>host</code></strong> address of the host server, default='http://www.ensembl.org/biomart'</li>
 <li><strong><code>returns</code></strong> nothing</li>
@@ -240,7 +210,7 @@ u'btaurus_qtl_feature'  qtl_feature,
 <hr />
 <h2 id="filtersbm"><strong><em>filtersBM</em></strong></h2>
 <p>Lists BioMart filters for a specific dataset.</p>
-<h3 id="filtersbmdatasethostbiomart_host"><em><code>filtersBM(dataset,host=biomart_host)</code></em></h3>
+<p><strong><code>filtersBM(dataset,host=biomart_host)</code></strong></p>
 <ul>
 <li><strong><code>dataset</code></strong> dataset to list filters of</li>
 <li>
@@ -280,7 +250,7 @@ u'affy_primeview'   'AFFY PrimeView probe ID(s) [e.g. 11761516_x_at]' (type id_l
 <hr />
 <h2 id="attributesbm"><strong><em>attributesBM</em></strong></h2>
 <p>Lists BioMart attributes for a specific dataset.</p>
-<h3 id="attributesbmdatasethostbiomart_host"><em><code>attributesBM(dataset,host=biomart_host)</code></em></h3>
+<p><strong><code>attributesBM(dataset,host=biomart_host)</code></strong></p>
 <ul>
 <li><strong><code>dataset</code></strong> dataset to list attributes of</li>
 <li>
@@ -316,7 +286,7 @@ u'3_utr_end'    '3' UTR end' (default   False),
 <hr />
 <h2 id="querybm"><strong><em>queryBM</em></strong></h2>
 <p>Queries BioMart.</p>
-<h3 id="querybmquery_attributesquery_datasetquery_filternonequery_itemsnonequery_dicnonehostbiomart_host"><em><code>queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,query_dic=None,host=biomart_host)</code></em></h3>
+<p><strong><code>queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,query_dic=None,host=biomart_host)</code></strong></p>
 <ul>
 <li><strong><code>query_attributes</code></strong> list of attributes to recover from BioMart</li>
 <li><strong><code>query_dataset</code></strong> dataset to query</li>
@@ -354,7 +324,7 @@ ensembl_gene_id external_gene_name       go_id            name_1006  \
 <hr />
 <h2 id="filtergostring"><strong><em>FilterGOstring</em></strong></h2>
 <p>Filters GO terms based on given strings using ENSEMBL's biomart homology mapping.</p>
-<h3 id="filtergostringnames_filterage-aging-aged-aging-aging-aging-exclude_namespackagingvoltagecleavage-stage-1cage-likemessage-specific-damage-associatedstage-specificforaging-dna-damagingengagingdamagedpackaged-defs_filter-age-aging-aged-aging-aging-aging-exclude_defspackagingvoltagecleavage-stage-1cage-likemessage-specific-damage-associatedstage-specificforaging-dna-damagingengagingdamagedpackaged-hostbiomart_host-hsanonemusnonecelnonedmelnone"><em><code>FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'aging,'], exclude_names=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], defs_filter=[" age-", " aging", " aged", ' aging', ' aging.', ' aging,'], exclude_defs=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], host=biomart_host, HSA=None,MUS=None,CEL=None,DMEL=None)</code></em></h3>
+<p><strong><code>FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'aging,'], exclude_names=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], defs_filter=[" age-", " aging", " aged", ' aging', ' aging.', ' aging,'], exclude_defs=["packaging","voltage","cleavage-", "stage-1","cage-like","message-specific", "damage-associated","stage-specific","foraging", "DNA-damaging","engaging","damaged","packaged"], host=biomart_host, HSA=None,MUS=None,CEL=None,DMEL=None)</code></strong></p>
 <ul>
 <li><strong><code>names_filter</code></strong> list of substrings to filter GO names on. Default=["age-", "aging", "aged", 'aging', 'aging.', 'aging,']</li>
 <li><strong><code>exclude_names</code></strong> list of substrings to be used for exclusion of GO names. Default=["packaging","voltage","cleavage-",

@@ -167,9 +167,14 @@
               
                 <h2 id="getgeneassociation"><strong><em>getGeneAssociation</em></strong></h2>
 <p>This function collects GO annotation from http://geneontology.org/page/download-annotations.</p>
+<p><strong><code>getGeneAssociation(URL_or_file)</code></strong></p>
 <ul>
-<li><strong><code>URL_or_file</code></strong> either a link to a file on geneontology.org eg. http://geneontology.org/gene-associations/gene_association.fb.gz or the path for the respective  downloded .gz file.</li>
-<li><strong><code>returns</code></strong> a Pandas dataframe with the parsed table.</li>
+<li>
+<p><strong><code>URL_or_file</code></strong> either a link to a file on geneontology.org eg. http://geneontology.org/gene-associations/gene_association.fb.gz or the path for the respective  downloded .gz file.</p>
+</li>
+<li>
+<p><strong><code>returns</code></strong> a Pandas dataframe with the parsed table.</p>
+</li>
 </ul>
 <pre><code class="python">&gt;&gt;&gt; import pandas as pd
 &gt;&gt;&gt; gA=age.getGeneAssociation(&quot;http://geneontology.org/gene-associations/gene_association.wb.gz&quot;)

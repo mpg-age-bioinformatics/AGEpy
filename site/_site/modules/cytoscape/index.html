@@ -194,6 +194,7 @@
               
                 <h2 id="checkcytoscapeversion"><strong><em>checkCytoscapeVersion</em></strong></h2>
 <p>Checks cytoscape version.</p>
+<p><strong><code>CheckResponse(r)</code></strong></p>
 <ul>
 <li><strong><code>host</code></strong> cytoscape host address, default=cytoscape_host</li>
 <li><strong><code>port</code></strong> cytoscape port, defaul=cytoscape_port</li>
@@ -209,6 +210,7 @@ apiVersion v1
 <hr />
 <h2 id="cytoscape"><strong><em>cytoscape</em></strong></h2>
 <p>General function for interacting with Cytoscape API.</p>
+<p><strong><code>cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_port,method="POST",verbose=False)</code></strong></p>
 <ul>
 <li><strong><code>namespace</code></strong> namespace where the request should be executed. eg. "string"</li>
 <li><strong><code>commnand</code></strong> command to execute. eg. "protein query"</li>
@@ -230,6 +232,7 @@ apiVersion v1
 <hr />
 <h2 id="result"><strong><em>result</em></strong></h2>
 <p>Displays the current network.</p>
+<p><strong><code>result(filetype="PNG", saveas=None, host=cytoscape_host, port=cytoscape_port)</code></strong></p>
 <ul>
 <li><strong><code>filetype</code></strong> file type, default="PNG"</li>
 <li><strong><code>saveas</code></strong> /path/to/non/tmp/file.prefix</li>
@@ -246,6 +249,7 @@ apiVersion v1
 <hr />
 <h2 id="gettablecolumns"><strong><em>getTableColumns</em></strong></h2>
 <p>Gets tables from cytoscape.</p>
+<p><strong><code>getTableColumns(table, columns, namespace = "default", network = "current", host=cytoscape_host,port=cytoscape_port,verbose=False)</code></strong></p>
 <ul>
 <li><strong><code>table</code></strong> table to retrieve eg. node</li>
 <li><strong><code>columns</code></strong> columns to retrieve in list format</li>
@@ -271,6 +275,7 @@ apiVersion v1
 <hr />
 <h2 id="loadtabledata"><strong><em>loadTableData</em></strong></h2>
 <p>Loads tables into cytoscape.</p>
+<p><strong><code>loadTableData(df, df_key='index',table="node", table_key_column = "name", network="current", namespace="default", host=cytoscape_host, port=cytoscape_port, verbose=False)</code></strong></p>
 <ul>
 <li><strong><code>df</code></strong> a pandas dataframe to load</li>
 <li><strong><code>df_key</code></strong> key column in df, defaul="index"</li>
@@ -314,6 +319,7 @@ apiVersion v1
 <hr />
 <h2 id="simple_defaults"><strong><em>simple_defaults</em></strong></h2>
 <p>Simplifies default layouts.</p>
+<p><strong><code>simple_defaults(defaults_dic)</code></strong></p>
 <ul>
 <li><strong><code>defaults_dic</code></strong> a dictionary of the form { visualProperty_A:value_A, visualProperty_B:value_B, ..}</li>
 <li><strong><code>returns</code></strong> a list of dictionaries with each item corresponding to a given key in defaults_dic</li>
@@ -335,6 +341,7 @@ apiVersion v1
 <hr />
 <h2 id="create_styles"><strong><em>create_styles</em></strong></h2>
 <p>Creates a new visual style.</p>
+<p><strong><code>create_styles(title,defaults=None,mappings=None,host=cytoscape_host,port=cytoscape_port)</code></strong></p>
 <ul>
 <li><strong><code>title</code></strong> title of the visual style</li>
 <li><strong><code>defaults</code></strong> a list of dictionaries for each visualProperty</li>
@@ -357,6 +364,7 @@ apiVersion v1
 <hr />
 <h2 id="update_style"><strong><em>update_style</em></strong></h2>
 <p>Updates a visual style.</p>
+<p><strong><code>update_style(title, defaults=None, mappings=None, host=cytoscape_host, port=cytoscape_port, verbose=False)</code></strong></p>
 <ul>
 <li><strong><code>title</code></strong> title of the visual style</li>
 <li><strong><code>defaults</code></strong> a list of dictionaries for each visualProperty</li>
@@ -379,6 +387,7 @@ apiVersion v1
 <hr />
 <h2 id="mapvisualproperty"><strong><em>mapVisualProperty</em></strong></h2>
 <p>Generates a dictionary for a given visual property</p>
+<p><strong><code>mapVisualProperty(visualProperty, mappingType, mappingColumn, lower=None,center=None,upper=None, discrete=None, network="current",table="node", namespace="default", host=cytoscape_host, port=cytoscape_port, verbose=False)</code></strong></p>
 <ul>
 <li><strong><code>visualProperty</code></strong> visualProperty</li>
 <li><strong><code>mappingType</code></strong> mappingType</li>
@@ -422,6 +431,7 @@ apiVersion v1
 <h2 id="adiffcytoscape"><strong><em>aDiffCytoscape</em></strong></h2>
 <p>Plots tables from aDiff/cuffdiff into cytoscape using String protein queries.
 Uses top changed genes as well as first neighbours and difusion fo generate subnetworks.</p>
+<p><strong><code>aDiffCytoscape(df, aging_genes, target, species="caenorhabditis elegans", limit=None, cutoff=0.4, taxon=None, cytoscape_host=cytoscape_host, cytoscape_port=cytoscape_port)</code></strong></p>
 <ul>
 <li><strong><code>df</code></strong>  df as outputed by aDiff for differential gene expression</li>
 <li><strong><code>aging_genes</code></strong> ENS gene ids to be labeled with a diagonal</li>

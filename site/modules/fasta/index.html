@@ -173,6 +173,7 @@
               
                 <h2 id="getfasta"><strong><em>getFasta</em></strong></h2>
 <p>Retrieves a sequence from an opened multifasta file.</p>
+<p><strong><code>getFasta(opened_file, sequence_name)</code></strong></p>
 <ul>
 <li><strong><code>opened_file</code></strong> an opened multifasta file eg. opened_file=open("/path/to/file.fa",'r+')</li>
 <li><strong><code>sequence_name</code></strong> the name of the sequence to be retrieved eg. for '&gt;2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)</li>
@@ -194,6 +195,7 @@ AGGGTGAATGATGTTTCTGGTACAGTGTACCAGTAAACCTAGCAGTAGGAGCATCAGTAT
 <hr />
 <h2 id="writefasta"><strong><em>writeFasta</em></strong></h2>
 <p>Writes a fasta sequence into a file.</p>
+<p><strong><code>writeFasta(sequence, sequence_name, output_file)</code></strong></p>
 <ul>
 <li><strong><code>sequence</code></strong> a string with the sequence to be written</li>
 <li><strong><code>sequence_name</code></strong> name of the the fasta sequence</li>
@@ -215,6 +217,7 @@ AGGGTGAATGATGTTTCTGGTACAGTGTACCAGTAAACCTAGCAGTAGGAGCATCAGTAT
 <hr />
 <h2 id="rewritefasta"><strong><em>rewriteFasta</em></strong></h2>
 <p>Rewrites a specific sequence in a multifasta file while keeping the sequence header.</p>
+<p><strong><code>rewriteFasta(sequence, sequence_name, fasta_in, fasta_out)</code></strong></p>
 <ul>
 <li><strong><code>sequence</code></strong> a string with the sequence to be written</li>
 <li><strong><code>sequence_name</code></strong> the name of the sequence to be retrieved eg. for '&gt;2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)</li>

@@ -2,7 +2,7 @@
 
 Retrieves a sequence from an opened multifasta file.
 
-### *`getFasta(opened_file, sequence_name)`*
+**`getFasta(opened_file, sequence_name)`**
 
 * **`opened_file`** an opened multifasta file eg. opened_file=open("/path/to/file.fa",'r+')
 * **`sequence_name`** the name of the sequence to be retrieved eg. for '>2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)
@@ -27,7 +27,7 @@ ___
 
 Writes a fasta sequence into a file.
 
-### *`writeFasta(sequence, sequence_name, output_file)`*
+**`writeFasta(sequence, sequence_name, output_file)`**
 
 * **`sequence`** a string with the sequence to be written
 * **`sequence_name`** name of the the fasta sequence
@@ -52,7 +52,7 @@ ___
 
 Rewrites a specific sequence in a multifasta file while keeping the sequence header.
 
-### *`rewriteFasta(sequence, sequence_name, fasta_in, fasta_out)`*
+**`rewriteFasta(sequence, sequence_name, fasta_in, fasta_out)`**
 
 * **`sequence`** a string with the sequence to be written
 * **`sequence_name`** the name of the sequence to be retrieved eg. for '>2 dna:chromosome chromosome:GRCm38:2:1:182113224:1 REF' use: sequence_name=str(2)

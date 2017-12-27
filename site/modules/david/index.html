@@ -171,6 +171,7 @@
                 <h2 id="davidenrich"><strong><em>DAVIDenrich</em></strong></h2>
 <p>Queries the DAVID database for an enrichment analysis.
 Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == "type" tag and categories ==  "annot" tag.</p>
+<p><strong><code>DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2)</code></strong></p>
 <ul>
 <li><strong><code>database</code></strong> A string for the database to query, e.g. 'WORMBASE_GENE_ID'</li>
 <li><strong><code>categories</code></strong> A comma separated string with databases</li>
@@ -235,6 +236,7 @@ popTotals foldEnrichment         bonferroni          benjamini  \
 <hr />
 <h2 id="davidgetgeneattribute"><strong><em>DAVIDgetGeneAttribute</em></strong></h2>
 <p>Returns a list of gene names for given gene ids.</p>
+<p><strong><code>DAVIDgetGeneAttribute(x, df, refCol="ensembl_gene_id", fieldTOretrieve="gene_name")</code></strong></p>
 <ul>
 <li><strong><code>x</code></strong> a string with the list of IDs separated by ', '</li>
 <li><strong><code>df</code></strong>  a dataframe with the reference column and a the column to retrieve</li>

@@ -3,6 +3,8 @@
 Python implementation of the CellPlot from the CellPlot package for R.
 -inf or inf enrichments will come out as min found float or max found float, respectively.
 
+**`CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellPlot", pvalCol="elimFisher", lowerLimit=None, upperLimit=None, colorBarType='Spectral')`**
+
 * **`df`** pandas dataframe with the following columns - 'Enrichment', 'Term', and 'log2fc'.
            For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term.
            eg. '-inf,-1,2,3.4,3.66,inf'
@@ -44,6 +46,8 @@ ___
 Python implementation of the SymPlot from the CellPlot package for R.
 -inf or inf enrichments will come out as min found float or max found float, respectively.
 
+**`SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher")`**
+
 * **`df`** pandas dataframe with the following columns - 'Enrichment', 'Significant', 'Annotated', 'Term', and 'log2fc'. 'Annotated'i stands for number of genes annotated with the respective GO term. As reported in DAVID by listHits. For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. eg. '-inf,-1,2,3.4,3.66,inf'
 * **`output_file`** prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png
 * **`figure_title`** Figure title.
@@ -59,6 +63,8 @@ ___
 ## ___MA___
 
 Plots an MA like plot.
+
+**`MA(df, title, figName, c, daType="counts", nbins=10, perc=.5, deg=3, eq=True, splines=True, spec=None, Targets=None, ylim=None, sizeRed=8)`**
 
 * **`df`** dataframe output of GetData()
 * **`title`** plot title, 'Genes' or 'Transcripts'

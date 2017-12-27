@@ -166,11 +166,14 @@
             <div class="section">
               
                 <h2 id="filtermotifs"><strong><em>filterMotifs</em></strong></h2>
-<p>Selectes motifs from a meme file based on the number of sites.
-<em> <strong><code>memeFile</code></strong> MEME file to be read
-</em> <strong><code>outFile</code></strong> MEME file to be written
-<em> <strong><code>minSites</code></strong> minimum number of sites each motif needs to have to be valid
-</em> <strong><code>returns</code></strong> nothing</p>
+<p>Selectes motifs from a meme file based on the number of sites.</p>
+<p><strong><code>filterMotifs(memeFile,outFile, minSites)</code></strong></p>
+<ul>
+<li><strong><code>memeFile</code></strong> MEME file to be read</li>
+<li><strong><code>outFile</code></strong> MEME file to be written</li>
+<li><strong><code>minSites</code></strong> minimum number of sites each motif needs to have to be valid</li>
+<li><strong><code>returns</code></strong> nothing</li>
+</ul>
 <pre><code class="python">&gt;&gt;&gt; import AGEpy as age
 &gt;&gt;&gt; age.filterMotifs(&quot;/path/to/input.meme&quot;,&quot;/path/to/output.meme&quot;, 15)
 </code></pre>

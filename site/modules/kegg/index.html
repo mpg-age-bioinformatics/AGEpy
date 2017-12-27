@@ -185,6 +185,7 @@
               
                 <h2 id="organismskegg"><strong><em>organismsKEGG</em></strong></h2>
 <p>Lists all organisms present in the KEGG database.</p>
+<p><strong><code>organismsKEGG()</code></strong></p>
 <ul>
 <li><strong><code>returns</code></strong> a dataframe containing one organism per row.</li>
 </ul>
@@ -210,6 +211,7 @@
 <hr />
 <h2 id="databaseskegg"><strong><em>databasesKEGG</em></strong></h2>
 <p>Finds KEGG database identifiers for a respective organism given example ensembl ids.</p>
+<p><strong><code>databasesKEGG(organism,ens_ids)</code></strong></p>
 <ul>
 <li><strong><code>organism</code></strong> an organism as listed in organismsKEGG()</li>
 <li><strong><code>ens_ids</code></strong> a list of ensenbl ids of the respective organism</li>
@@ -232,6 +234,7 @@ Ensembl
 <hr />
 <h2 id="ensembl_to_kegg"><strong><em>ensembl_to_kegg</em></strong></h2>
 <p>Looks up KEGG mappings of KEGG ids to ensembl ids.</p>
+<p><strong><code>ensembl_to_kegg(organism,kegg_db)</code></strong></p>
 <ul>
 <li><strong><code>organism</code></strong> an organisms as listed in organismsKEGG()</li>
 <li><strong><code>kegg_db</code></strong> a matching KEGG db as reported in databasesKEGG</li>
@@ -255,6 +258,7 @@ KEGGid            ENSid
 <hr />
 <h2 id="ecs_idskegg"><strong><em>ecs_idsKEGG</em></strong></h2>
 <p>Uses KEGG to retrieve all ids and respective ecs for a given KEGG organism.</p>
+<p><strong><code>ecs_idsKEGG(organism)</code></strong></p>
 <ul>
 <li><strong><code>organism</code></strong> an organisms as listed in organismsKEGG()</li>
 <li><strong><code>returns</code></strong> a Pandas dataframe of with 'ec' and 'KEGGid'.</li>
@@ -274,6 +278,7 @@ ec    KEGGid
 <hr />
 <h2 id="idskegg"><strong><em>idsKEGG</em></strong></h2>
 <p>Uses KEGG to retrieve all ids for a given KEGG organism.</p>
+<p><strong><code>idsKEGG(organism)</code></strong></p>
 <ul>
 <li><strong><code>organism</code></strong> an organism as listed in organismsKEGG()</li>
 <li><strong><code>returns</code></strong> a Pandas dataframe of with 'gene_name' and 'KEGGid'.</li>
@@ -293,6 +298,7 @@ gene_name         KEGGid
 <hr />
 <h2 id="pathwayskegg"><strong><em>pathwaysKEGG</em></strong></h2>
 <p>Retrieves all pathways for a given organism.</p>
+<p><strong><code>pathwaysKEGG(organism)</code></strong></p>
 <ul>
 <li><strong><code>organism</code></strong> an organism as listed in organismsKEGG()</li>
 <li><strong><code>returns df</code></strong> a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.</li>
@@ -367,6 +373,7 @@ path:hsa04151
 <hr />
 <h2 id="keggmatrix"><strong><em>KEGGmatrix</em></strong></h2>
 <p>Looks for all KEGG annotatios of an organism in biomart and the respective pathways in KEGG. It can also retrieve links to pathways figures with red labeled genes provided in a dataframe.</p>
+<p><strong><code>KEGGmatrix(organism, dataset, query_attributes=['ensembl_gene_id', 'kegg_enzyme'], host=biomart_host, links=True, dfexp=None, kegg_db=None, database=None )</code></strong></p>
 <ul>
 <li><strong><code>organism</code></strong> a KEGG organism identifier</li>
 <li><strong><code>dataset</code></strong> a biomaRt dataset</li>

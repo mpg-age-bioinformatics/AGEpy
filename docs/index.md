@@ -20,7 +20,7 @@ pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.6.0.tar.gz
 
 ###### github
 
-Get the latest release from github:
+Get the latest development version from github:
 
 ```bash
 git clone https://github.com/mpg-age-bioinformatics/AGEpy
@@ -51,27 +51,3 @@ python setup.py develop --user
 ```
 
 Be aware that with the develop option you won't be able to properly update once new scripts are added.
-
-### Help
-
-In bash:
-
-```bash
-pydoc AGEpy.AGEpy
-```
-
-In python:
-
-```python
-help("AGEpy.AGEpy")
-```
-
-### Example usage
-
-```python
-import AGEpy as age
-
-gtf=age.readGTF("/path/to/file.gtf")
-
-gtf.head()
-```

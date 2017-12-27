@@ -3,7 +3,7 @@
 Queries the DAVID database for an enrichment analysis.
 Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == "type" tag and categories ==  "annot" tag.
 
-### *`DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2)`*
+**`DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2)`**
 
 * **`database`** A string for the database to query, e.g. 'WORMBASE_GENE_ID'
 * **`categories`** A comma separated string with databases
@@ -71,7 +71,7 @@ ___
 
 Returns a list of gene names for given gene ids.
 
-### *`DAVIDgetGeneAttribute(x, df, refCol="ensembl_gene_id", fieldTOretrieve="gene_name")`*
+**`DAVIDgetGeneAttribute(x, df, refCol="ensembl_gene_id", fieldTOretrieve="gene_name")`**
 
 * **`x`** a string with the list of IDs separated by ', '
 * **`df`**  a dataframe with the reference column and a the column to retrieve

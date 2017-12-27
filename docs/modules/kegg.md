@@ -2,6 +2,8 @@
 
 Lists all organisms present in the KEGG database.
 
+**`organismsKEGG()`**
+
 * **`returns`** a dataframe containing one organism per row.
 
 ```python
@@ -29,6 +31,8 @@ ___
 
 Finds KEGG database identifiers for a respective organism given example ensembl ids.
 
+**`databasesKEGG(organism,ens_ids)`**
+
 * **`organism`** an organism as listed in organismsKEGG()
 * **`ens_ids`** a list of ensenbl ids of the respective organism
 * **`returns`** nothing if no database was found, or a string if a database was found
@@ -52,6 +56,8 @@ ___
 ## ***ensembl_to_kegg***
 
 Looks up KEGG mappings of KEGG ids to ensembl ids.
+
+**`ensembl_to_kegg(organism,kegg_db)`**
 
 * **`organism`** an organisms as listed in organismsKEGG()
 * **`kegg_db`** a matching KEGG db as reported in databasesKEGG
@@ -78,6 +84,8 @@ ___
 
 Uses KEGG to retrieve all ids and respective ecs for a given KEGG organism.
 
+**`ecs_idsKEGG(organism)`**
+
 * **`organism`** an organisms as listed in organismsKEGG()
 * **`returns`** a Pandas dataframe of with 'ec' and 'KEGGid'.
 
@@ -99,6 +107,8 @@ ___
 
 Uses KEGG to retrieve all ids for a given KEGG organism.
 
+**`idsKEGG(organism)`**
+
 * **`organism`** an organism as listed in organismsKEGG()
 * **`returns`** a Pandas dataframe of with 'gene_name' and 'KEGGid'.
 
@@ -119,6 +129,8 @@ ___
 ## ***pathwaysKEGG***
 
 Retrieves all pathways for a given organism.
+
+**`pathwaysKEGG(organism)`**
 
 * **`organism`** an organism as listed in organismsKEGG()
 * **`returns df`** a Pandas dataframe with the columns 'KEGGid','pathIDs', and 'pathName'.
@@ -195,6 +207,8 @@ ___
 ## ***KEGGmatrix***
 
 Looks for all KEGG annotatios of an organism in biomart and the respective pathways in KEGG. It can also retrieve links to pathways figures with red labeled genes provided in a dataframe.
+
+**`KEGGmatrix(organism, dataset, query_attributes=['ensembl_gene_id', 'kegg_enzyme'], host=biomart_host, links=True, dfexp=None, kegg_db=None, database=None )`**
 
 * **`organism`** a KEGG organism identifier
 * **`dataset`** a biomaRt dataset

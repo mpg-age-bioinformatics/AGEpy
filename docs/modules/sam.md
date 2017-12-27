@@ -1,6 +1,9 @@
 ## ___readSAM___
 
 Reads and parses a sam file.
+
+**`readSAM(SAMfile,header=False)`**
+
 * **`SAMfile`** /path/to/file.sam
 * **`header`** logical, if True, reads the header information
 * **`returns`** a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' and a list of the headers if header=True
@@ -34,12 +37,15 @@ RNEXT PNEXT TLEN                                                SEQ  \
 ___
 
 ## ___writeSAM___
-Writes a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' into a sam file
+Writes a pandas dataframe with the respective SAM columns: 'QNAME','FLAG','RNAME','POS','MAPQ','CIGAR','RNEXT','PNEXT','TLEN','SEQ','QUAL' into a sam file.
+
+**`writeSAM(sam, SAMfile, header=None)`**
+
 * **`sam`** pandas dataframe to be writen
 * **`SAMfile`** /path/to/file.sam
 * **`returns`** nothing
 
-```python
+```
 >>> import AGEpy as age
 >>> age.writeSAM(SAMdf,"modified.sam")
 ```
@@ -48,24 +54,26 @@ ___
 ## ___SAMflags___
 Explains a SAM flag.
 
-* **`x`** flag
-* **`returns`** complete SAM flag explanaition
+**`SAMflags(x)`**
 
-```python
+* **`x`** flag
+* **`returns`** complete SAM flag explanation
+
+```
 >>> import AGEpy as age
 >>> print age.SAMflags(64)
+```
+["0: Read unpaired",
+ "0:  Read not mapped in proper pair",
+ "0:  Read mapped",
+ "0:  Mate mapped",
+ "0:  Read direct strand",
+ "0:  Mate direct strand",
+ "1:  First in pair",
+ "0:  First in pair",
+ "0:  Primary alignment",
+ "0:  Read passes platform/vendor quality checks",
+ "0:  Read is not PCR or optical duplicate",
+ "0:  Not supplementary alignment"]
 
-['0: Read unpaired',
- '0: Read not mapped in proper pair',
- '0: Read mapped',
- '0: Mate mapped',
- '0: Read direct strand',
- '0: Mate direct strand',
- '1: First in pair',
- '0: First in pair',
- '0: Primary alignment',
- '0: Read passes platform/vendor quality checks',
- '0: Read is not PCR or optical duplicate',
- '0: Not supplementary alignment']
- ```
  ___

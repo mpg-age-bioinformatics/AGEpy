@@ -2,6 +2,8 @@
 
 Returns NBCI's Homolog Gene tables.
 
+**`getHomoloGene(taxfile="build_inputs/taxid_taxname", genefile="homologene.data", proteinsfile="build_inputs/all_proteins.data", proteinsclusterfile="build_inputs/proteins_for_clustering.data", baseURL="http://ftp.ncbi.nih.gov/pub/HomoloGene/current/")`**
+
 * **`taxfile`** path to local file or to baseURL/taxfile, default="build_inputs/taxid_taxname",
 * **`genefile`** path to local file or to baseURL/genefile, defult="homologene.data"
 * **`proteinsfile`** path to local file or to baseURL/proteinsfile, default="build_inputs/all_proteins.data"
