@@ -1,6 +1,6 @@
 ## Intro
 
-`obo2tsv` parses a gene ontology obo file to tsv. It will include for each term a column for parent terms as well as child terms.
+`obo2tsv` parses a gene ontology obo file to tsv. It will include for each term columns for parent terms as well as child terms.
 
 ## Examples
 
