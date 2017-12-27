@@ -19,7 +19,7 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 ###### pip
 
 ```bash
-pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.6.0.tar.gz --user
+pip install https://github.com/mpg-age-bioinformatics/AGEpy/archive/0.6.7.tar.gz --user
 ```
 
 ###### github
