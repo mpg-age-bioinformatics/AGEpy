@@ -26,5 +26,5 @@ setup(name = 'AGEpy',
       'suds', 'xlrd', 'biomart', 'matplotlib', \
       'xlsxwriter','pybedtools','wand','paramiko','ipaddress', 'seaborn'],
       zip_safe = False,
-      scripts=['bin/david','bin/obo2tsv','bin/aDiff']
+      scripts=['bin/obo2tsv','bin/aDiff']
       )
