@@ -116,6 +116,9 @@ More information on the standard ouput columns of *cuffdiff* can be found [here]
 ```
 $ aDiff --help
 
+aDiff is an annotation tool for differential gene expression results generated
+by cuffdiff (Trapnell C., Nature Biotechnology, 2012).
+
 usage: aDiff [-h] [-D] [-i INPUTFOLDER] [-o OUTPUTFOLDER] [-G ORIGINALGTF]
              [-C CUFFCOMPAREGTF] [-f INPUTFILES] [-s SHORTOUTPUTNAME]
              [--sigOnly] [--TSV] [--TSVall] [--description] [--listMarts]

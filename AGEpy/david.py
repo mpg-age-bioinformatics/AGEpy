@@ -164,11 +164,10 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
     :param categories: a comma separated string with databases
     :param user: a user ID registered at DAVID for querying
     :param df_ids: a dataframe where the first column contains the identifiers
-        to be used as background.
+        to be queried and the second column the respective log2fc for each identifier.
     :param output: /path/to/output/prefix
     :param df_ids_bg: a dataframe where the first column contains the identifiers
-        to be queried and the second column the respective log2fc for each identifier.
-        'None' for whole set
+        to be used as background. None for whole set.
     :param name: a string with the name for the query set
     :param name_bg: a string with the name for the background set
     :param p: Maximum p value for enrichment of a term

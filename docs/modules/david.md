@@ -211,11 +211,9 @@ Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == 
 * **`categories`** a comma separated string with databases
 * **`user`** a user ID registered at DAVID for querying
 * **`df_ids`** a dataframe where the first column contains the identifiers
-    to be used as background.
-* **`output`** /path/to/output/prefix
-* **`df_ids_bg`** a dataframe where the first column contains the identifiers
     to be queried and the second column the respective log2fc for each identifier.
-    'None' for whole set
+* **`output`** /path/to/output/prefix
+* **`df_ids_bg`** a dataframe where the first column contains the identifiers to be used as background. 'None' for whole set
 * **`name`** a string with the name for the query set
 * **`name_bg`** a string with the name for the background set
 * **`p`** Maximum p value for enrichment of a term
