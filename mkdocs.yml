@@ -19,3 +19,4 @@ pages:
   - Executables:
     - aDiff: executables/adiff.md
     - obo2tsv: executables/obo2tsv.md
+    - david: executables/david.md
