@@ -14,7 +14,6 @@ Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == 
 * **`name_bg`**  A string with the name for the background set
 * **`p`**  Maximum p value for enrichment of a term
 * **`n`**  Minimum number of genes within a term
-* **`ct`**  Maybe another threshold
 * **`returns`**  None if no ids match the queried database, or a pandas dataframe with results
 
 ```python
@@ -197,5 +196,45 @@ popTotals foldEnrichment         bonferroni          benjamini  \
 2  7.26874466353e-39  ife-5, Y105E8A.20, tsn-1, yars-1, ife-3, C14C1...  
 3  1.89889814083e-37  ife-5, Y105E8A.20, tsn-1, yars-1, ife-3, C14C1...  
 4   6.7431553467e-37  ife-5, tsn-1, C14C10.1, ife-3, rps-30, Y51H4A....  
+```
+___
+
+## ***DAVIDplot***
+
+Queries the DAVID database for an enrichment analysis and plots CellPlots as
+well as SymPlots (see plots) using the 20 most significant terms.
+Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == "type" tag and categories ==  "annot" tag.
+
+**`DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2)`**
+
+* **`database`** a string for the database to query, e.g. 'WORMBASE_GENE_ID'
+* **`categories`** a comma separated string with databases
+* **`user`** a user ID registered at DAVID for querying
+* **`df_ids`** a dataframe where the first column contains the identifiers
+    to be used as background.
+* **`output`** /path/to/output/prefix
+* **`df_ids_bg`** a dataframe where the first column contains the identifiers
+    to be queried and the second column the respective log2fc for each identifier.
+    'None' for whole set
+* **`name`** a string with the name for the query set
+* **`name_bg`** a string with the name for the background set
+* **`p`** Maximum p value for enrichment of a term
+* **`n`** Minimum number of genes within a term
+
+* **`returns`** nothing
+
+```python
+>>> import AGEpy as age
+>>> print df.head()
+
+ensembl_gene_id  log2(fold_change)
+0  ENSG00000272449           1.859500
+1  ENSG00000130762           0.601051
+2  ENSG00000083444          -0.881957
+3  ENSG00000162493          -0.638433
+4  ENSG00000253368           0.654517
+
+>>> categories=['GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT', 'KEGG_PATHWAY','BIOCARTA', 'PFAM', 'PROSITE' ]
+>>> DAVIDdf=DAVIDplot('ENSEMBL_GENE_ID', categories, 'email.registered@david.com', df, "/usr/home/JDoe/mydataset")
 ```
 ___
