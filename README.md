@@ -18,13 +18,15 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
 ###### pip
 
+Latest pip release:
+
 ```bash
 pip install AGEpy --user
 ```
 
 ###### github
 
-Get the latest release from github:
+Get the latest development version from github:
 
 ```bash
 git clone https://github.com/mpg-age-bioinformatics/AGEpy
