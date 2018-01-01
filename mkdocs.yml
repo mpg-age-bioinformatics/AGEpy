@@ -6,6 +6,7 @@ pages:
   - Modules:
     - bed: modules/bed.md
     - biom: modules/biom.md
+    - blast: modules/blast.md
     - cytoscape: modules/cytoscape.md
     - david: modules/david.md
     - fasta: modules/fasta.md
