@@ -17,9 +17,6 @@ ENSG00000253368           0.654517
 $ david -i input.tsv -o /usr/home/JDoe/project1/datasetA -d ENSEMBL_GENE_ID -u 'email.registered@david.com'
 ```
 
-```
-
-
 ## Help
 
 ```bash
