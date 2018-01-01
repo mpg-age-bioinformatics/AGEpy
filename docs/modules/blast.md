@@ -72,7 +72,7 @@ Retrieves results for an RID.
 **`BLASTresults(rid, format_type="Tabular", hitlist_size= None, alignments=None, ncbi_gi = None, format_object=None, baseURL="http://blast.ncbi.nlm.nih.gov")`**
 
 * **`rid`** BLAST search request identifier. Allowed values: The Request ID (RID) returned when the search was submitted
-* **`format_type`** Report type. Allowed values: HTML, Text, XML, XML2, JSON2, or Tabular. HTML is the default.
+* **`format_type`** Report type. Allowed values: HTML, Text, XML, XML2, JSON2, or Tabular.
 * **`hitlist_size`** Number of databases sequences to keep. Allowed values: Integer greater than zero.
 * **`alignments`** Number of alignments to print (applies to HTML and Text). Allowed values: Integer greater than zero.
 * **`ncbi_gi`** Show NCBI GIs in report. Allowed values: T or F.
