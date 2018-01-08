@@ -126,9 +126,9 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
                 barAn=str(len(fcs))+" (NS)"
         else:
             barAn=len(fcs)
-        ax1.text(df.ix[i,'Enrichment']+m*.02, pos, barAn, ha='left', va='bottom')
+        ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom') # m*.02
 
-    ax1.set_yticks(arrangment+0.4)
+    ax1.set_yticks(arrangment) # +0.4
     ax1.set_yticklabels(df['Term'].tolist())
 
     ax1.tick_params(
@@ -309,7 +309,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     ax3.set_ylim(ymax = max(arrangment)+1.5)
 
 
-    ax1.set_yticks(arrangment+0.4)
+    ax1.set_yticks(arrangment)#+0.4)
     def get_label_with_sig (df):
         termLabel=df['Term']
         if pvalCol:
