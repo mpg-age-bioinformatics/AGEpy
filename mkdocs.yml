@@ -1,0 +1,23 @@
+theme: readthedocs
+site_name: AGEpy
+pages:
+  - Home: index.md
+  - Cookbook: cookbook.md
+  - Modules:
+    - bed: modules/bed.md
+    - biom: modules/biom.md
+    - blast: modules/blast.md
+    - cytoscape: modules/cytoscape.md
+    - david: modules/david.md
+    - fasta: modules/fasta.md
+    - go: modules/go.md
+    - gtf: modules/gtf.md
+    - homology: modules/homology.md
+    - kegg: modules/kegg.md
+    - meme: modules/meme.md
+    - plots: modules/plots.md
+    - sam: modules/sam.md
+  - Executables:
+    - aDiff: executables/adiff.md
+    - obo2tsv: executables/obo2tsv.md
+    - david: executables/david.md

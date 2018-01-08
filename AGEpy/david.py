@@ -2,6 +2,7 @@ import pandas as pd
 import sys
 from suds.client import Client as sudsclient
 import ssl
+from plots import *
 
 david_categories = [
   'GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT', 'KEGG_PATHWAY',
@@ -31,7 +32,6 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     :param name_bg: A string with the name for the background set
     :param p: Maximum p value for enrichment of a term
     :param n: Minimum number of genes within a term
-    :param ct: Maybe another threshold
 
     :returns: None if no ids match the queried database, or a pandas data frame with results
     """
@@ -151,3 +151,63 @@ def DAVIDgetGeneAttribute(x,df,refCol="ensembl_gene_id",fieldTOretrieve="gene_na
     ids=[ str(s) for s in ids ]
     ids=", ".join(ids)
     return ids
+
+
+def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name = '', \
+    name_bg = '', verbose = False, p = 0.1, n = 2):
+    """
+    Queries the DAVID database for an enrichment analysis and plots CellPlots as
+    well as SymPlots (see plots).
+    Check https://david.ncifcrf.gov/content.jsp?file=DAVID_API.html for database == "type" tag and categories ==  "annot" tag.
+
+    :param database: a string for the database to query, e.g. 'WORMBASE_GENE_ID'
+    :param categories: a comma separated string with databases
+    :param user: a user ID registered at DAVID for querying
+    :param df_ids: a dataframe where the first column contains the identifiers
+        to be queried and the second column the respective log2fc for each identifier.
+    :param output: /path/to/output/prefix
+    :param df_ids_bg: a dataframe where the first column contains the identifiers
+        to be used as background. None for whole set.
+    :param name: a string with the name for the query set
+    :param name_bg: a string with the name for the background set
+    :param p: Maximum p value for enrichment of a term
+    :param n: Minimum number of genes within a term
+
+    :returns: Nothing
+    """
+
+    idsc1=df_ids.columns.tolist()[0]
+    idsc2=df_ids.columns.tolist()[1]
+
+    ids=df_ids[idsc1].tolist()
+    if type(df_ids_bg)==type(pd.DataFrame()):
+        ids_bg=df_ids_bg[df_ids_bg.columns.tolist()[0]]
+    else:
+        ids_bg=None
+
+    david=DAVIDenrich(database, categories, user, ids, ids_bg = ids_bg, \
+    name = name, name_bg = name_bg, verbose = verbose, p = p, n = n)
+
+    if type(david)!=type(pd.DataFrame()):
+        print "For this dataset no enrichments could be returned."
+        sys.stdout.flush()
+    else:
+        david[idsc2]=david["geneIds"].apply(lambda x: \
+                          DAVIDgetGeneAttribute(x,\
+                          df_ids,\
+                          refCol=idsc1,\
+                          fieldTOretrieve=idsc2))
+        david[idsc2]=david[idsc2].apply(lambda x: x.replace(", ", ","))
+        EXC=pd.ExcelWriter(output+".xlsx")
+        for category in list(set(david["categoryName"].tolist())):
+            david_=david[david["categoryName"]==category]
+            david_.to_excel(EXC,category)
+
+            cellplot=CellPlot(david_[:20], output_file=output+"."+category, gene_expression=idsc2, \
+            figure_title=category+"\n"+output.split("/")[-1], pvalCol="ease", \
+            lowerLimit=None, upperLimit=None, colorBarType='bwr')
+
+            symplot=age.SymPlot(david_[:20], output_file=output+"."+category, \
+            figure_title=category+"\n"+output.split("/")[-1], \
+            pvalCol="ease")
+        EXC.save()
