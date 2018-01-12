@@ -110,7 +110,7 @@ Example of the output for the the *h. sapiens* call above.
 
 More information on the standard ouput columns of *cuffdiff* can be found [here](http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/index.html).
 
-The `cytoscape` folder  contains cytoscape session files `cys`, as well as `pdf`s and `png`s of the generated networks. It also generates a subnetwork by ranking the genes by abs(log2(fold change)) and selecting the top 10% of nodes with edges and the respective first neighbours as well as the same 10% slection but using difusion.
+The `cytoscape` folder  contains cytoscape session files `cys`, as well as `pdf`s and `png`s of the generated networks. It also generates a subnetwork by ranking the genes by abs(log2(fold change)) and selecting the top 10% of nodes with edges and the respective first neighbours as well as the same 10% slection but using difusion. Node color maps log2(fold change) - blue down, red up - and node border color and size to normalized expression.
 
 ## Help
 
