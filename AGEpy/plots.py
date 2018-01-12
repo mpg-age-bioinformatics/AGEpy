@@ -229,12 +229,12 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
 
     if len(df) >= 5:
-        siz=len(df)*4/10
+        size=len(df)*4/10
     else:
         size=5*4/10
 
 
-    fig = plt.figure(figsize=(8, siz))
+    fig = plt.figure(figsize=(8, size))
     #fig.suptitle(figure_title, fontsize=24, fontweight='bold')
     gs = gridspec.GridSpec(1, 3, width_ratios=[2,0.75,2])
     ax1 = plt.subplot(gs[0])
