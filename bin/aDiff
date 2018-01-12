@@ -427,7 +427,9 @@ for sig, label in zip(sig_choice,label_choice):
                             target=cytoscape_output+'/'+sample1+'_vs_'+sample2
                             if not os.path.isfile(target+".cys"):
                                 age.aDiffCytoscape(df_pair,aging_genes,target,species=args.species,limit=args.limit, cutoff=args.cuttoff,taxon=args.taxon,cytoscape_host=args.cytoscape_host,cytoscape_port=args.cytoscape_port)
-
+                            else:
+                                print "\nCytoscape network for "+sample1+' vs. '+sample2+' has been previously build.'
+                                sys.stdout.flush()
 
                     if args.DAVID:
                         print "\nPerforming DAVID enrichment analysis on "+sample1+' vs. '+sample2
@@ -437,11 +439,17 @@ for sig, label in zip(sig_choice,label_choice):
                         targets = list(set(df_pair['ensembl_gene_id'].tolist()))
 
                         if len(targets) > 0:
-                            dfDAVID=age.DAVIDenrich(args.DAVIDid, args.DAVIDcat, user=args.DAVIDuser, ids=targets, ids_bg=background, name_bg = 'all_RNAseq_genes', name = 'changed_genes', verbose=True)
-                            if dfDAVID is not None:
-                                dfDAVID['sheet_name'] = sample1+'|'+sample2
-                                dfDAVID['file_name'] = "_"+label+"_"+outshort+".xlsx"
-                                DAVIDall=pd.concat([DAVIDall,dfDAVID])
+                            existing_enrichments=os.listdir( python_output  )
+                            existing_enrichments=[ s for s in existing_enrichments if "_"+label+"_"+outshort+".xlsx" in s ]
+                            if len(existing_enrichments) == 0 :
+                                dfDAVID=age.DAVIDenrich(args.DAVIDid, args.DAVIDcat, user=args.DAVIDuser, ids=targets, ids_bg=background, name_bg = 'all_RNAseq_genes', name = 'changed_genes', verbose=True)
+                                if dfDAVID is not None:
+                                    dfDAVID['sheet_name'] = sample1+'|'+sample2
+                                    dfDAVID['file_name'] = "_"+label+"_"+outshort+".xlsx"
+                                    DAVIDall=pd.concat([DAVIDall,dfDAVID])
+                            else:
+                                print "The following enrichments were already found: "+"\n".join(existing_enrichments)
+                                sys.stdout.flush()
 
                     df_pair.drop(['test_id','index','gene_id','Unnamed: 0'], axis=1, inplace=True)
                     if imp not in ['gene_exp.diff','isoform_exp.diff']:

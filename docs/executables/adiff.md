@@ -18,7 +18,6 @@ Example of an `aDiff` call on a *c. elegans* dataset:
 $ aDiff -D -i cuffdiff_output -o adiff_output \
 -G references/cel.latest.ensembl.gtf \
 -C cuffmerge_output/merged.gtf \
---dataset dmelanogaster_gene_ensembl \
 --DAVIDuser "<Registered.Email@david.com>" \
 --organismtag CEL \
 --cytoscape_host 'localhost' \
@@ -81,15 +80,15 @@ $ aDiff -i cufdiff_output -o adiff_output \
 
 Example of the output for the the *h. sapiens* call above.
 
-* **`diff_sig_geneexp.xlsx`** this file is based on the *gene_exp.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
+* **`diff_sig_geneexp.xlsx`** this file reports significant differential gene expression. It is based on the *gene_exp.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
 
-* **`diff_sig_iso.xlsx`** this file is based on the *isoform_exp.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
+* **`diff_sig_iso.xlsx`** this file reports significant differential isoform expression . It is based on the *isoform_exp.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
 
-* **`diff_sig_prom.xlsx`** this file is based on the *promoters.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
+* **`diff_sig_prom.xlsx`** this file reports significant differential promoter usage. It is based on the *promoters.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
 
-* **`diff_sig_splic.xlsx`** this file is based on the *splicing.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
+* **`diff_sig_splic.xlsx`** this file reprots significant differential splicing . It is based on the *splicing.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
 
-* **`diff_sig_cds.xlsx`** htis file is based on the *cds.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
+* **`diff_sig_cds.xlsx`** this file  reports significant differential cds usage. It is based on the *cds.diff* file output of *cuffdiff* adding annotation columns to it. It contains one sheet for each pairwise comparison filtered to significant values (as defined in *cuffdiff*).
 
 * **`geneexp_ALL.tsv`** this file is based on the *gene_exp.diff* file output of *cuffdiff* adding annotation columns to it.
 
