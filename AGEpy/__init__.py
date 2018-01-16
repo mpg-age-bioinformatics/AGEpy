@@ -12,3 +12,4 @@ from plots import *
 from rbiom import *
 from sam import *
 from cytoscape import *
+from blast import *
