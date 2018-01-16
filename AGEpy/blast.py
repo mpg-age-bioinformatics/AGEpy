@@ -63,12 +63,16 @@ def BLASTquery(query,database,program,filter=None,\
 
     URL=baseURL+"/Blast.cgi?"
     URL=URL+"QUERY="+str(query)+"&DATABASE="+str(database)+"&PROGRAM="+str(program)
-    for o in [filter, format_type, expect, nucl_reward, nucl_penalty,\
+    for o,varname in zip([filter, format_type, expect, nucl_reward, nucl_penalty,\
               gapcosts, matrix, hitlist_size, descriptions, alignments,\
               ncbi_gi, threshold, word_size, composition_based_statistics,\
-              EQ_MENU, num_threads]:
+              EQ_MENU, num_threads],\
+              ['FILTER' , 'FORMAT_TYPE', 'EXPECT', 'NUCL_REWARD', 'NUCL_PENALTY',\
+              'GAPCOSTS', 'MATRIX', 'HITLIST_SIZE', 'DESCRIPTIONS', 'ALIGNMENTS',\
+              'NCBI_GI', 'THRESHOLD', 'WORD_SIZE', 'COMPOSITION_BASED_STATISTICS',\
+              'EQ_MENU', 'NUM_THREADS']):
         if o:
-            URL=URL+"&"+ variablename(var) +"="+str(o)
+            URL=URL+"&"+ varname +"="+str(o)
 
     if others:
         URL=URL+"&"+others

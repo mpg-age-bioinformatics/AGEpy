@@ -1,0 +1,166 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import argparse
+
+sys.stdout.flush()
+
+# argparse arguments
+
+parser = argparse.ArgumentParser(description="This module will load a fasta formatted file and query each fasta sequence for blast \
+                                 The user may add blast parameters as space separated list after the sequence name. All queries are \
+                                 listed into a log table. The user can either let the program running while waiting for the results \
+                                 using the -C option, or quit and check if the results are ready later using -W -t <queryTable.tsv>", \
+                                     formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+# Flags
+parser.add_argument('-S', '--submitFromFasta', help = 'Read in fasta file and submit blast queries. Write out submitted query IDs.', \
+    action = 'store_true')
+parser.add_argument('-C', '--continueThrough', help = 'Read from fasta file, submit and continue checking. Write results when they are \
+                    ready and exit after all results are finished.', action = 'store_true')
+parser.add_argument('-W', '--checkAndWriteResults', help = 'Read query IDs from tsv and check status. If results are ready, collect and safe.',\
+    action = 'store_true')
+# Input
+parser.add_argument("-f", "--inputFasta", default = '', help="Fasta formatted input file containing one or more input sequences. \
+                    The sequence name may contain additional blast paramers, ") # include example
+parser.add_argument('-t', '--inputTsv', default = '',help='Tab separated input file containing sequence IDs, output prefix, query IDs, query arguments.')
+# Output
+parser.add_argument('-o', '--outputPrefix', default = '.', help='Output prefix. All files will start with this prefix, blast output files will\
+                    be written two prefix_sequenceID.tsv/html')
+parser.add_argument('--format_type', default = 'Tabular', help='format of the blast output')
+parser.add_argument('--sleepTime', default = 60, help = 'time to wait before checking again if your jobs are done, only active if -C is on')
+parser.add_argument("--description", help="Get a description of what this script does.", action="store_true")
+
+args = parser.parse_args()
+
+
+if args.description:
+    print "This module will load a fasta formatted file and query each fasta sequence for blast \
+    The user may add blast parameters as space separated list after the sequence name. All queries are \
+    listed into a log table. The user can either let the program running while waiting for the results \
+    using the -C option, or quit and check if the results are ready later using -W -t <queryTable.tsv>"
+    sys.exit(0)
+
+# test input and arguments ### TODO
+
+# import AGEpy and other packages
+import AGEpy as age
+import pandas as pd
+import numpy as np
+import time
+
+
+# read in fasta
+if args.submitFromFasta:
+    I = open(args.inputFasta)
+    FASTA = {}
+    
+    while True:
+        tmp_seqID = I.readline()
+        tmp_sequence = I.readline()
+        if not tmp_seqID.startswith('>'):
+            break
+        FASTA[tmp_seqID.replace('\n', '')[1:]] = {'sequence': tmp_sequence.replace('\n', '')}
+    
+    I.close()
+    
+    # open query_output file
+    queryID_output = open('%s.queryTable.tsv' %(args.outputPrefix), 'w')
+    queryID_output.write('SequenceID\tuser_prefix\tqueryID\tparameters\n')
+    
+    # for each fasta make a query and save queryID
+    for seq in FASTA:
+        # initalize BLAST parameters
+        database = 'nt'; program = 'blastn'; filter=None; format_type=None; expect=None
+        nucl_reward=None; nucl_penalty=None; gapcosts=None; matrix=None; hitlist_size=None
+        descriptions=None; alignments=None; ncbi_gi=None; threshold=None
+        word_size=None; composition_based_statistics=None; organism=None; others=None
+        num_threads=None; baseURL="http://blast.ncbi.nlm.nih.gov"; verbose=False
+        # redifine paramters based on user input
+        params = seq.split(' ')[1:]
+        for p in params:
+            exec(p)
+        # correctly format gapcosts
+        if gapcosts:
+            gapcosts = gapcosts.replace(',', ' ') 
+        # submit BLAST
+        RID=age.BLASTquery(FASTA[seq]['sequence'], database, program, filter=filter,\
+                format_type=format_type, expect=expect,\
+                nucl_reward=nucl_reward, nucl_penalty=nucl_penalty,\
+                gapcosts=gapcosts, matrix=matrix,\
+                hitlist_size=hitlist_size, descriptions=descriptions,\
+                alignments=alignments, ncbi_gi=ncbi_gi, threshold=threshold,\
+                word_size=word_size, composition_based_statistics=composition_based_statistics,\
+                organism=organism, others=others, num_threads=num_threads, baseURL=baseURL,\
+                verbose=verbose)
+        print(FASTA[seq]['sequence'])
+        print(RID)
+        FASTA[seq]['queryID'] = RID
+        FASTA[seq]['SeqID'] = seq.split(' ')[0]
+        FASTA[seq]['params'] = seq.split(' ')[1:]
+        # write query id to log table
+        queryID_output.write('%s\t%s\t%s\t%s\n' %(seq.split(' ')[0], args.outputPrefix, RID, ' '.join(seq.split(' ')[1:])))
+    
+    queryID_output.close()
+    print('%s jobs have been submitted.' %(len(FASTA)))
+    
+    # exit if -C is not specified
+    if not args.continueThrough:
+        print('%s jobs have been submitted.\nYou can find an overview here: %s.queryTable.tsv' %(len(FASTA), args.outputPrefix)) 
+        print "\n\n*************************************\nDeveloped by the Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing \n\nbioinformatics@age.mpg.de\n\n"
+    exit(0)
+
+    print('continuing ...')
+
+
+# read in tsv if the program stopped after submitting ### TODO get prefix from file
+if args.checkAndWriteResults:
+    I = open(args.inputTsv)
+    FASTA = {}
+    I.readline()
+    for line in I:
+        L = line.replace('\n', '').split('\t')
+        FASTA['%s %s' %(L[0], L[3])] = {'params' : L[3].split(' '), 'sequence' : '', 'SeqID': L[0], 'queryID': L[2]}
+    I.close()
+
+
+# check if results are ready and write them if they are ready
+while len(FASTA) > 0:
+    finished = []
+    for seq in FASTA:
+        status, therearehits=age.BLASTcheck(FASTA[seq]['queryID'])
+        if status == 'READY' and therearehits == 'yes':
+            r=age.BLASTresults(FASTA[seq]['queryID'], format_type = args.format_type)
+            if args.format_type == 'Tabular':
+                r.insert(0, 'query_name', [FASTA[seq]['SeqID']] * r.shape[0])
+                r.to_csv('%s_%s.tsv' %(args.outputPrefix, FASTA[seq]['SeqID']), sep = '\t', index = False)
+            else:
+                print('Only Tabular is a supported format_type right now. %s is not supported'  %(args.format_type)) #### TODO
+            finished += [seq]
+        elif status == 'READY' and therearehits == 'no':
+            print('Query %s is ready but has no hits' %(FASTA[seq]['SeqID']))
+            finished += [seq]
+        else:
+            print('Query %s is not ready yet' %(FASTA[seq]['SeqID']))
+    for seq in finished:
+        del FASTA[seq]
+    if not args.continueThrough:
+        print('%s jobs are still running' %(len(FASTA)))
+        print "\n\n*************************************\nDeveloped by the Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing \n\nbioinformatics@age.mpg.de\n\n"
+        exit(0)
+    print('%s jobs are still running' %(len(FASTA)))
+    if len(FASTA) > 0:
+        print('waiting ...')
+        time.sleep(args.sleepTime)
+
+print('finished')
+
+print "\n\n*************************************\nDeveloped by the Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing \n\nbioinformatics@age.mpg.de\n\n"
+sys.exit()
+
+
+# python blasto -S -f /home/fmetge/Documents/corefacility/AGEpy/test_fasta.fa -o /home/fmetge/Documents/corefacility/AGEpy/test
+# python blasto -W -t /home/fmetge/Documents/corefacility/AGEpy/test.queryTable.tsv -o /home/fmetge/Documents/corefacility/AGEpy/test
+
+# python blasto -S -C -f /home/fmetge/Documents/corefacility/AGEpy/test_fasta.fa -o /home/fmetge/Documents/corefacility/AGEpy/test ... works in theory, but doesnt finit
+# python blasto -W -C -t /home/fmetge/Documents/corefacility/AGEpy/test.queryTable.tsv -o /home/fmetge/Documents/corefacility/AGEpy/test
