@@ -101,7 +101,7 @@ def BLASTcheck(rid,baseURL="http://blast.ncbi.nlm.nih.gov"):
     """
 
     URL=baseURL+"/Blast.cgi?"
-    URL=URL+"FORMAT_OBJECT=SearchInfo&RID="+RID+"&CMD=Get"
+    URL=URL+"FORMAT_OBJECT=SearchInfo&RID="+rid+"&CMD=Get"
     response=requests.get(url = URL)
     r=response.content.split("\n")
     try:
@@ -111,7 +111,7 @@ def BLASTcheck(rid,baseURL="http://blast.ncbi.nlm.nih.gov"):
         status=None
         ThereAreHits=None
 
-    print RID, status, ThereAreHits
+    print rid, status, ThereAreHits
     sys.stdout.flush()
 
     return status, ThereAreHits
@@ -144,7 +144,7 @@ def BLASTresults(rid, format_type="Tabular", \
     response=requests.get(url = URL)
 
     if format_type=="Tabular":
-        result=r.content.split("\n")
+        result=response.content.split("\n")
         result=[ s.split("\t") for s in result][6:]
         header=result[:7]
         content=result[7:]
