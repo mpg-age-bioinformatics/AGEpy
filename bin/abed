@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import argparse
+
+parser = argparse.ArgumentParser(description="abed is an annotation tool for bed files.",formatter_class = argparse.ArgumentDefaultsHelpFormatter )
+parser.add_argument("-b", "--bed", help="/path/to/file.bed")
+parser.add_argument("-g", "--gtf", help="/path/to/file.gtf")
+parser.add_argument("-s", "--sizes", help="/path/to/file.genome. Tab separated values of 'chromosome name' and 'size' information.")
+parser.add_argument("-c", "--columns", help="A comma separated string of column headers to use when reading in the bed file. eg.: 'chr,start,end,name'." )
+parser.add_argument("-p", "--promoter", help="A comma separated list containing the upstream start of the promoter region from the TSS and the downstream end of the promoter region from the TSS. eg.: '1000,200'.")
+parser.add_argument("-o", "--output", help="/path/to/output.tsv.")
+
+args = parser.parse_args()
+
+import AGEpy as age
+import pandas as pd
+
+promoters=args.promoter
+promoters=promoters.split(",")
+promoters=[ int(s) for s in promoters ]
+
+bed=age.AnnotateBED(args.bed,args.gtf, args.sizes, bedcols=args.columns, promoter=promoters)
+
+bed.to_csv(args.output, index=None, sep="\t")

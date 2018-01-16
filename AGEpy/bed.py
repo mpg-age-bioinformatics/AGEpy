@@ -9,6 +9,7 @@ from pybedtools import BedTool
 from gtf import GTFtoBED
 from gtf import readGTF
 from gtf import retrieve_GTF_field
+import sys
 
 def writeBED(inBED, file_path):
     """
@@ -206,8 +207,8 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
     print "Reading GTF file."
     sys.stdout.flush()
 
-    GTF=age.readGTF(GTF)
-    GTF["gene_name"]=age.retrieve_GTF_field("gene_name", GTF)
+    GTF=readGTF(GTF)
+    GTF["gene_name"]=retrieve_GTF_field("gene_name", GTF)
 
     print "Generating promoters annotation."
     sys.stdout.flush()
@@ -281,11 +282,11 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
     print "Intersecting annotation tables and bed."
     sys.stdout.flush()
 
-    refGTF=age.dfTObedtool(GTFs)
-    pos=age.dfTObedtool(df)
+    refGTF=dfTObedtool(GTFs)
+    pos=dfTObedtool(bed)
 
     colsGTF=GTFs.columns.tolist()
-    newCols=df.columns.tolist()
+    newCols=bed.columns.tolist()
 
     for f in colsGTF:
         newCols.append(f+"_")
