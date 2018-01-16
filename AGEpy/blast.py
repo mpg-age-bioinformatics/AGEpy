@@ -30,12 +30,12 @@ def BLASTquery(query,database,program,filter=None,\
     :param query: Search query. Allowed values: Accession, GI, or FASTA.
     :param database: BLAST database. Allowed values: nt, nr, refseq_rna, refseq_protein, swissprot, pdbaa, pdbnt
     :param program: BLAST program. Allowed values:  blastn, megablast, blastp, blastx, tblastn, tblastx
-    :param filter: Low complexity filtering. Allowed values: F to disable. T or L to enable. Prepend “m” for mask at lookup (e.g., mL)
+    :param filter: Low complexity filtering. Allowed values: F to disable. T or L to enable. Prepend "m" for mask at lookup (e.g., mL)
     :param format_type: Report type. Allowed values: HTML, Text, XML, XML2, JSON2, or Tabular. HTML is the default.
     :param expect: Expect value. Allowed values: Number greater than zero.
     :param nucl_reward: Reward for matching bases (BLASTN and megaBLAST). Allowed values: Integer greater than zero.
     :param nucl_penalty: Cost for mismatched bases (BLASTN and megaBLAST). Allowed values: Integer less than zero.
-    :param gapcosts: Gap existence and extension costs. Allowed values: Pair of positive integers separated by a space such as “11 1”.
+    :param gapcosts: Gap existence and extension costs. Allowed values: Pair of positive integers separated by a space such as "11 1".
     :param matrix: Scoring matrix name. Allowed values: One of BLOSUM45, BLOSUM50, BLOSUM62, BLOSUM80, BLOSUM90, PAM250, PAM30 or PAM70. Default: BLOSUM62 for all applicable programs.
     :param hitlist_size: Number of databases sequences to keep. Allowed values: Integer greater than zero.
     :param descriptions: Number of descriptions to print (applies to HTML and Text). Allowed values: Integer greater than zero.
