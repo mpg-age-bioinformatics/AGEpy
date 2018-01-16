@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import os
 from urllib import urlopen
 import urllib2
@@ -220,25 +221,25 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
     upstream=promoter[0]
     downstream=promoter[1]
 
-    promoters_plus["promoter_start"]=promoters_plus["start"].astype(int)-upstream
-    promoters_plus["promoter_end"]=promoters_plus["start"].astype(int)+downstream
+    promoters_plus.loc[:,"promoter_start"]=promoters_plus.loc[:,"start"].astype(int)-upstream
+    promoters_plus.loc[:,"promoter_end"]=promoters_plus.loc[:,"start"].astype(int)+downstream
 
-    promoters_minus["promoter_start"]=promoters_minus["end"].astype(int)-downstream
-    promoters_minus["promoter_end"]=promoters_minus["end"].astype(int)+upstream
+    promoters_minus.loc[:,"promoter_start"]=promoters_minus["end"].astype(int)-downstream
+    promoters_minus.loc[:,"promoter_end"]=promoters_minus["end"].astype(int)+upstream
 
     promoters=pd.concat([promoters_plus,promoters_minus])
 
     promoters=promoters[["seqname","feature","promoter_start","promoter_end","gene_name"]]
     promoters.columns=["seqname","feature","start","end","gene_name"]
 
-    promoters["feature"]="promoter"
-    promoters=promoters.drop_duplicates()
+    promoters.loc[:,"feature"]="promoter"
+    promoters.drop_duplicates(inplace=True)
     promoters.reset_index(inplace=True, drop=True)
 
     chr_sizes=pd.read_table(genome_file,header=None)
     chr_sizes.columns=["seqname","size"]
-    chr_sizes["seqname"]=chr_sizes["seqname"].astype(str)
-    promoters["seqname"]=promoters["seqname"].astype(str)
+    chr_sizes.loc[:,"seqname"]=chr_sizes["seqname"].astype(str)
+    promoters.loc[:,"seqname"]=promoters["seqname"].astype(str)
 
     promoters=pd.merge(promoters,chr_sizes,how="left",on=["seqname"])
     def CorrectStart(df):
@@ -254,15 +255,15 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
             s=e
         return s
 
-    promoters["start"]=promoters.apply(CorrectStart,axis=1)
-    promoters["end"]=promoters.apply(CorrectEnd,axis=1)
+    promoters.loc[:,"start"]=promoters.apply(CorrectStart,axis=1)
+    promoters.loc[:,"end"]=promoters.apply(CorrectEnd,axis=1)
 
-    promoters=promoters.drop(["size"],axis=1)
+    promoters.drop(["size"],axis=1, inplace=True)
 
     GTFs=GTF[["seqname","feature","start","end","gene_name"]]
     GTFs=GTFs[ GTFs["feature"]!= "gene"]
 
-    GTFs=GTFs.drop_duplicates()
+    GTFs.drop_duplicates(inplace=True)
     GTFs.reset_index(inplace=True, drop=True)
 
     GTFs=pd.concat([GTFs,promoters])
@@ -276,7 +277,7 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
             res=name+":"+feature
         return res
 
-    GTFs["gene_name"]=GTFs.apply(NewName, axis=1)
+    GTFs.loc[:,"gene_name"]=GTFs.apply(NewName, axis=1)
     GTFs=GTFs[["seqname","start","end","gene_name"]]
 
     print "Intersecting annotation tables and bed."
