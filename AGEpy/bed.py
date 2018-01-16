@@ -7,6 +7,8 @@ import gzip
 import pybedtools
 from pybedtools import BedTool
 from gtf import GTFtoBED
+from gtf import readGTF
+from gtf import retrieve_GTF_field
 
 def writeBED(inBED, file_path):
     """
@@ -74,7 +76,7 @@ def GetPeaksExons(bed,parsedGTF):
     """
 
     bedtool_AB=dfTObedtool(bed)
-        
+
     exonsGTF=parsedGTF[parsedGTF["feature"]=="exon"]
     exonsGTF.reset_index(inplace=True, drop=True)
 
@@ -92,7 +94,7 @@ def GetPeaksExons(bed,parsedGTF):
 
     cols=[bedcols,exonsBEDcols_,["overlap"] ]
     cols=[item for sublist in cols for item in sublist]
-   
+
     bedtool_exons=dfTObedtool(exonsBED)
 
     bedtool_target_exons=bedtool_AB.intersect(bedtool_exons, wo=True, s=True)
@@ -184,3 +186,177 @@ def GetPeaksExons(bed,parsedGTF):
 
     dfTargets=dfTargets.drop(["count"],axis=1)
     return dfTargets
+
+def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
+    """
+    Annotates a bed file.
+
+    :param bed: either a /path/to/file.bed or a Pandas dataframe in bed format. /path/to/file.bed implies bedcols.
+    :param GTF: /path/to/file.gtf
+    :param genome_file: /path/to/file.genome - a tab separated values of chr name and size information
+    :param bedcols: a comma separated string of column headers to use when reading in a bed file. eg: "chr,start,end,name"
+    :param promoter: a list containing the upstream start of the promoter region from the TSS and the downstream end of the promoter region from the TSS.
+
+    :returns: a Pandas dataframe with the annotated bed file. exons and promoters will be reported as well in the g.
+    """
+    if type(bed) == type("string"):
+        bed=pd.read_table(bed,header=None)
+        bed.columns=bedcols.split(",")
+
+    print "Reading GTF file."
+    sys.stdout.flush()
+
+    GTF=age.readGTF(GTF)
+    GTF["gene_name"]=age.retrieve_GTF_field("gene_name", GTF)
+
+    print "Generating promoters annotation."
+    sys.stdout.flush()
+
+    promoters=GTF[GTF["feature"]=="transcript"]
+    promoters_plus=promoters[promoters["strand"]=="+"]
+    promoters_minus=promoters[promoters["strand"]=="-"]
+
+    upstream=promoter[0]
+    downstream=promoter[1]
+
+    promoters_plus["promoter_start"]=promoters_plus["start"].astype(int)-upstream
+    promoters_plus["promoter_end"]=promoters_plus["start"].astype(int)+downstream
+
+    promoters_minus["promoter_start"]=promoters_minus["end"].astype(int)-downstream
+    promoters_minus["promoter_end"]=promoters_minus["end"].astype(int)+upstream
+
+    promoters=pd.concat([promoters_plus,promoters_minus])
+
+    promoters=promoters[["seqname","feature","promoter_start","promoter_end","gene_name"]]
+    promoters.columns=["seqname","feature","start","end","gene_name"]
+
+    promoters["feature"]="promoter"
+    promoters=promoters.drop_duplicates()
+    promoters.reset_index(inplace=True, drop=True)
+
+    chr_sizes=pd.read_table(genome_file,header=None)
+    chr_sizes.columns=["seqname","size"]
+    chr_sizes["seqname"]=chr_sizes["seqname"].astype(str)
+    promoters["seqname"]=promoters["seqname"].astype(str)
+
+    promoters=pd.merge(promoters,chr_sizes,how="left",on=["seqname"])
+    def CorrectStart(df):
+        s=df["start"]
+        if s < 0:
+            s=0
+        return s
+
+    def CorrectEnd(df):
+        s=df["end"]
+        e=df["size"]
+        if s > e:
+            s=e
+        return s
+
+    promoters["start"]=promoters.apply(CorrectStart,axis=1)
+    promoters["end"]=promoters.apply(CorrectEnd,axis=1)
+
+    promoters=promoters.drop(["size"],axis=1)
+
+    GTFs=GTF[["seqname","feature","start","end","gene_name"]]
+    GTFs=GTFs[ GTFs["feature"]!= "gene"]
+
+    GTFs=GTFs.drop_duplicates()
+    GTFs.reset_index(inplace=True, drop=True)
+
+    GTFs=pd.concat([GTFs,promoters])
+
+    def NewName(df):
+        name=df["gene_name"]
+        feature=df["feature"]
+        if feature == "transcript":
+            res=name
+        else:
+            res=name+":"+feature
+        return res
+
+    GTFs["gene_name"]=GTFs.apply(NewName, axis=1)
+    GTFs=GTFs[["seqname","start","end","gene_name"]]
+
+    print "Intersecting annotation tables and bed."
+    sys.stdout.flush()
+
+    refGTF=age.dfTObedtool(GTFs)
+    pos=age.dfTObedtool(df)
+
+    colsGTF=GTFs.columns.tolist()
+    newCols=df.columns.tolist()
+
+    for f in colsGTF:
+        newCols.append(f+"_")
+    newCols_=[ s for s in newCols if s not in ["seqname_","start_", "end_"]]
+
+    pos=pos.intersect(refGTF, loj=True)
+    pos=pd.read_table(pos.fn , names=newCols)
+    pos=pos[newCols_]
+
+    print "Merging features."
+    sys.stdout.flush()
+
+    def GetFeature(x):
+        if ":" in x:
+            res=x.split(":")[1]
+        else:
+            res=np.nan
+        return res
+
+    def GetName(x):
+        if ":" in x:
+            res=x.split(":")[0]
+        elif type(x) == type("string"):
+            if x != ".":
+                res=x
+            else:
+                res=np.nan
+        else:
+            res=np.nan
+        return res
+
+    pos["gene_feature_"]=pos["gene_name_"].apply( lambda x: GetFeature(x) )
+    pos["gene_name_"]=pos["gene_name_"].apply( lambda x: GetName(x) )
+
+    refcol=pos.columns.tolist()
+    refcol=[ s for s in refcol if s != "gene_feature_" ]
+
+    def CombineAnn(df):
+        def JOIN(x):
+            return ', '.join([ str(s) for s in list(set(df[x]))  if str(s) != "nan" ] )
+        return pd.Series(dict( gene_feature_ = JOIN("gene_feature_") ) )
+
+    pos_=pos.groupby(refcol).apply(CombineAnn)
+    pos_.reset_index(inplace=True, drop=False)
+
+    def MergeNameFeatures(df):
+        name=df["gene_name_"]
+        feature=df["gene_feature_"]
+        if (type(name) == type("string")) & (name != ".") :
+            if type(feature) == type("string"):
+                if len(feature) > 0:
+                    res=name+": "+feature
+                else:
+                    res=name
+            else:
+                res=name
+        else:
+            res=np.nan
+        return res
+
+    pos_["annotated_gene_features"]=pos_.apply(MergeNameFeatures,axis=1)
+
+    pos_=pos_.drop(["gene_name_","gene_feature_"],axis=1)
+
+    def CombineAnn(df):
+        def JOIN(x):
+            return '; '.join([ str(s) for s in list(set(df[x]))  if str(s) != "nan" ] )
+        return pd.Series(dict( annotated_gene_features = JOIN("annotated_gene_features") ) )
+
+    refcol=[ s for s in refcol if s != "gene_name_" ]
+    pos_=pos_.groupby(refcol).apply(CombineAnn)
+    pos_.reset_index(inplace=True, drop=False)
+
+    return pos_
