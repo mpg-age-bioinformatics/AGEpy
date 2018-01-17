@@ -22,3 +22,4 @@ pages:
     - abed: executables/abed.md
     - obo2tsv: executables/obo2tsv.md
     - david: executables/david.md
+    - blasto: executables/blasto.md
