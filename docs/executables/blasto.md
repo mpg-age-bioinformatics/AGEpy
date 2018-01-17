@@ -21,8 +21,10 @@ TCGTTTGATTCTGCAAGCAGCACCTACTGTGGGGTATTGATAAGATCTCTGATGGCGTCTGAAATTCTTCTGAGATTAGA
 
 $blasto -S -f /usr/home/JDoe/project1/input.fa -o /usr/home/JDoe/project1/run1
 $blasto -W -t /usr/home/JDoe/project1/run1.queryTable.tsv -o /usr/home/JDoe/project1/run1
+```
 
 ## Help
+```bash
 
 usage: blasto [-h] [-S] [-C] [-W] [-f INPUTFASTA] [-t INPUTTSV]
               [-o OUTPUTPREFIX] [--format_type FORMAT_TYPE]
@@ -64,3 +66,4 @@ optional arguments:
                         done, only active if -C is on (default: 60)
   --description         Get a description of what this script does. (default:
                         False)
+```
