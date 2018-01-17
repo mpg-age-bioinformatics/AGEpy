@@ -210,6 +210,9 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
 
     GTF=readGTF(GTF)
     GTF["gene_name"]=retrieve_GTF_field("gene_name", GTF)
+    GTF["gene_id"]=retrieve_GTF_field("gene_id", GTF)
+    GTF["gene_name"]=GTF["gene_name"]+"/"+GTF["gene_id"]
+    GTF=GTF.drop(["gene_id"],axis=1)
 
     print "Generating promoters annotation."
     sys.stdout.flush()

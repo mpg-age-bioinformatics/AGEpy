@@ -19,5 +19,6 @@ pages:
     - sam: modules/sam.md
   - Executables:
     - aDiff: executables/adiff.md
+    - abed: executables/abed.md
     - obo2tsv: executables/obo2tsv.md
     - david: executables/david.md
