@@ -207,6 +207,7 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
 
             tmp=david_[:20]
             tmp["Enrichment"]=tmp["foldEnrichment"]
+            tmp["Term"]=tmp['termName']
             cellplot=CellPlot(tmp, output_file=output+"."+category, gene_expression=idsc2, \
             figure_title=category+"\n"+output.split("/")[-1], pvalCol="ease", \
             lowerLimit=None, upperLimit=None, colorBarType='bwr')
