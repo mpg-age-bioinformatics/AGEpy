@@ -212,7 +212,7 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
             figure_title=category+"\n"+output.split("/")[-1], pvalCol="ease", \
             lowerLimit=None, upperLimit=None, colorBarType='bwr')
 
-            symplot=age.SymPlot(tmp, output_file=output+"."+category, \
+            symplot=SymPlot(tmp, output_file=output+"."+category, \
             figure_title=category+"\n"+output.split("/")[-1], \
             pvalCol="ease")
         EXC.save()
