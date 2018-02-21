@@ -67,6 +67,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     ax1 = fig.add_axes([0.05, 3.5/( float(siz)*float(10)/float(3) ), 0.9, 2])
     ax2 = fig.add_axes([0.05, 1.5/( float(siz)*float(10)/float(3) ), 0.9, 1.5/( float(siz)*float(10)/float(3) )])
     arrangment=np.arange(len(df))+.5
+    df['Enrichment']=df['Enrichment'].astype(float)
     enr=df['Enrichment'].tolist()
     enr=[x for x in enr if str(x) != str(float("inf"))]
     enr=[x for x in enr if str(x) != str(float("-inf"))]
@@ -126,7 +127,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
                 barAn=str(len(fcs))+" (NS)"
         else:
             barAn=len(fcs)
-        ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom') # m*.02
+	ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom') # m*.02
 
     ax1.set_yticks(arrangment) # +0.4
     ax1.set_yticklabels(df['Term'].tolist())
@@ -192,6 +193,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
     :returns: a matplotlib figure
     """
+    df['Annotated'] = df['Annotated'].astype(float)
     maxAn=df['Annotated'].max()
 
     arrangment=np.arange(len(df))+.5
