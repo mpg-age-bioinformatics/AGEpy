@@ -14,7 +14,7 @@ def read(*parts):
         return fp.read()
 
 setup(name = 'AGEpy',
-      version = '0.6.7',
+      version = '0.7.0',
       description = 'Bioinformatics tools for Python developed at the MPI for Biology of Ageing',
       long_description = read('README.rst'),
       url = 'https://github.com/mpg-age-bioinformatics/AGEpy',
@@ -26,5 +26,5 @@ setup(name = 'AGEpy',
       'suds', 'xlrd', 'biomart', 'matplotlib', 'client', \
       'xlsxwriter','pybedtools','wand','paramiko','ipaddress', 'seaborn'],
       zip_safe = False,
-      scripts=['bin/obo2tsv','bin/aDiff','bin/abed','bin/david']
+      scripts=['bin/obo2tsv','bin/aDiff','bin/abed','bin/david', 'bin/blasto']
       )

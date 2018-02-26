@@ -128,7 +128,7 @@ def BLASTresults(rid, format_type="Tabular", \
     Retrieves results for an RID.
 
     :param rid: BLAST search request identifier. Allowed values: The Request ID (RID) returned when the search was submitted
-    :param format_type: Report type. Allowed values: HTML, Text, XML, XML2, JSON2, or Tabular. HTML is the default.
+    :param format_type: Report type. Allowed values: HTML, Text, XML, XML2, JSON2, or Tabular. Tabular is the default.
     :param hitlist_size: Number of databases sequences to keep. Allowed values: Integer greater than zero.
     :param alignments: Number of alignments to print (applies to HTML and Text). Allowed values: Integer greater than zero.
     :param ncbi_gi: Show NCBI GIs in report. Allowed values: T or F.
@@ -146,9 +146,10 @@ def BLASTresults(rid, format_type="Tabular", \
             URL=URL+"&"+ variablename(var) +"="+str(o)
     URL=URL+"&CMD=Get"
     response=requests.get(url = URL)
+    response=response.content
 
     if format_type=="Tabular":
-        result=response.content.split("\n")
+        result=response.split("\n")
         result=[ s.split("\t") for s in result][6:]
         header=result[:7]
         content=result[7:]

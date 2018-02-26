@@ -17,6 +17,8 @@ david_fields = [
 # 'termName' to 'term' and 'term_name'
 
 def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2):
+    # Modified from https://david.ncifcrf.gov/content.jsp?file=WS.html
+    # by courtesy of HuangYi @ 20110424
 
     """
     Queries the DAVID database for an enrichment analysis
@@ -203,11 +205,15 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
             david_=david[david["categoryName"]==category]
             david_.to_excel(EXC,category)
 
-            cellplot=CellPlot(david_[:20], output_file=output+"."+category, gene_expression=idsc2, \
+            tmp=david_[:20]
+            tmp["Enrichment"]=tmp["foldEnrichment"]
+            tmp["Term"]=tmp['termName']
+            tmp["Annotated"]=tmp["listHits"]
+            cellplot=CellPlot(tmp, output_file=output+"."+category, gene_expression=idsc2, \
             figure_title=category+"\n"+output.split("/")[-1], pvalCol="ease", \
             lowerLimit=None, upperLimit=None, colorBarType='bwr')
 
-            symplot=age.SymPlot(david_[:20], output_file=output+"."+category, \
+            symplot=SymPlot(tmp, output_file=output+"."+category, \
             figure_title=category+"\n"+output.split("/")[-1], \
             pvalCol="ease")
         EXC.save()

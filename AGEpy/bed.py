@@ -199,7 +199,7 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
     :param bedcols: a comma separated string of column headers to use when reading in a bed file. eg: "chr,start,end,name"
     :param promoter: a list containing the upstream start of the promoter region from the TSS and the downstream end of the promoter region from the TSS.
 
-    :returns: a Pandas dataframe with the annotated bed file. exons and promoters will be reported as well in the g.
+    :returns: a Pandas dataframe with the annotated bed file. exons and promoters will be reported as well in the annotated_gene_features column.
     """
     if type(bed) == type("string"):
         bed=pd.read_table(bed,header=None)

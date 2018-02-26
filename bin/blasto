@@ -25,10 +25,10 @@ parser.add_argument("-f", "--inputFasta", default = '', help="Fasta formatted in
                     The sequence name may contain additional blast paramers, ") # include example
 parser.add_argument('-t', '--inputTsv', default = '',help='Tab separated input file containing sequence IDs, output prefix, query IDs, query arguments.')
 # Output
-parser.add_argument('-o', '--outputPrefix', default = '.', help='Output prefix. All files will start with this prefix, blast output files will\
-                    be written two prefix_sequenceID.tsv/html')
+parser.add_argument('-o', '--outputPrefix', default = '', help='Output prefix. All files will start with this prefix, blast output files will\
+                    be written two <prefix>_<sequenceID>.<format_type>')
 parser.add_argument('--format_type', default = 'Tabular', help='format of the blast output')
-parser.add_argument('--sleepTime', default = 60, help = 'time to wait before checking again if your jobs are done, only active if -C is on')
+parser.add_argument('--sleepTime', default = 60, type = int, help = 'time to wait before checking again if your jobs are done, only active if -C is on')
 parser.add_argument("--description", help="Get a description of what this script does.", action="store_true")
 
 args = parser.parse_args()
@@ -41,7 +41,36 @@ if args.description:
     using the -C option, or quit and check if the results are ready later using -W -t <queryTable.tsv>"
     sys.exit(0)
 
-# test input and arguments ### TODO
+# test input and arguments
+
+# test if inputfiles are present, if -S then -f if -W then -t
+if args.submitFromFasta and args.inputFasta == '':
+    print('ERROR: If you are trying to submit your jobs, you need to supply input fasta sequences using -f <file.fa>')
+    sys.exit(1)
+
+if args.submitFromFasta and not os.path.exists(args.inputFasta):
+    print ('ERROR: No such input file: %s' %(args.inputFasta))
+    sys.exit(1)
+
+if args.checkAndWriteResults and args.inputTsv == '':
+    print('ERROR: If you are trying to check and write your jobs, you need to supply input tab separated table -t <queries.tsv>')
+    sys.exit(1)
+
+if args.checkAndWriteResults and not os.path.exists(args.inputTsv):
+    print ('ERROR: No such input file: %s' %(args.inputTsv))
+    sys.exit(1)
+
+# test if output location is writable
+if not os.path.isdir('/'.join(args.outputPrefix.split('/')[:-1])):
+    print('ERROR: No such output directory: %s' %('/'.join(args.outputPrefix.split('/')[:-1])))
+    sys.exit(1)
+    if not os.access('/'.join(args.outputPrefix.split('/')[:-1]), os.W_OK):
+        print('ERROR: You do not have write permissions: %s' %('/'.join(args.outputPrefix.split('/')[:-1])))
+
+# test if format_type belongs to possible format types
+if not args.format_type in ['Tabular', 'Text', 'XML', 'XML2', 'JSON2']:
+    print('ERROR: Only Tabular, Text, XML, XML2, or JSON2 are a supported format_type right now. %s is not supported'  %(args.format_type))
+    sys.exit(1)
 
 # import AGEpy and other packages
 import AGEpy as age
@@ -106,7 +135,7 @@ if args.submitFromFasta:
     
     # exit if -C is not specified
     if not args.continueThrough:
-        print('%s jobs have been submitted.\nYou can find an overview here: %s.queryTable.tsv' %(len(FASTA), args.outputPrefix)) 
+        print('\nYou can find an overview here: %s.queryTable.tsv' %(args.outputPrefix)) 
         print "\n\n*************************************\nDeveloped by the Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing \n\nbioinformatics@age.mpg.de\n\n"
     exit(0)
 
@@ -134,8 +163,12 @@ while len(FASTA) > 0:
             if args.format_type == 'Tabular':
                 r.insert(0, 'query_name', [FASTA[seq]['SeqID']] * r.shape[0])
                 r.to_csv('%s_%s.tsv' %(args.outputPrefix, FASTA[seq]['SeqID']), sep = '\t', index = False)
+            elif format_type.lower() in ['html', 'Text', 'xml', 'xml2', 'json2']:
+                O = open('%s_%s.%s' %(args.outputPrefix, FASTA[seq]['SeqID'], format_type.lower()), 'w')
+                O.write(r)
+                O.close()
             else:
-                print('Only Tabular is a supported format_type right now. %s is not supported'  %(args.format_type)) #### TODO
+                print('Only Tabular, Text, XML, XML2, or JSON2 are a supported format_type right now. %s is not supported'  %(args.format_type)) 
             finished += [seq]
         elif status == 'READY' and therearehits == 'no':
             print('Query %s is ready but has no hits' %(FASTA[seq]['SeqID']))
