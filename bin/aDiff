@@ -426,7 +426,7 @@ for sig, label in zip(sig_choice,label_choice):
                             sys.stdout.flush()
                             target=cytoscape_output+'/'+sample1+'_vs_'+sample2
                             if not os.path.isfile(target+".cys"):
-                                age.aDiffCytoscape(df_pair,aging_genes,target,species=args.species,limit=args.limit, cutoff=args.cuttoff,taxon=args.taxon,cytoscape_host=args.cytoscape_host,cytoscape_port=args.cytoscape_port)
+                                age.aDiffCytoscape(df_pair,aging_genes,target,species=args.species,limit=args.limit, cutoff=args.cuttoff,taxon=args.taxon,host=args.cytoscape_host,port=args.cytoscape_port)
                             else:
                                 print "\nCytoscape network for "+sample1+' vs. '+sample2+' has been previously build.'
                                 sys.stdout.flush()
