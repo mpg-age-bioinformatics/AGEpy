@@ -213,13 +213,16 @@ def loadTableData(df, df_key='index',table="node", \
     tablen=networkname+" default node"
     
     data=[]
-    
+
+ 
     for c in tmp.columns.tolist():
         tmpcol=tmp[[c]].dropna()
         for r in tmpcol.index.tolist():
             cell={}
             cell[str(table_key_column)]=str(r) # {"name":"p53"}
             val=tmpcol.loc[r,c]
+            if type(val) != str:
+                val=float(val)
             cell[str(c)]=val
             data.append(cell)
     
@@ -513,10 +516,10 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
     """
 
     ##### TEMPORARY FIX - STRING APP NOT ACCEPTING QUERIES ABOVE 2000 GENES ####
-    df=df.sort_values(by=["q_value"],ascending=True)
-    df.reset_index(inplace=True, drop=True)
-    tmp=df[:1999]
-    df=tmp.copy()
+    #df=df.sort_values(by=["q_value"],ascending=True)
+    #df.reset_index(inplace=True, drop=True)
+    #tmp=df[:1999]
+    #df=tmp.copy()
     ##### END OF TEMPORARY FIX #####
 
     query_genes=df["ensembl_gene_id"].tolist()
