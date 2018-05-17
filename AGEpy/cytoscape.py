@@ -218,11 +218,18 @@ def loadTableData(df, df_key='index',table="node", \
     for c in tmp.columns.tolist():
         tmpcol=tmp[[c]].dropna()
         for r in tmpcol.index.tolist():
+            check=tmpcol[tmpcol.index.isin([r])]
+            
             cell={}
             cell[str(table_key_column)]=str(r) # {"name":"p53"}
-            val=tmpcol.loc[r,c]
-            if type(val) != str:
-                val=float(val)
+            if len(check) == 1:
+                val=tmpcol.loc[r,c]
+            
+                if type(val) != str:
+                    val=float(val)
+            else:
+                print check 
+                val=""
             cell[str(c)]=val
             data.append(cell)
     
@@ -516,10 +523,10 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
     """
 
     ##### TEMPORARY FIX - STRING APP NOT ACCEPTING QUERIES ABOVE 2000 GENES ####
-    #df=df.sort_values(by=["q_value"],ascending=True)
-    #df.reset_index(inplace=True, drop=True)
-    #tmp=df[:1999]
-    #df=tmp.copy()
+    df=df.sort_values(by=["q_value"],ascending=True)
+    df.reset_index(inplace=True, drop=True)
+    tmp=df[:1999]
+    df=tmp.copy()
     ##### END OF TEMPORARY FIX #####
 
     query_genes=df["ensembl_gene_id"].tolist()
@@ -557,11 +564,14 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
     # destroy any existing network still present in cytoscape
     response=cytoscape("network", "list",\
                        host=host, port=port)
-    if type(response) == type(["list"]):
-        for r in response:
-            rr=cytoscape("network", "destroy",{"network":"SUID:"+str(r)},\
-                         host=host, port=port)
-
+    if "networks" in response.keys():
+        response=response["networks"]
+        #print response
+        if len(response) > 0:
+            for r in response:
+                rr=cytoscape("network", "destroy",{"network":"SUID:"+str(r)},\
+                             host=host, port=port)
+    
     # String protein query
     query_genes=[ str(s) for s in query_genes ]
 
