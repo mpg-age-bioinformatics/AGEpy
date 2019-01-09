@@ -2,7 +2,7 @@ import pandas as pd
 import sys
 from suds.client import Client as sudsclient
 import ssl
-from plots import *
+from .plots import *
 
 david_categories = [
   'GOTERM_BP_FAT', 'GOTERM_CC_FAT', 'GOTERM_MF_FAT', 'KEGG_PATHWAY',
@@ -48,27 +48,27 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     client.wsdl.services[0].setlocation('https://david.ncifcrf.gov/webservice/services/DAVIDWebService.DAVIDWebServiceHttpSoap11Endpoint/')
     client_auth = client.service.authenticate(user)
     if verbose:
-      print 'User Authentication:', client_auth
+      print('User Authentication:', client_auth)
       sys.stdout.flush()
     size = client.service.addList(ids, database, name, 0) #| inputListIds,idType,listName,listType)
     if verbose:
-      print 'Mapping rate of ids: ', str(size)
+      print('Mapping rate of ids: ', str(size))
       sys.stdout.flush()
     if not float(size) > float(0):
       return None
     if ids_bg is not None:
       size_bg = client.service.addList(ids_bg, database, name_bg, 1)
       if verbose:
-        print 'Mapping rate of background ids: ', str(size_bg)
+        print('Mapping rate of background ids: ', str(size_bg))
         sys.stdout.flush()
     client_categories = client.service.setCategories(categories)
     if verbose:
-      print 'Categories used: ', client_categories
+      print('Categories used: ', client_categories)
       sys.stdout.flush()
     client_report = client.service.getChartReport(p, n)
     size_report = len(client_report)
     if verbose:
-      print 'Records reported: ', str(size_report)
+      print('Records reported: ', str(size_report))
       sys.stdout.flush()
 
     if size_report > 0:
@@ -191,7 +191,7 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
     name = name, name_bg = name_bg, verbose = verbose, p = p, n = n)
 
     if type(david)!=type(pd.DataFrame()):
-        print "For this dataset no enrichments could be returned."
+        print("For this dataset no enrichments could be returned.")
         sys.stdout.flush()
     else:
         david[idsc2]=david["geneIds"].apply(lambda x: \

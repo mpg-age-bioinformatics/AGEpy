@@ -80,7 +80,7 @@ def BLASTquery(query,database,program,filter=None,\
     URL=URL+"&CMD=Put"
 
     if verbose:
-        print URL
+        print(URL)
         sys.stdout.flush()
 
     response=requests.get(url = URL)
@@ -89,7 +89,7 @@ def BLASTquery(query,database,program,filter=None,\
     if len(RID) > 0:
         RID=RID[0].split(" ")[-1]
     else:
-        print "Could not return an RID for this query."
+        print("Could not return an RID for this query.")
         RID=None
     return RID
 
@@ -115,7 +115,7 @@ def BLASTcheck(rid,baseURL="http://blast.ncbi.nlm.nih.gov"):
         status=None
         ThereAreHits=None
 
-    print rid, status, ThereAreHits
+    print(rid, status, ThereAreHits)
     sys.stdout.flush()
 
     return status, ThereAreHits

@@ -3,7 +3,8 @@ import sys
 import pandas as pd
 import numpy as np
 from biomart import BiomartServer
-from cStringIO import StringIO
+#from cStringIO import StringIO # python2
+from io import BytesIO as cStringIO
 
 biomart_host="http://www.ensembl.org/biomart"
 
@@ -26,7 +27,7 @@ def datasetsBM(host=biomart_host):
     v=variable.replace("{"," ") 
     v=v.replace("}"," ") 
     v=v.replace(": ","\t")
-    print v
+    print(v)
 
 def filtersBM(dataset,host=biomart_host):
     """
@@ -49,7 +50,7 @@ def filtersBM(dataset,host=biomart_host):
     v=variable.replace("{"," ") 
     v=v.replace("}"," ") 
     v=v.replace(": ","\t")
-    print v
+    print(v)
 
 def attributesBM(dataset,host=biomart_host):
     """
@@ -72,7 +73,7 @@ def attributesBM(dataset,host=biomart_host):
     v=variable.replace("{"," ") 
     v=v.replace("}"," ") 
     v=v.replace(": ","\t")
-    print v
+    print(v)
 
 def queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,query_dic=None,host=biomart_host):
     """
@@ -113,7 +114,7 @@ def queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,qu
             res.append(line.split("\t"))
     res=pd.DataFrame(res)
     res.columns=query_attributes
-    return res
+    return(res)
 
 def FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'aging,'],\
                    exclude_names=["packaging","voltage","cleavage-",\
@@ -231,13 +232,13 @@ def FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'ag
     # names_=checkStrings(filtered_names,names_filter)
     # defs_=checkStrings(filtered_defs,defs_filter)
 
-    print "\nStrings being used for filtering in names section:"
+    print("\nStrings being used for filtering in names section:")
     for f in filtered_names:
-        print f
+        print(f)
 
-    print "\nStrings being used for filtering in defenitions section:"
+    print("\nStrings being used for filtering in defenitions section:")
     for f in filtered_defs:
-        print "\n"+f
+        print("\n"+f)
 
     def CHECK_AGE(x,l):
         if x in l:

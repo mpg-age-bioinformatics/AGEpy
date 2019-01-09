@@ -1,6 +1,7 @@
 import pandas as pd
 import os
-import urllib2
+#import urllib2 # python2
+import urllib.request as urllib2
 
 def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
                   genefile="homologene.data",\
@@ -44,7 +45,7 @@ def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
     genedf=getDf(genefile)
     genecols=["HID","Taxonomy ID","Gene ID","Gene Symbol","Protein gi","Protein accession"]
     genedf.columns=genecols
-    genedf["organism"]=genedf["Taxonomy ID"].apply(lambda(x):taxdi.get(x))
+    genedf["organism"]=genedf["Taxonomy ID"].apply(lambda x:taxdi.get(x))
 
     proteinsdf=getDf(proteinsfile)
     proteinscols=["taxid","entrez GeneID","gene symbol","gene description","protein accession.ver","mrna accession.ver",\
@@ -52,7 +53,7 @@ def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
                   "starting position of gene in 0-based coordinate",\
                   "end position of the gene in 0-based coordinate","strand","nucleotide gi of genomic sequence where this gene is annotated"]
     proteinsdf.columns=proteinscols
-    proteinsdf["organism"]=proteinsdf["taxid"].apply(lambda(x):taxdi.get(x))
+    proteinsdf["organism"]=proteinsdf["taxid"].apply(lambda x:taxdi.get(x))
 
     protclusdf=getDf(proteinsclusterfile)
     protclustercols=["taxid","entrez GeneID","gene symbol","gene description","protein accession.ver","mrna accession.ver",\
@@ -60,6 +61,6 @@ def getHomoloGene(taxfile="build_inputs/taxid_taxname",\
                   "starting position of gene in 0-based coordinate",\
                   "end position of the gene in 0-based coordinate","strand","nucleotide gi of genomic sequence where this gene is annotated"]
     protclusdf.columns=proteinscols
-    protclusdf["organism"]=protclusdf["taxid"].apply(lambda(x):taxdi.get(x))
+    protclusdf["organism"]=protclusdf["taxid"].apply(lambda x:taxdi.get(x))
 
     return genedf, protclusdf, proteinsdf

@@ -32,8 +32,8 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     try:
         limits=[float(x) for x in limits[0].tolist()]
 
-    except ValueError,e:
-        print "error",e,"on line"
+    except (ValueError,e):
+        print("error",e,"on line")
 
     if upperLimit:
         maxFC=upperLimit
@@ -109,7 +109,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         try:
             w=float(df.ix[i,'Enrichment'])/float(len(fcs))
         except:
-            print df.ix[i,]
+            print(df.ix[i,])
         p=0
         fcs.sort(key=float)
         for f in fcs:
@@ -127,8 +127,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
                 barAn=str(len(fcs))+" (NS)"
         else:
             barAn=len(fcs)
-	ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom') # m*.02
-
+    ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom')
     ax1.set_yticks(arrangment) # +0.4
     ax1.set_yticklabels(df['Term'].tolist())
 

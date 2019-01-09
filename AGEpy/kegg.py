@@ -1,6 +1,7 @@
 import pandas as pd
 import sys
-from urllib import urlopen
+# from urllib import urlopen # python2
+from urllib.request import urlopen
 #try:
 #    from rpy2.robjects.packages import importr
 #    try:
@@ -13,7 +14,6 @@ from urllib import urlopen
 #    sys.stdout.flush()
 import biomart
 from biomart import BiomartServer
-
 
 
 def organismsKEGG():
@@ -69,13 +69,13 @@ def databasesKEGG(organism,ens_ids):
     test_db=urlopen("http://rest.genome.jp/link/"+ens_db+"/"+organism).read()
     test_db=test_db.split("\n")
     if len(test_db) == 1:
-        print "For "+organism+" the following db was found: "+ens_db
-        print "This database does not seem to be valid KEGG-linked database identifier"
-        print "For \n'hsa' use 'ensembl-hsa'\n'mmu' use 'ensembl-mmu'\n'cel' use 'EnsemblGenomes-Gn'\n'dme' use 'FlyBase'"
+        print("For "+organism+" the following db was found: "+ens_db)
+        print("This database does not seem to be valid KEGG-linked database identifier")
+        print("For \n'hsa' use 'ensembl-hsa'\n'mmu' use 'ensembl-mmu'\n'cel' use 'EnsemblGenomes-Gn'\n'dme' use 'FlyBase'")
         sys.stdout.flush()
         ens_db = None
     else:
-        print "For "+organism+" the following db was found: "+ens_db
+        print("For "+organism+" the following db was found: "+ens_db)
         sys.stdout.flush()
     return ens_db
 
@@ -90,7 +90,7 @@ def ensembl_to_kegg(organism,kegg_db):
     :returns: a Pandas dataframe of with 'KEGGid' and 'ENSid'.
 
     """
-    print "KEGG API: http://rest.genome.jp/link/"+kegg_db+"/"+organism
+    print("KEGG API: http://rest.genome.jp/link/"+kegg_db+"/"+organism)
     sys.stdout.flush()
     kegg_ens=urlopen("http://rest.genome.jp/link/"+kegg_db+"/"+organism).read()
     kegg_ens=kegg_ens.split("\n")
@@ -154,7 +154,7 @@ def pathwaysKEGG(organism):
     :returns df_: a Pandas dataframe with a columns for 'KEGGid', and one column for each pathway with the corresponding gene ids below
     """
 
-    print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
+    print("KEGG API: http://rest.kegg.jp/list/pathway/"+organism)
     sys.stdout.flush()
     kegg_paths=urlopen("http://rest.kegg.jp/list/pathway/"+organism).read()
     kegg_paths=kegg_paths.split("\n")
@@ -164,7 +164,7 @@ def pathwaysKEGG(organism):
     df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
     df.columns=['pathID','pathName']
 
-    print "KEGG API: http://rest.kegg.jp/link/"+organism+"/pathway/"
+    print("KEGG API: http://rest.kegg.jp/link/"+organism+"/pathway/")
     sys.stdout.flush()
     kegg_paths_genes=urlopen("http://rest.kegg.jp/link/"+organism+"/pathway/").read()
     kegg_paths_genes=kegg_paths_genes.split("\n")
@@ -253,11 +253,11 @@ def expKEGG(organism,names_KEGGids):
     df=pd.DataFrame(final[0:len(final)-1])[[0,1]]
 
     df.columns=['pathID','pathName']
-    print "Collecting genes for pathways"
+    print("Collecting genes for pathways")
     sys.stdout.flush()
     df_pg=pd.DataFrame()
     for i in df['pathID'].tolist():
-        print i
+        print(i)
         sys.stdout.flush()
         path_genes=urlopen("http://rest.kegg.jp/link/genes/"+i).read()
         path_genes=path_genes.split("\n")
@@ -354,7 +354,7 @@ def KEGGmatrix(organism, dataset, query_attributes=['ensembl_gene_id','kegg_enzy
     df=df.drop_duplicates(subset=['KEGGid','pathIDs','pathName','kegg_enzyme' ])
     df=df.reset_index()
     if not isinstance(dfexp, pd.DataFrame):
-        print "Returning df and fullmatrix"
+        print("Returning df and fullmatrix")
         sys.stdout.flush()
         return df, fullmatrix
     else:
@@ -394,7 +394,7 @@ def KEGGmatrix(organism, dataset, query_attributes=['ensembl_gene_id','kegg_enzy
             for p in cols:
                 dfT=df_.dropna(subset=[p])
                 dfT=dfT.dropna(subset=['kegg_enzyme'])
-                print dfT.head()
+                print(dfT.head())
                 dfT=dfT.drop_duplicates(subset=['kegg_enzyme'])
                 if len(dfT) > 0:
                     pathway=p.split(":")[1]
@@ -404,7 +404,7 @@ def KEGGmatrix(organism, dataset, query_attributes=['ensembl_gene_id','kegg_enzy
                         color="red"
                         text="/"+gKEGG+"%09"+color
                         URL=URL+text
-                    print URL
+                    print(URL)
                     d={"pathway":pathway, "URL":URL}
                     d=pd.DataFrame(d,index=[0])
                     df_links=pd.concat([df_links,d])

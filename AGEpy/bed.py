@@ -1,15 +1,17 @@
 import pandas as pd
 import numpy as np
 import os
-from urllib import urlopen
-import urllib2
-import StringIO
+#from urllib import urlopen # python2 
+#import urllib2 # python2
+import urllib.request as urllib2
+#import StringIO python2
+from io import StringIO
 import gzip
 import pybedtools
 from pybedtools import BedTool
-from gtf import GTFtoBED
-from gtf import readGTF
-from gtf import retrieve_GTF_field
+from .gtf import GTFtoBED
+from .gtf import readGTF
+from .gtf import retrieve_GTF_field
 import sys
 
 def writeBED(inBED, file_path):
@@ -205,7 +207,7 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
         bed=pd.read_table(bed,header=None)
         bed.columns=bedcols.split(",")
 
-    print "Reading GTF file."
+    print("Reading GTF file.")
     sys.stdout.flush()
 
     GTF=readGTF(GTF)
@@ -214,7 +216,7 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
     GTF["gene_name"]=GTF["gene_name"]+"/"+GTF["gene_id"]
     GTF=GTF.drop(["gene_id"],axis=1)
 
-    print "Generating promoters annotation."
+    print("Generating promoters annotation.")
     sys.stdout.flush()
 
     promoters=GTF[GTF["feature"]=="transcript"]
@@ -283,7 +285,7 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
     GTFs.loc[:,"gene_name"]=GTFs.apply(NewName, axis=1)
     GTFs=GTFs[["seqname","start","end","gene_name"]]
 
-    print "Intersecting annotation tables and bed."
+    print( "Intersecting annotation tables and bed." )
     sys.stdout.flush()
 
     refGTF=dfTObedtool(GTFs)
@@ -300,7 +302,7 @@ def AnnotateBED(bed, GTF, genome_file, bedcols=None, promoter=[1000,200]):
     pos=pd.read_table(pos.fn , names=newCols)
     pos=pos[newCols_]
 
-    print "Merging features."
+    print("Merging features.")
     sys.stdout.flush()
 
     def GetFeature(x):

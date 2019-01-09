@@ -7,7 +7,8 @@ import os
 import sys
 from time import sleep
 import json
-import urllib2
+#import urllib2 # python2
+import urllib.request as urllib2
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -28,7 +29,7 @@ def CheckResponse(r):
     elif status == "201":
         sys.stdout.flush()
     else:
-        print r, r.status_code
+        print(r, r.status_code)
         sys.stdout.flush()
         
 def checkCytoscapeVersion(host=cytoscape_host,port=cytoscape_port):
@@ -45,7 +46,7 @@ def checkCytoscapeVersion(host=cytoscape_host,port=cytoscape_port):
     r = requests.get(url = URL)
     r=json.loads(r.content)
     for k in r.keys():
-        print k, r[k]
+        print(k, r[k])
         
 def cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_port,method="POST",verbose=False):
     """
@@ -78,7 +79,7 @@ def cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_
         P="&".join(P)
         URL="http://"+str(host)+":"+str(port)+"/v1/commands/"+str(namespace)+"/"+str(command)+"?"+P
         if verbose:
-            print "'"+URL+"'"
+            print("'"+URL+"'")
             sys.stdout.flush()
         r = requests.get(url = URL)
         CheckResponse(r)
@@ -90,7 +91,7 @@ def cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_
         CheckResponse(r)
         res=r.content
         if verbose:
-            print res
+            print(res)
         res=json.loads(res)
         res=res["data"]
         
@@ -103,12 +104,12 @@ def cytoscape(namespace,command="",PARAMS={},host=cytoscape_host,port=cytoscape_
         P="&".join(P)
         URL="http://"+str(host)+":"+str(port)+"/v1/commands/"+str(namespace)+"/"+str(command)+"?"+P
         if verbose:
-            print "'"+URL+"'"
+            print("'"+URL+"'")
             sys.stdout.flush()
         response = urllib2.urlopen(URL)
         #print response
         res = response.read()
-        print res
+        print(res)
         sys.stdout.flush()
     
     return res
@@ -141,7 +142,7 @@ def getTableColumns(table, columns, namespace = "default", network = "current", 
     def target(column):
         URL="http://"+str(host)+":"+str(port)+"/v1/networks/"+str(network)+"/tables/"+namespace+table+"/columns/"+column  
         if verbose:
-            print "'"+URL+"'"
+            print("'"+URL+"'")
             sys.stdout.flush()
         response = urllib2.urlopen(URL)
         response = response.read()
@@ -161,7 +162,7 @@ def getTableColumns(table, columns, namespace = "default", network = "current", 
             col=target(c)
             df=pd.concat([df,col],axis=1)
         except:
-            print "Could not find "+c
+            print("Could not find "+c)
             sys.stdout.flush()        
 
     df.index=df["name"].tolist()
@@ -228,7 +229,7 @@ def loadTableData(df, df_key='index',table="node", \
                 if type(val) != str:
                     val=float(val)
             else:
-                print check 
+                print(check)
                 val=""
             cell[str(c)]=val
             data.append(cell)
@@ -240,11 +241,11 @@ def loadTableData(df, df_key='index',table="node", \
     
     URL="http://"+str(host)+":"+str(port)+"/v1/networks/"+str(network)+"/tables/"+namespace+table  
     if verbose:
-        print "'"+URL+"'"
+        print("'"+URL+"'")
         sys.stdout.flush()
     r = requests.put(url = URL, json = upload)
     if verbose:
-        print r
+        print(r)
     CheckResponse(r)
     res=r.content
     return res
@@ -296,7 +297,7 @@ def update_style(title,defaults=None,mappings=None,host=cytoscape_host,port=cyto
 
     URL="http://"+str(host)+":"+str(port)+"/v1/styles/"+str(title)
     if verbose:
-        print URL
+        print(URL)
         sys.stdout.flush()
 
     response = urllib2.urlopen(URL)    
@@ -361,10 +362,10 @@ def create_styles(title,defaults=None,mappings=None,host=cytoscape_host,port=cyt
 
     try:
         update_style(title,defaults=defaults,mappings=mappings,host=host,port=port)
-        print "Existing style was updated."
+        print("Existing style was updated.")
         sys.stdout.flush()
     except:
-        print "Creating new style."
+        print("Creating new style.")
         sys.stdout.flush()
         URL="http://"+str(host)+":"+str(port)+"/v1/styles"
         PARAMS={"title":title,\
@@ -412,7 +413,7 @@ def mapVisualProperty(visualProperty,mappingType,mappingColumn,\
 
         URL="http://"+str(host)+":"+str(port)+"/v1/networks/"+str(network)+"/tables/"+namespace+table+"/columns/"
         if verbose:
-            print URL 
+            print(URL)
             sys.stdout.flush()
         response = urllib2.urlopen(URL)
         response = response.read()
@@ -424,7 +425,7 @@ def mapVisualProperty(visualProperty,mappingType,mappingColumn,\
             mappingColumnType=r["type"]
             break
     if not mappingColumnType:
-        print "For mappingType: "+mappingType+" it was not possible to find a  mappingColumnType."
+        print("For mappingType: "+mappingType+" it was not possible to find a  mappingColumnType.")
         sys.stdout.flush()
     
         
@@ -583,7 +584,7 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                        "taxonID":taxon},\
                        host=host, port=port)
 
-    print "giving some time to cytoscape.."
+    print("giving some time to cytoscape..")
     sys.stdout.flush()
     sleep(10)
 
@@ -819,7 +820,7 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                             "OutputFile":neig_pdf},\
                           host=host, port=port)
     except:
-        print "No "+"changed firstNeighbors"
+        print("No "+"changed firstNeighbors")
         sys.stdout.flush()
 
     try:
@@ -840,7 +841,7 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
                             "OutputFile":dif_pdf},\
                           host=host, port=port)
     except:
-        print "No "+"changed diffusion"
+        print("No "+"changed diffusion")
         sys.stdout.flush()    
 
     ssh = paramiko.SSHClient()
@@ -859,6 +860,6 @@ def aDiffCytoscape(df,aging_genes,target,species="caenorhabditis elegans",limit=
             ftp_client.get(f+extension,local)
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("rm "+f+extension )
         except:
-            print "No "+local
+            print("No "+local)
             sys.stdout.flush()
     

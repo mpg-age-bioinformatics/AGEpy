@@ -11,3 +11,4 @@ site
 
 # Other
 *.swp
+.DS_Store

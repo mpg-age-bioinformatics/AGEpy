@@ -1,6 +1,8 @@
 import pandas as pd
-import urllib2
-import StringIO
+#import urllib2 # python2
+import urllib.request as urllib2
+# import StringIO # python2
+from io import StringIO
 import gzip
 import sys
 
@@ -52,10 +54,10 @@ def getGeneAssociation(URL_or_file):
             cols=cols.get(colsType)
             out.columns=cols
         except ValueError as err:
-            print "Could not fit headers."
-            print err
+            print("Could not fit headers.")
+            print(err)
             sys.stdout.flush()
     else:
-        print "Could not find headers for %s." %colsType
+        print("Could not find headers for %s." %colsType)
         sys.stdout.flush()
     return out
