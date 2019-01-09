@@ -22,7 +22,7 @@ setup(name = 'AGEpy',
       author_email = 'bioinformatics@age.mpg.de',
       license = 'MIT',
       packages = [ 'AGEpy' ],
-      install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2','requests==2.10.0', \
+      install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2','requests>=2.20.0', \
       'suds-jurko', 'xlrd', 'biomart', 'matplotlib', 'client', \
       'xlsxwriter','pybedtools','wand','paramiko','ipaddress', 'seaborn'],
       zip_safe = False,
