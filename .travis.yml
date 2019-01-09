@@ -3,7 +3,7 @@ language: python
 sudo: true
 
 install:
-    - pip install .
+    - pip3 install .
 
 script:
     - echo "TODO"
