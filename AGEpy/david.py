@@ -77,7 +77,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
             d = dict(r)
             line = []
             for f in david_fields:
-                line.append(unicode(d[f]).encode('ascii','ignore'))
+                line.append(str(d[f]).encode('ascii','ignore'))
             df.append(line)
         df = pd.DataFrame(df)
         df.columns=david_fields
