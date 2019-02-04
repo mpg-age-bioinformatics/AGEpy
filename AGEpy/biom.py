@@ -5,6 +5,7 @@ import numpy as np
 from biomart import BiomartServer
 #from cStringIO import StringIO # python2
 from io import BytesIO as cStringIO
+from io import StringIO
 
 biomart_host="http://www.ensembl.org/biomart"
 
