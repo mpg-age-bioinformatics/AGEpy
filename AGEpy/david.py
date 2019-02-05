@@ -37,7 +37,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
 
     :returns: None if no ids match the queried database, or a pandas data frame with results
     """
-
+    print('now')
     ids = ','.join([str(i) for i in ids])
     use_bg = 0
     if ids_bg is not None:
@@ -81,6 +81,8 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
             df.append(line)
         df = pd.DataFrame(df)
         df.columns=david_fields
+        for col in david_fields:
+            df[col] = df[col].apply(lambda x: x.decode())
     else:
         df=None
 
@@ -142,7 +144,7 @@ def DAVIDgetGeneAttribute(x,df,refCol="ensembl_gene_id",fieldTOretrieve="gene_na
 
     :returns: list of fieldTOretrieve separeted by ', ' in the same order as the given in x
     """
-
+    
     l=x.split(", ")
     l=[ s.upper() for s in l ]
     tmpdf=pd.DataFrame({refCol:l},index=range(len(l)))
@@ -186,10 +188,13 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
         ids_bg=df_ids_bg[df_ids_bg.columns.tolist()[0]]
     else:
         ids_bg=None
-
+    
+    print(categories)
+    
     david=DAVIDenrich(database, categories, user, ids, ids_bg = ids_bg, \
     name = name, name_bg = name_bg, verbose = verbose, p = p, n = n)
 
+    print(list(set(david["categoryName"].tolist())))
     if type(david)!=type(pd.DataFrame()):
         print("For this dataset no enrichments could be returned.")
         sys.stdout.flush()
@@ -203,6 +208,7 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
         EXC=pd.ExcelWriter(output+".xlsx")
         for category in list(set(david["categoryName"].tolist())):
             david_=david[david["categoryName"]==category]
+            print(category)
             david_.to_excel(EXC,category)
 
             tmp=david_[:20]

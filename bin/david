@@ -29,14 +29,14 @@ args = parser.parse_args()
 import pandas as pd
 import AGEpy as age
 
-df_ids=pd.read_table(args.input)
+df_ids=pd.read_csv(args.input, sep = '\t')
 if args.background:
-    df_ids_bg=pd.read_table(args.background)
+    df_ids_bg=pd.read_csv(args.background, sep = '\t')
 else:
     df_ids_bg=None
 
-categories=args.categories.split(",")
+#categories=args.categories.split(",")
 
-age.DAVIDplot(args.database, categories, args.user, df_ids, args.output, \
+age.DAVIDplot(args.database, args.categories, args.user, df_ids, args.output, \
 df_ids_bg = df_ids_bg, name = '', name_bg = '', verbose = args.verbose, \
 p = args.pvalue, n = args.ngenes)

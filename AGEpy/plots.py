@@ -121,13 +121,14 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
             ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor=cmap(norm(float(f))))
             p=p+w
         if pvalCol:
+            df[pvalCol] = df[pvalCol].astype(float)
             if df.ix[i,pvalCol] < 0.05:
                 barAn=len(fcs)
             else:
                 barAn=str(len(fcs))+" (NS)"
         else:
             barAn=len(fcs)
-    ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom')
+        ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom')
     ax1.set_yticks(arrangment) # +0.4
     ax1.set_yticklabels(df['Term'].tolist())
 
