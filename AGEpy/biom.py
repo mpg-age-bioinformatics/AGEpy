@@ -164,7 +164,9 @@ def FilterGOstring(names_filter=["age-", "aging", "aged", 'aging', 'aging.', 'ag
             server = BiomartServer( host )
             organism=server.datasets[dataset]
             response=organism.search({'attributes':attributes})
-            response=response.content.split("\n")
+            response=response.content
+            response=response.decode()
+            response=response.split("\n")
             response=[s.split("\t") for s in response ]
             response=pd.DataFrame(response,columns=attributes)
             return response
