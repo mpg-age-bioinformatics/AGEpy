@@ -112,7 +112,7 @@ if args.listKEGGorganisms:
     sys.exit(0)
 
 if args.findKEGGdb:
-    print "This option requires --originalGTF"
+    print("This option requires --originalGTF")
     sys.stdout.flush()
     gtf=age.readGTF(os.path.realpath(args.originalGTF))
     print "GTF imported"
