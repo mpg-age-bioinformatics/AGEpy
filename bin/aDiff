@@ -115,7 +115,7 @@ if args.findKEGGdb:
     print("This option requires --originalGTF")
     sys.stdout.flush()
     gtf=age.readGTF(os.path.realpath(args.originalGTF))
-    print "GTF imported"
+    print("GTF imported")
     sys.stdout.flush()
     gene_id = age.retrieve_GTF_field('gene_id',gtf)
     gene_id = gene_id['gene_id'].tolist()
