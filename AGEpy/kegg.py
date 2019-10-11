@@ -24,7 +24,7 @@ def organismsKEGG():
 
     """
     organisms=urlopen("http://rest.kegg.jp/list/organism").read()
-    organisms=organisms.split("\n")
+    organisms=organisms.decode().split("\n")
     #for o in organisms:
     #    print o
     #    sys.stdout.flush()
@@ -45,14 +45,14 @@ def databasesKEGG(organism,ens_ids):
 
     """
     all_genes=urlopen("http://rest.kegg.jp/list/"+organism).read()
-    all_genes=all_genes.split("\n")
+    all_genes=all_genes.decode().split("\n")
     dbs=[]
     while len(dbs) == 0:
         for g in all_genes:
             if len(dbs) == 0:
                 kid = g.split("\t")[0]
                 gene=urlopen("http://rest.kegg.jp/get/"+kid).read()
-                DBLINKS=gene.split("\n")
+                DBLINKS=gene.decode().split("\n")
                 DBLINKS=[ s for s in DBLINKS if ":" in s ]
                 for d in DBLINKS:
                     test=d.split(" ")
@@ -67,7 +67,7 @@ def databasesKEGG(organism,ens_ids):
     ens_db=dbs[0].split(" ")
     ens_db=ens_db[len(ens_db)-1]
     test_db=urlopen("http://rest.genome.jp/link/"+ens_db+"/"+organism).read()
-    test_db=test_db.split("\n")
+    test_db=test_db.decode().split("\n")
     if len(test_db) == 1:
         print("For "+organism+" the following db was found: "+ens_db)
         print("This database does not seem to be valid KEGG-linked database identifier")
@@ -93,7 +93,7 @@ def ensembl_to_kegg(organism,kegg_db):
     print("KEGG API: http://rest.genome.jp/link/"+kegg_db+"/"+organism)
     sys.stdout.flush()
     kegg_ens=urlopen("http://rest.genome.jp/link/"+kegg_db+"/"+organism).read()
-    kegg_ens=kegg_ens.split("\n")
+    kegg_ens=kegg_ens.decode().split("\n")
     final=[]
     for i in kegg_ens:
         final.append(i.split("\t"))
@@ -114,7 +114,7 @@ def ecs_idsKEGG(organism):
 
     """
     kegg_ec=urlopen("http://rest.kegg.jp/link/"+organism+"/enzyme").read()
-    kegg_ec=kegg_ec.split("\n")
+    kegg_ec=kegg_ec.decode().split("\n")
     final=[]
     for k in kegg_ec:
         final.append(k.split("\t"))
@@ -133,7 +133,7 @@ def idsKEGG(organism):
 
     """
     ORG=urlopen("http://rest.kegg.jp/list/"+organism).read()
-    ORG=ORG.split("\n")
+    ORG=ORG.decode().split("\n")
     final=[]
     for k in ORG:
         final.append(k.split("\t"))
@@ -157,7 +157,7 @@ def pathwaysKEGG(organism):
     print("KEGG API: http://rest.kegg.jp/list/pathway/"+organism)
     sys.stdout.flush()
     kegg_paths=urlopen("http://rest.kegg.jp/list/pathway/"+organism).read()
-    kegg_paths=kegg_paths.split("\n")
+    kegg_paths=kegg_paths.decode().split("\n")
     final=[]
     for k in kegg_paths:
         final.append(k.split("\t"))
@@ -167,7 +167,7 @@ def pathwaysKEGG(organism):
     print("KEGG API: http://rest.kegg.jp/link/"+organism+"/pathway/")
     sys.stdout.flush()
     kegg_paths_genes=urlopen("http://rest.kegg.jp/link/"+organism+"/pathway/").read()
-    kegg_paths_genes=kegg_paths_genes.split("\n")
+    kegg_paths_genes=kegg_paths_genes.decode().split("\n")
     kegg_paths_genes=[ s.split("\t") for s in kegg_paths_genes ]
     kegg_paths_genes=pd.DataFrame(kegg_paths_genes)
     kegg_paths_genes.columns=['pathID','KEGGid']
@@ -246,7 +246,7 @@ def expKEGG(organism,names_KEGGids):
     #print "KEGG API: http://rest.kegg.jp/list/pathway/"+organism
     #sys.stdout.flush()
     kegg_paths=urlopen("http://rest.kegg.jp/list/pathway/"+organism).read()
-    kegg_paths=kegg_paths.split("\n")
+    kegg_paths=kegg_paths.decode().split("\n")
     final=[]
     for k in kegg_paths:
         final.append(k.split("\t"))
@@ -260,7 +260,7 @@ def expKEGG(organism,names_KEGGids):
         print(i)
         sys.stdout.flush()
         path_genes=urlopen("http://rest.kegg.jp/link/genes/"+i).read()
-        path_genes=path_genes.split("\n")
+        path_genes=path_genes.decode().split("\n")
         final=[]
         for k in path_genes:
             final.append(k.split("\t"))
