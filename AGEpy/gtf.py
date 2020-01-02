@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from collections import OrderedDict
+
 
 def readGTF(infile):
     """
@@ -179,3 +181,81 @@ def GetTransPosition(df,field,dic,refCol="transcript_id"):
     except:
         bases=np.nan
     return bases
+
+def getPromotersBed(gtf,fa,upstream=2000,downstream=200):
+    """
+    Reads a gtf file and returns a bed file for the promoter coordinates.
+    
+    :param gtf: path/to/file.gtf. Must be an ensembl gtf.
+    :param fa: path/to/fasta.fa. Must be an ensembl fasta file.
+    :param upstream: number of bases upstream of transcript start sites the promoter should start
+    :param downstream: number of bases downstream of transcript start sites the promoter should end
+    :returns: a pandas dataframe in bed format
+
+    """
+    chrsizes={}
+    with open(fa, "r") as f:
+        for line in f.readlines():
+            if line[0] == ">":
+                l=line.split(" ")
+                seqname=l[0][1:]
+                size=int(l[2].split(":")[-2])
+                chrsizes[seqname]=size
+    gtf=readGTF(gtf)
+    gtf=gtf[gtf["feature"]=="transcript"]
+    gtf.reset_index(inplace=True, drop=True)
+
+    gtf["gene_id"]=age.retrieve_GTF_field(field="gene_id",gtf=gtf)
+    gtf["gene_name"]=age.retrieve_GTF_field(field="gene_name",gtf=gtf)
+
+    def getcoord(df):
+        seqname=df["seqname"]
+        strand=df["strand"]
+        if strand == "+":
+            tss=int(df["start"])
+            promoter_start=tss-upstream
+            promoter_end=tss+downstream
+        else:
+            tss=int(df["end"])
+            promoter_start=tss-downstream
+            promoter_end=tss+upstream
+
+        if promoter_start < 0:
+            promoter_start=0
+        if promoter_end > chrsizes[seqname]:
+            promoter_end=chrsizes[seqname]
+
+        return str(promoter_start)+","+str(promoter_end)
+
+    gtf["promoter"]=gtf.apply(getcoord, axis=1)
+    gtf["start"]=gtf["promoter"].apply(lambda x: int(x.split(",")[0]) )
+    gtf["end"]=gtf["promoter"].apply(lambda x: int(x.split(",")[1]) ) 
+
+
+    def gene_wise(df):
+        seqname_values= list(set(df['seqname']))[0]
+        start_values= min(list(set(df['start'])))
+        end_values=max(list(set(df['end'])))
+        strand_values=list(set(df['strand']))[0]
+        gene_values=list(set(df['gene_id']))[0]+", "+list(set(df['gene_name']))[0]
+        dic=dict(chrom=seqname_values,\
+                chromStart=start_values,\
+                chromEnd=end_values,\
+                name=gene_values,\
+                score=".",\
+                strand=strand_values)
+        return pd.Series(dic)
+
+    bed_=gtf.groupby(["gene_id","gene_name"],as_index=False,sort=False).apply(gene_wise)  
+    bed_.reset_index(inplace=True, drop=True)
+
+    chrs=bed_["chrom"].tolist()
+    chrs=list(OrderedDict.fromkeys(chrs))
+    bed=pd.DataFrame()
+    for c in chrs:
+        tmp=bed_[bed_["chrom"]==c]
+        tmp=tmp.sort_values(by=["chromStart","chromEnd"])
+        bed=pd.concat([bed,tmp])
+    bed.reset_index(inplace=True, drop=True)
+    
+    return bed
