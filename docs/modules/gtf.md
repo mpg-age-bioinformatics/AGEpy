@@ -288,3 +288,33 @@ seqname  source feature  start    end score strand frame  \
 7  ENST00000450305.2  ENSE00001671638.2           2   12210                 80  
 ```
 ___
+
+## ***getPromotersBed***
+
+Reads a gtf file and returns a bed file for the promoter coordinates.
+
+**`getPromotersBed(gtf,fa,upstream=2000,downstream=200)`**
+
+* **`gtf`** path/to/file.gtf. Must be an ensembl gtf.
+* **`fa`** path/to/fasta.fa. Must be an ensembl fasta file.
+* **`upstream`** number of bases upstream of transcript start sites the promoter should start
+* **`downstream`** number of bases downstream of transcript start sites the promoter should end
+    
+* **`returns`** a pandas dataframe in bed format
+
+```python
+>>> import AGEpy as age
+>>> bed=age.getPromotersBed(gtf="Caenorhabditis_elegans.WBcel235.89.gtf",\
+                          fa="Caenorhabditis_elegans.WBcel235.dna.toplevel.fa",\
+                          upstream=2000,downstream=200)
+>>> print(bed.head())
+
+  chrom  chromStart  chromEnd                      name score strand
+0     V           0       380  WBGene00197333, cTel3X.2     .      +
+1     V           0      5857   WBGene00015153, B0348.5     .      +
+2     V         129      2329  WBGene00198386, cTel3X.3     .      -
+3     V        7622      9822     WBGene00002061, ife-3     .      -
+4     V        8539     10739  WBGene00255704, B0348.10     .      -
+```
+___
+
