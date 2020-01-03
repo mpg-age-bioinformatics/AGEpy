@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
+import pybedtools
 
 
 def readGTF(infile):
@@ -229,33 +230,40 @@ def getPromotersBed(gtf,fa,upstream=2000,downstream=200):
 
     gtf["promoter"]=gtf.apply(getcoord, axis=1)
     gtf["start"]=gtf["promoter"].apply(lambda x: int(x.split(",")[0]) )
-    gtf["end"]=gtf["promoter"].apply(lambda x: int(x.split(",")[1]) ) 
-
-
-    def gene_wise(df):
-        seqname_values= list(set(df['seqname']))[0]
-        start_values= min(list(set(df['start'])))
-        end_values=max(list(set(df['end'])))
-        strand_values=list(set(df['strand']))[0]
-        gene_values=list(set(df['gene_id']))[0]+", "+list(set(df['gene_name']))[0]
-        dic=dict(chrom=seqname_values,\
-                chromStart=start_values,\
-                chromEnd=end_values,\
-                name=gene_values,\
-                score=".",\
-                strand=strand_values)
-        return pd.Series(dic)
-
-    bed_=gtf.groupby(["gene_id","gene_name"],as_index=False,sort=False).apply(gene_wise)  
-    bed_.reset_index(inplace=True, drop=True)
-
-    chrs=bed_["chrom"].tolist()
-    chrs=list(OrderedDict.fromkeys(chrs))
-    bed=pd.DataFrame()
-    for c in chrs:
-        tmp=bed_[bed_["chrom"]==c]
-        tmp=tmp.sort_values(by=["chromStart","chromEnd"])
-        bed=pd.concat([bed,tmp])
-    bed.reset_index(inplace=True, drop=True)
+    gtf["end"]=gtf["promoter"].apply(lambda x: int(x.split(",")[1]) )
     
-    return bed
+    gtf["id, name"]=gtf["gene_id"]+", "+gtf["gene_name"]
+    gtf_=gtf.drop(["source","feature","attribute","promoter","gene_id","gene_name"],axis=1)
+    gtf_=gtf_.drop_duplicates()
+    gtf_counts=gtf_[["id, name"]]
+    gtf_counts["#"]=1
+    gtf_counts=gtf_counts.groupby(["id, name"]).sum()
+    beds=gtf_[["seqname","start","end","id, name","score","strand"]]
+    beds.columns=['chrom', 'start', 'stop', 'name', 'score', 'strand']
+    beds=beds[beds["name"].isin( gtf_counts[gtf_counts["#"]==1].index.tolist() )]
+    genes=[ s for s in list(set(gtf_counts[gtf_counts["#"]>1].index.tolist())) if str(s).lower() != "nan" ]
+
+    for gene_id in genes:
+        tmp=gtf[gtf["id, name"]==gene_id]
+        strand=tmp["strand"].tolist()[0]
+        bed=age.GTFtoBED(inGTF=tmp,name="id, name")
+        bed = pybedtools.BedTool.from_dataframe(bed)
+        bed=bed.sort()
+        bed=bed.merge()
+        bed = pd.read_table(bed.fn, names=['chrom', 'start', 'stop', 'name', 'score', 'strand'])
+        bed["name"]=gene_id
+        bed["score"]="."
+        bed["strand"]=strand
+        beds=pd.concat([beds,bed])
+    
+    beds = pybedtools.BedTool.from_dataframe(beds)
+    beds = beds.sort()
+    beds = pd.read_table(beds.fn, names=['chrom', 'start', 'stop', 'name', 'score', 'strand'])
+    
+    beds.reset_index(inplace=True, drop=True)
+    beds["i"]=beds.index.tolist()
+    beds["i"]=beds["i"].astype(str)
+    beds["name"]=beds["i"]+": "+beds["name"]
+    beds=beds.drop(["i"],axis=1)
+
+    return beds
