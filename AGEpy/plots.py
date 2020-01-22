@@ -6,7 +6,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
-def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellPlot", pvalCol="elimFisher", lowerLimit=None, upperLimit=None, colorBarType='Spectral'):
+def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellPlot", pvalCol="elimFisher", xaxis_label = "GO Term Enrichment", lowerLimit=None, upperLimit=None, colorBarType='Spectral'):
     """
     Python implementation of the CellPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.
@@ -28,7 +28,6 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     limits=pd.DataFrame(limits)
     limits[0]=limits[0].astype(str)
     limits=limits[limits[0]!="None"][limits[0]!=""]
-
     try:
         limits=[float(x) for x in limits[0].tolist()]
 
@@ -50,7 +49,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
 
     cmap = matplotlib.cm.get_cmap(colorBarType)
     norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
-
+    
     if len(df)>10:
         siz=len(df)*3/10
     elif len(df)==1:
@@ -148,7 +147,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         labeltop='on')
 
     ax1.set_ylim(ymax = max(arrangment) + 1.5 ) #1.5
-    ax1.set_xlabel("GO Term Enrichment")
+    ax1.set_xlabel(xaxis_label)
     ax1.xaxis.set_label_position('top')
 
     ax1.spines['right'].set_visible(False)
@@ -178,7 +177,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
 
     return fig
 
-def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
+def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xaxis_label = "GO Term Enrichment"):
     """
     Python implementation of the SymPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.
@@ -328,7 +327,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher"):
     ax1.set_yticklabels(df['newLabels'].tolist())
 
     cb1 = matplotlib.colorbar.ColorbarBase(ax4, cmap=cmap,norm=norm, orientation='horizontal')
-    cb1.set_label('GO Term Enrichment (0.1-0.9 percentiles)\n\n\n'+figure_title)
+    cb1.set_label(xaxis_label + ' (0.1-0.9 percentiles)\n\n' +figure_title)
 
     fig.subplots_adjust(wspace=0)
 

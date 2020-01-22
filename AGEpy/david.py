@@ -37,7 +37,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
 
     :returns: None if no ids match the queried database, or a pandas data frame with results
     """
-    print('now')
+    
     ids = ','.join([str(i) for i in ids])
     use_bg = 0
     if ids_bg is not None:
@@ -149,6 +149,7 @@ def DAVIDgetGeneAttribute(x,df,refCol="ensembl_gene_id",fieldTOretrieve="gene_na
     l=[ s.upper() for s in l ]
     tmpdf=pd.DataFrame({refCol:l},index=range(len(l)))
     df_fix=df[[refCol,fieldTOretrieve]].drop_duplicates()
+    sys.stdout.flush()
     df_fix[refCol]=df_fix[refCol].apply(lambda x: x.upper())
     ids=pd.merge(tmpdf,df_fix,how="left",on=[refCol])
     ids=ids[fieldTOretrieve].tolist()
@@ -194,7 +195,6 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
     david=DAVIDenrich(database, categories, user, ids, ids_bg = ids_bg, \
     name = name, name_bg = name_bg, verbose = verbose, p = p, n = n)
 
-    print(list(set(david["categoryName"].tolist())))
     if type(david)!=type(pd.DataFrame()):
         print("For this dataset no enrichments could be returned.")
         sys.stdout.flush()
@@ -212,14 +212,14 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
             david_.to_excel(EXC,category)
 
             tmp=david_[:20]
-            tmp["Enrichment"]=tmp["foldEnrichment"]
+            tmp["Enrichment"]=np.log10(tmp["ease"].astype(float)) * -1
             tmp["Term"]=tmp['termName']
             tmp["Annotated"]=tmp["listHits"]
             cellplot=CellPlot(tmp, output_file=output+"."+category, gene_expression=idsc2, \
             figure_title=category+"\n"+output.split("/")[-1], pvalCol="ease", \
-            lowerLimit=None, upperLimit=None, colorBarType='bwr')
+            lowerLimit=None, upperLimit=None, colorBarType='bwr', xaxis_label = "GO Term -log10(p-value)")
 
             symplot=SymPlot(tmp, output_file=output+"."+category, \
             figure_title=category+"\n"+output.split("/")[-1], \
-            pvalCol="ease")
+            pvalCol="ease", xaxis_label = "GO Term -log10(p-value)")
         EXC.save()
