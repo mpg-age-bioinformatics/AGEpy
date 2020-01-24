@@ -246,7 +246,7 @@ def getPromotersBed(gtf,fa,upstream=2000,downstream=200):
     for gene_id in genes:
         tmp=gtf[gtf["id, name"]==gene_id]
         strand=tmp["strand"].tolist()[0]
-        bed=age.GTFtoBED(inGTF=tmp,name="id, name")
+        bed=GTFtoBED(inGTF=tmp,name="id, name")
         bed = pybedtools.BedTool.from_dataframe(bed)
         bed=bed.sort()
         bed=bed.merge()
