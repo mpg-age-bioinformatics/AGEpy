@@ -206,8 +206,8 @@ def getPromotersBed(gtf,fa,upstream=2000,downstream=200):
     gtf=gtf[gtf["feature"]=="transcript"]
     gtf.reset_index(inplace=True, drop=True)
 
-    gtf["gene_id"]=age.retrieve_GTF_field(field="gene_id",gtf=gtf)
-    gtf["gene_name"]=age.retrieve_GTF_field(field="gene_name",gtf=gtf)
+    gtf["gene_id"]=retrieve_GTF_field(field="gene_id",gtf=gtf)
+    gtf["gene_name"]=retrieve_GTF_field(field="gene_name",gtf=gtf)
 
     def getcoord(df):
         seqname=df["seqname"]
