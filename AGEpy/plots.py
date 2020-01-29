@@ -6,7 +6,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
-def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellPlot", pvalCol="elimFisher", xaxis_label = "GO Term Enrichment", lowerLimit=None, upperLimit=None, colorBarType='Spectral'):
+def CellPlot(df, output_file=None, \
+             term_col="termName",\
+             gene_expression_col='log2fc',gene_expression="log2FC",
+             x_values="-log10(p)", xaxis_label = "-log10(p)",
+             pvalCol="ease",\
+             figure_title="CellPlot", lowerLimit=None, upperLimit=None, colorBarType='coolwarm'):
     """
     Python implementation of the CellPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.
@@ -15,15 +20,18 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
                For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term.
                eg. '-inf,-1,2,3.4,3.66,inf'
     :param output_file: prefix for an output file. If given it will create output_file.CellPlot.svg and output_file.CellPlot.png
+    :param gene_expression_col: column with gene expression data separated by a comma (ie. ',')
     :param gene_expression: label for the color gradiant bar.
+    :param x_values: values to use on the x-axis
+    :param  xaxis_label: label for x-axis
     :param figure_title: Figure title.
-    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
+    # :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
     :param lowerLimit: lower limit for the heatmap bar (default is the 0.1 percentile)
     :param upperLimit: upper limit for the heatmap bar (default is the 0.9 percentile)
-    :param colorBarType: type of heatmap, 'Spectral' is dafault, alternative eg. 'seismic'
+    :param colorBarType: type of heatmap, 'Spectral' is dafault, alternative eg. 'seismic','Spectral','bwr','coolwarm'
     :returns: a matplotlib figure
     """
-    limits=pd.DataFrame(df['log2fc'].str.split(",").tolist())
+    limits=pd.DataFrame(df[gene_expression_col].str.split(",").tolist())
     limits=limits.as_matrix().flatten()
     limits=pd.DataFrame(limits)
     limits[0]=limits[0].astype(str)
@@ -66,8 +74,8 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
     ax1 = fig.add_axes([0.05, 3.5/( float(siz)*float(10)/float(3) ), 0.9, 2])
     ax2 = fig.add_axes([0.05, 1.5/( float(siz)*float(10)/float(3) ), 0.9, 1.5/( float(siz)*float(10)/float(3) )])
     arrangment=np.arange(len(df))+.5
-    df['Enrichment']=df['Enrichment'].astype(float)
-    enr=df['Enrichment'].tolist()
+    df[x_values]=df[x_values].astype(float)
+    enr=df[x_values].tolist()
     enr=[x for x in enr if str(x) != str(float("inf"))]
     enr=[x for x in enr if str(x) != str(float("-inf"))]
 
@@ -92,12 +100,50 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         else:
             return x
 
-    df['Enrichment']=df['Enrichment'].apply(lambda x: fix_enrichment(x))
+    df[x_values]=df[x_values].apply(lambda x: fix_enrichment(x))
 
 
-    ax1.barh(arrangment, df['Enrichment'].tolist(), color='white', edgecolor='black')#range(0,len(test))
-    for i,pos in zip(df.index.tolist(),arrangment):
-        fcs=df.ix[i,'log2fc'].split(",")
+    ax1.barh(arrangment, df[x_values].tolist(), color='white', edgecolor='black')#range(0,len(test))
+    
+    
+#     for i,pos in zip(df.index.tolist(),arrangment):
+#         fcs=df.loc[i,gene_expression_col].split(",")
+#         fcs=pd.DataFrame(fcs)
+#         fcs[0]=fcs[0].astype(str)
+#         fcs[0]=fcs[0].apply(lambda x: getINFs(x))
+
+#         #fcs=fcs[fcs[0]!=""].astype(float)[0].tolist()
+#         fcs=fcs.astype(float)[0].tolist()
+
+#         try:
+#             w=float(df.loc[i,x_values])/float(len(fcs))
+#         except:
+#             print(df.loc[i,])
+#         p=0
+#         fcs.sort(key=float)
+#         for f in fcs:
+#             #if float(f) > maxFC:
+#             #    f=maxFC
+#             #if float(f) < minFC:
+#             #    f=minFC
+#             #ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor='black')
+#             ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor=cmap(norm(float(f))))
+#             p=p+w
+#         if pvalCol:
+#             df[pvalCol] = df[pvalCol].astype(float)
+#             if df.loc[i,pvalCol] < 0.05:
+#                 barAn=len(fcs)
+#             else:
+#                 barAn=str(len(fcs))+" (NS)"
+#         else:
+#             barAn=len(fcs)
+#         ax1.text(df.loc[i,x_values]+m*0.02, pos, barAn, ha='left', va='bottom')
+        
+        
+    df["arrangment"]=arrangment
+    def makeheatmaps(df):
+        pos=df["arrangment"]
+        fcs=df[gene_expression_col].split(",")
         fcs=pd.DataFrame(fcs)
         fcs[0]=fcs[0].astype(str)
         fcs[0]=fcs[0].apply(lambda x: getINFs(x))
@@ -106,9 +152,9 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         fcs=fcs.astype(float)[0].tolist()
 
         try:
-            w=float(df.ix[i,'Enrichment'])/float(len(fcs))
+            w=float(df[x_values])/float(len(fcs))
         except:
-            print(df.ix[i,])
+            print(df[x_values])
         p=0
         fcs.sort(key=float)
         for f in fcs:
@@ -120,23 +166,28 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
             ax1.barh(pos, w, left=p, color=cmap(norm(float(f))), edgecolor=cmap(norm(float(f))))
             p=p+w
         if pvalCol:
-            df[pvalCol] = df[pvalCol].astype(float)
-            if df.ix[i,pvalCol] < 0.05:
+            pval = float(df[pvalCol])#.astype(float)
+            if pval < 0.05:
                 barAn=len(fcs)
             else:
                 barAn=str(len(fcs))+" (NS)"
         else:
             barAn=len(fcs)
-        ax1.text(df.ix[i,'Enrichment']+m*0.02, pos, barAn, ha='left', va='bottom')
+        ax1.text(df[x_values]+m*0.02, pos, barAn, ha='left', va='bottom')
+
+    empty=df.apply(makeheatmaps,axis=1)        
+        
     ax1.set_yticks(arrangment) # +0.4
-    ax1.set_yticklabels(df['Term'].tolist())
+    ax1.set_yticklabels(df[term_col].tolist())
 
     ax1.tick_params(
         axis='y',
         which='both',
         left='off',
         right='off',
-        labelleft='on')
+        labelleft='on',
+        width=2,
+        length=4)
 
     ax1.tick_params(
         axis='x',
@@ -144,7 +195,10 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
         bottom='off',
         top='on',
         labelbottom='off',
-        labeltop='on')
+        labeltop='on',
+        width=2,\
+        length=4)
+    
 
     ax1.set_ylim(ymax = max(arrangment) + 1.5 ) #1.5
     ax1.set_xlabel(xaxis_label)
@@ -152,6 +206,12 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
 
     ax1.spines['right'].set_visible(False)
     ax1.spines['bottom'].set_visible(False)
+    ax1.tick_params(bottom=False,labelbottom=False)
+    ax1.tick_params(right=False,labelright=False)
+    
+    ax1.spines["top"].set_linewidth(2)
+    ax1.spines["left"].set_linewidth(2)
+
 
     cb1 = matplotlib.colorbar.ColorbarBase(ax2, cmap=cmap,norm=norm, orientation='horizontal')
     if not lowerLimit:
@@ -161,7 +221,7 @@ def CellPlot(df, output_file=None, gene_expression="log2FC", figure_title="CellP
             cb1.set_label(gene_expression+'\n\n\n'+figure_title)
     else:
         cb1.set_label(gene_expression+'\n\n\n'+figure_title)
-
+          
     #plt.subplots_adjust(top=8.5)
 
     #ax1.annotate('a fractional title', xy=(.025, .975), xycoords='figure fraction', horizontalalignment='center', verticalalignment='top', fontsize=20)
