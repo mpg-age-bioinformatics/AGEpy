@@ -23,12 +23,14 @@ def CellPlot(df, output_file=None, \
     :param gene_expression_col: column with gene expression data separated by a comma (ie. ',')
     :param gene_expression: label for the color gradiant bar.
     :param x_values: values to use on the x-axis
-    :param  xaxis_label: label for x-axis
+    :param xaxis_label: label for x-axis
     :param figure_title: Figure title.
-    # :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
+    :param term_col: the column with the terms names
+    :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
     :param lowerLimit: lower limit for the heatmap bar (default is the 0.1 percentile)
     :param upperLimit: upper limit for the heatmap bar (default is the 0.9 percentile)
-    :param colorBarType: type of heatmap, 'Spectral' is dafault, alternative eg. 'seismic','Spectral','bwr','coolwarm'
+    :param colorBarType: type of heatmap, 'coolwarm' is dafault, alternative eg. 'seismic','Spectral','bwr','coolwarm'
+    
     :returns: a matplotlib figure
     """
     limits=pd.DataFrame(df[gene_expression_col].str.split(",").tolist())
