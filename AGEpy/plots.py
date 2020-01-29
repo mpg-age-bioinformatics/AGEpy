@@ -416,8 +416,6 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",
 
     return fig
 
-res=SymPlot(df[:10])
-
 def NormInt(df,sampleA,sampleB):
     """
     Normalizes intensities of a gene in two samples
