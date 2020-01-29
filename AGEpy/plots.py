@@ -239,7 +239,12 @@ def CellPlot(df, output_file=None, \
 
     return fig
 
-def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xaxis_label = "GO Term Enrichment"):
+def SymPlot(df,output_file=None,figure_title="SymPlot",
+            pvalCol="ease",
+            term_col="termName", x_values="-log10(p)",
+            n_terms_col="listHits",
+            gene_expression_col="log2fc" , xaxis_label = "-log10(p)",
+            colorBarType='coolwarm'):
     """
     Python implementation of the SymPlot from the CellPlot package for R.
     -inf or inf enrichments will come out as min found float or max found float, respectively.
@@ -249,13 +254,20 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
                 As reported in DAVID by listHits. 
                 For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term.
                eg. '-inf,-1,2,3.4,3.66,inf'
+    :param gene_expression_col: column with gene expression data separated by a comma (ie. ',')
+    :param gene_expression: label for the color gradiant bar.
+    :param x_values: values to use on the x-axis
+    :param xaxis_label: label for x-axis
+    :param term_col: the column with the terms names      
     :param output_file: prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png
     :param figure_title: Figure title.
     :param pvalCol: name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
+    :param colorBarType: type of heatmap, 'Spectral' is dafault, alternative eg. 'seismic','Spectral','bwr','coolwarm'
+
     :returns: a matplotlib figure
     """
-    df['Annotated'] = df['Annotated'].astype(float)
-    maxAn=df['Annotated'].max()
+    df[n_terms_col] = df[n_terms_col].astype(float)
+    maxAn=df[n_terms_col].max()
 
     arrangment=np.arange(len(df))+.5
 
@@ -267,7 +279,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
         else:
             return x
 
-    enr=df['Enrichment'].tolist()
+    enr=df[x_values].tolist()
     enr=[x for x in enr if str(x) != str(float("inf"))]
     enr=[x for x in enr if str(x) != str(float("-inf"))]
 
@@ -282,13 +294,13 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
         else:
             return x
 
-    df['Enrichment']=df['Enrichment'].apply(lambda x: fix_enrichment(x))
+    df[x_values]=df[x_values].apply(lambda x: fix_enrichment(x))
 
-    limits=df['Enrichment'].tolist()
+    limits=df[x_values].tolist()
     maxFC=np.percentile(limits,90)
     minFC=np.percentile(limits,10)
 
-    cmap = matplotlib.cm.get_cmap('Spectral')
+    cmap = matplotlib.cm.get_cmap(colorBarType)
     norm = matplotlib.colors.Normalize(vmin=minFC, vmax=maxFC)
 
     if len(df) >= 5:
@@ -309,8 +321,8 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
     allup=[]
 
     for i,pos in zip(df.index.tolist(),arrangment):
-        f=df.ix[i,'Enrichment']#sigN=df.ix[i,'Significant']
-        ann=float(df.ix[i,'Annotated'])
+        f=df.loc[i,x_values]#sigN=df.ix[i,'Significant']
+        ann=float(df.loc[i,n_terms_col])
 
         if ann!=maxAn:
             p=float(maxAn-ann)/2
@@ -318,7 +330,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
             p=0
         ax2.barh(pos, ann, left=p, color=cmap(norm(float(f))),edgecolor=cmap(norm(float(f))))#
 
-        fcs=df.ix[i,'log2fc'].split(",")
+        fcs=df.loc[i,gene_expression_col].split(",")
         fcs=pd.DataFrame(fcs)
         fcs[0]=fcs[0].astype(str)
         fcs[0]=fcs[0].apply(lambda x: getINFs(x))
@@ -360,7 +372,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
     fb=10*0.08/len(df)+1
 
     ax1.set_title('Downregulated (%)',y=fa)#
-    ax2.set_title('Annotated\n(max=%s)' %str(maxAn),y=fb)#
+    ax2.set_title('Annotated\n(max=%s)' %str(int(maxAn)),y=fb)#
     ax3.set_title('Upregulated (%)',y=fa)
 
     ax1.set_xlim(max(max(alldown),max(allup)), 0)
@@ -374,7 +386,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
 
     ax1.set_yticks(arrangment)#+0.4)
     def get_label_with_sig (df):
-        termLabel=df['Term']
+        termLabel=df[term_col]
         if pvalCol:
             pvalue=df[pvalCol]
             if pvalue > 0.05:
@@ -387,7 +399,12 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
     df['newLabels']=df.apply(get_label_with_sig, axis=1)
 
     ax1.set_yticklabels(df['newLabels'].tolist())
-
+    
+    ax1.tick_params(right=False,labelright=False,left=False,labelleft=True,bottom=False,labelbottom=False)    
+    ax2.tick_params(right=False,labelright=False,left=False,labelleft=False,bottom=False,labelbottom=False,top=False,labeltop=False)
+    ax3.tick_params(right=False,labelright=False,left=False,labelleft=False,bottom=False,labelbottom=False)
+    
+    
     cb1 = matplotlib.colorbar.ColorbarBase(ax4, cmap=cmap,norm=norm, orientation='horizontal')
     cb1.set_label(xaxis_label + ' (0.1-0.9 percentiles)\n\n' +figure_title)
 
@@ -398,6 +415,8 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher", xax
         plt.savefig(output_file+".SymPlot.svg",dpi=300,bbox_inches='tight', pad_inches=0.1,format='svg')
 
     return fig
+
+res=SymPlot(df[:10])
 
 def NormInt(df,sampleA,sampleB):
     """

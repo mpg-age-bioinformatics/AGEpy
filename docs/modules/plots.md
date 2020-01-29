@@ -19,7 +19,6 @@ Python implementation of the CellPlot from the CellPlot package for R.
 * **`lowerLimit`** lower limit for the heatmap bar (default is the 0.1 percentile)
 * **`upperLimit`** upper limit for the heatmap bar (default is the 0.9 percentile)
 * **`colorBarType`** type of heatmap, 'Spectral' is default, alternative eg. 'seismic'
-
 * **`returns`** a matplotlib figure
 
 ```python
@@ -78,12 +77,18 @@ ___
 Python implementation of the SymPlot from the CellPlot package for R.
 -inf or inf enrichments will come out as min found float or max found float, respectively.
 
-**`SymPlot(df,output_file=None,figure_title="SymPlot",pvalCol="elimFisher")`**
+**`SymPlot(df,output_file=None,figure_title="SymPlot", pvalCol="ease", term_col="termName", x_values="-log10(p)", n_terms_col="listHits", gene_expression_col="log2fc" , xaxis_label = "-log10(p)", colorBarType='coolwarm')`**
 
 * **`df`** pandas dataframe with the following columns - 'Enrichment', 'Significant', 'Annotated', 'Term', and 'log2fc'. 'Annotated'i stands for number of genes annotated with the respective GO term. As reported in DAVID by listHits. For log2fc each cell must contain a comma separated string with the log2fc for the genes enriched in the respective term. eg. '-inf,-1,2,3.4,3.66,inf'
+* **`gene_expression_col`** column with gene expression data separated by a comma (ie. ',')
+* **`gene_expression`** label for the color gradiant bar.
+* **`x_values`** values to use on the x-axis
+* **`xaxis_label`** label for x-axis
+* **`term_col`** the column with the terms names  
 * **`output_file`** prefix for an output file. If given it witll create output_file.SymPlot.svg and output_file.SymPlot.png
 * **`figure_title`** Figure title.
 * **`pvalCol`** name of the column containing the p values to determine if the terms should be marked as NS - not significant, use None for no marking
+* **`colorBarType`** type of heatmap, 'coolwarm' is dafault, alternative eg. 'seismic','Spectral','bwr','coolwarm'
 * **`returns`** a matplotlib figure
 
 ```python
