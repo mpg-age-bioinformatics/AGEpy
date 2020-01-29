@@ -191,7 +191,7 @@ def QueryBioMart(dataset,attributes,host=args.host):
     server = BiomartServer( host )
     organism=server.datasets[dataset]
     response=organism.search({'attributes':attributes})
-    response=str(response.content).encode('ascii','ignore').split("\n")
+    response=response.content.decode().split("\n")
     response=[s.split("\t") for s in response ]
     response=pd.DataFrame(response,columns=attributes)
     return response
