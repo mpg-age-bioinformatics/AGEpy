@@ -389,6 +389,7 @@ def SymPlot(df,output_file=None,figure_title="SymPlot",
         termLabel=df[term_col]
         if pvalCol:
             pvalue=df[pvalCol]
+            pvalue = float(pvalue)
             if pvalue > 0.05:
                 return "(NS) "+termLabel
             else:

@@ -212,7 +212,7 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
             david_.to_excel(EXC,category)
 
             tmp=david_[:20]
-            tmp["-lo10(p)"]=np.log10(tmp["ease"].astype(float)) * -1
+            tmp["-log10(p)"]=np.log10(tmp["ease"].astype(float)) * -1
             #tmp["Term"]=tmp['termName']
             #tmp["Annotated"]=tmp["listHits"]
             cellplot=CellPlot(tmp, output_file=output+"."+category, gene_expression_col=idsc2, gene_expression=idsc2, \
@@ -220,7 +220,7 @@ def DAVIDplot(database, categories, user, df_ids, output, df_ids_bg = None, name
             lowerLimit=None, upperLimit=None, colorBarType='bwr', xaxis_label = "GO Term -log10(p-value)")
 
             symplot=SymPlot(tmp, output_file=output+"."+category, \
-            gene_expression_col=idsc2, gene_expression=idsc2,\
+            gene_expression_col=idsc2,\
             figure_title=category+"\n"+output.split("/")[-1], \
             pvalCol="ease", xaxis_label = "GO Term -log10(p-value)")
         EXC.save()
