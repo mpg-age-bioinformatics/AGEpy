@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from collections import OrderedDict
 import pybedtools
-
+import csv
 
 def readGTF(infile):
     """
