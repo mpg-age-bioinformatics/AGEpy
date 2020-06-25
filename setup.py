@@ -14,7 +14,7 @@ def read(*parts):
         return fp.read()
 
 setup(name = 'AGEpy',
-      version = '0.8.0',
+      version = '0.8.1',
       description = 'Bioinformatics tools for Python developed at the MPI for Biology of Ageing',
       long_description = read('README.rst'),
       url = 'https://github.com/mpg-age-bioinformatics/AGEpy',
