@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import argparse
+
+sys.stdout.flush()
+
+parser = argparse.ArgumentParser(description="Outputs multiple QC plots for differential expression data", \
+formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-o", "--output", help="/path/to/output/prefix")
+parser.add_argument("-de", "--DiffExpFolder", "--input", help="/path/to/diff_exp/folder")
+parser.add_argument("-s", "--sampleConditions", "--input", help="/path/to/sample/conditions/file")
+parser.add_argument("-t", "--topFolder", help="/path/to/top/folder/of/project")
+
+args = parser.parse_args()
+
 import os
 import AGEpy as age
 import pandas as pd
@@ -19,7 +36,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 from scipy.cluster.hierarchy import fcluster
 import scipy.stats as stats
 from matplotlib.pyplot import rc
-import matplotlib
 from scipy.stats import hypergeom
 import itertools
 import sys
@@ -31,18 +47,38 @@ import scipy.spatial.distance
 
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, linkage
-import numpy as np
 
 #%matplotlib inline
 
-os.chdir("${top}")
+###### SETTING VARIABLES #######
+
+top = args.topFolder
+qcp = args.output
+deg = args.DiffExpFolder
+samples_treatment = args.sampleConditions
+
+if not os.path.exists(top):
+    print("Error: Invalid path to Top Folder")
+
+if not os.path.exists(qcp):
+    print("Error: Invalid path to Output Folder")
+
+if not os.path.exists(deg):
+    print("Error: Invalid path to Differential Expression Folder")
+
+if not os.path.exists(samples_treatment):
+    print("Error: Invalid path to Sample Conditions File")
+
+
+##### PLOTTING #######
+os.chdir(top)
 os.getcwd()
 
-df_original=pd.read_excel("${deg}"+"all_res_counts.xlsx", index_col=0)
+df_original=pd.read_excel(deg+"/all_res_counts.xlsx", index_col=0)
 print(len(df_original))
 df_original.head()
 
-samp_df=pd.read_csv("${samples_treatment}", sep="\t")
+samp_df=pd.read_csv(samples_treatment, sep="\t")
 samp_df=samp_df.rename(columns={'Unnamed: 0':'Samples'})
 
 samples_dict={}
@@ -51,9 +87,6 @@ for c in conditions:
     samples=samp_df.loc[samp_df['Treat'] == c , 'Samples'].tolist()
     samples_dict[c]=samples
 
-#conditions_var="${cond_var}"
-#conditions=conditions_var.split(" ")
-#conditions
 
 df_norm=np.log10(df_original+1)
 df_norm.head()
@@ -82,7 +115,7 @@ plt.xlabel("log10(counts+1)",font_)
 plt.ylabel("Density",font_)
 plt.legend(loc='best', prop=font)
 plt.title('Genes', font_)
-plt.savefig("${qcp}grouped.KDE.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/grouped.KDE.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
 #### SAMPLE KDE ####
@@ -101,7 +134,7 @@ plt.xlabel("log10(counts+1)",font_)
 plt.ylabel("Density",font_)
 plt.title('Genes', font_)
 plt.legend(bbox_to_anchor=(1, 1), prop=font_)
-plt.savefig("${qcp}sample.KDE.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/sample.KDE.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
 #### GROUPED BAR PLOTS ####
@@ -130,7 +163,7 @@ palette = sns.color_palette("husl", len(conditions))
 for patch, color in zip(bplot['boxes'], palette):
         patch.set_facecolor(color)
 
-plt.savefig("${qcp}grouped.barPlots.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/grouped.barPlots.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
 #### SAMPLE BAR PLOTS ####
@@ -157,12 +190,12 @@ palette = sns.color_palette("husl", len(samples))
 for patch, color in zip(bplot['boxes'], palette):
         patch.set_facecolor(color)
 
-plt.savefig("${qcp}sample.barPlots.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')
+plt.savefig(qcp+"/sample.barPlots.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')
 plt.show()
 
 #### SCATTER PLOT MATRIX ####
 
-file_name="${qcp}count.matrix.scatter.plot.pdf"
+file_name=qcp+"/count.matrix.scatter.plot.pdf"
 
 pdf = PdfPages(file_name)
 
@@ -219,18 +252,13 @@ pdf.close()
 
 df_norm.T.index
 
-# plt.figure(figsize=(10, 10))
-# plt.ylabel('distance')
-# dendrogram(linkage(df_norm.T, 'ward'), truncate_mode='lastp', p=len(conditions))
-# plt.show()
-
 plt.figure(figsize=(10, 10))
 plt.ylabel('distance')
 dendrogram(linkage(df_norm.T, 'ward'), labels=df_norm.T.index, leaf_rotation=90.0)
-plt.savefig("${qcp}sample.dendrogram.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/sample.dendrogram.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
-path="${deg}"+"annotated/"
+path=deg+"/annotated/"
 data_files=os.listdir(path)
 data_files=[s for s in data_files if ".results.tsv" in s]
 
@@ -241,7 +269,7 @@ conditions_new
 
 #### MA PLOTS ####
 
-file_name="${qcp}MA.plots.pdf"
+file_name=qcp+"/MA.plots.pdf"
 
 pdf = PdfPages(file_name)
 
@@ -309,7 +337,7 @@ pdf.close()
 
 #### VOLCANO PLOTS ####
 
-file_name="${qcp}volcano.plots.pdf"
+file_name=qcp+"/volcano.plots.pdf"
 
 pdf = PdfPages(file_name)
 
@@ -376,7 +404,7 @@ pdf.close()
 
 #### P.VALUE DISTRIBUTION ####
 
-file_name="${qcp}p.value.dist.pdf"
+file_name=qcp+"/p.value.dist.pdf"
 
 pdf = PdfPages(file_name)
 
@@ -431,7 +459,7 @@ pdf.close()
 
 #### Q.VALUE DISTRIBUTION ####
 
-file_name="${qcp}q.value.dist.pdf"
+file_name=qcp+"/q.value.dist.pdf"
 
 pdf = PdfPages(file_name)
 
@@ -514,7 +542,7 @@ matplotlib.rc('font', **font)
 cm=sns.clustermap(df_heat[[s for s in df_heat.columns.tolist() if 'mean' in s]],figsize=(14,14))
 cm.ax_row_dendrogram.set_visible(False)
 cm.ax_col_dendrogram.set_visible(False)
-plt.savefig("${qcp}grouped.heatMap.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/grouped.heatMap.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
 #### SAMPLE HEATMAP ####
@@ -525,7 +553,7 @@ matplotlib.rc('font', **font)
 cm=sns.clustermap(df_heat[[s for s in df_heat.columns.tolist() if 'mean' not in s]],figsize=(14,16))
 cm.ax_row_dendrogram.set_visible(False)
 cm.ax_col_dendrogram.set_visible(False)
-plt.savefig("${qcp}sample.heatMap.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/sample.heatMap.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
 #### SIGNIFICANT FEATURES MATRIX ####
@@ -556,7 +584,7 @@ sns.heatmap(df_sig.astype(float),annot=True,fmt='.10g', mask=mask)
 plt.title('No of significant features', font_)
 plt.yticks(rotation=0) 
 
-plt.savefig("${qcp}sigFeatures.matrix.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/sigFeatures.matrix.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
 df_corr=df_norm.copy()
@@ -583,7 +611,7 @@ sns.heatmap(df_dist.T,annot=True,fmt='.5g',annot_kws=annot)
 
 plt.title('Group Distance Matrix', font_)
 
-plt.savefig("${qcp}group.distance.matrix.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
+plt.savefig(qcp+"/group.distance.matrix.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')   
 plt.show()
 
 #### SAMPLE DISTANCE MATRIX ####
@@ -603,12 +631,12 @@ sns.heatmap(df_dist_all.T,annot=True,fmt='.3g',annot_kws=annot)
 
 plt.title('Sample Distance Matrix', font_)
 
-plt.savefig("${qcp}sample.distance.matrix.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')
+plt.savefig(qcp+"/sample.distance.matrix.pdf", dpi=600,bbox_inches='tight', pad_inches=0.1,format='pdf')
 plt.show()
 
 #### PCA ####
 
-file_name="${qcp}pca.pdf"
+file_name=qcp+"/pca.pdf"
 
 pdf = PdfPages(file_name)
 
@@ -719,7 +747,7 @@ pdf.close()
 
 ### PCA all ####
 
-file_name="${qcp}pca_all_samples.pdf"
+file_name=qcp+"/pca_all_samples.pdf"
 
 pdf = PdfPages(file_name)
 
