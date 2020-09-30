@@ -12,3 +12,6 @@ wand
 paramiko
 ipaddress
 seaborn
+scipy
+scikit-learn
+statsmodels

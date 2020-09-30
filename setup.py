@@ -24,7 +24,8 @@ setup(name = 'AGEpy',
       packages = [ 'AGEpy' ],
       install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2','requests>=2.20.0', \
       'suds-jurko', 'xlrd', 'biomart', 'matplotlib', 'client', \
-      'xlsxwriter','pybedtools','wand','paramiko','ipaddress', 'seaborn'],
+      'xlsxwriter','pybedtools','wand','paramiko','ipaddress', 'seaborn', \
+      'scipy', 'scikit-learn', 'statsmodels'],
       zip_safe = False,
-      scripts=['bin/obo2tsv','bin/aDiff','bin/abed','bin/david', 'bin/blasto']
+      scripts=['bin/obo2tsv','bin/aDiff','bin/abed','bin/david', 'bin/blasto', 'bin/QC_plots']
       )
