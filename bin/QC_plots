@@ -9,8 +9,8 @@ sys.stdout.flush()
 parser = argparse.ArgumentParser(description="Outputs multiple QC plots for differential expression data", \
 formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-o", "--output", help="/path/to/output/prefix")
-parser.add_argument("-de", "--DiffExpFolder", "--input", help="/path/to/diff_exp/folder")
-parser.add_argument("-s", "--sampleConditions", "--input", help="/path/to/sample/conditions/file")
+parser.add_argument("-de", "--DiffExpFolder", help="/path/to/diff_exp/folder")
+parser.add_argument("-s", "--sampleConditions", help="/path/to/sample/conditions/file")
 parser.add_argument("-t", "--topFolder", help="/path/to/top/folder/of/project")
 
 args = parser.parse_args()
