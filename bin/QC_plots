@@ -694,6 +694,7 @@ for comp1 in conditions_new:
 
             tmp=pd.DataFrame(projected)
             tmp.rename(columns={0: 'Component 1',1: 'Component 2'}, inplace=True)
+            tmp.to_excel(qcp+"/"+file[0].replace(".results.tsv","_pca.xlsx"), index=None)
             #tmp.head()
 
             final_pca=pd.merge(df_pca.reset_index(),tmp,left_index=True,right_index=True)
@@ -771,6 +772,7 @@ projected=pca.fit_transform(df_pca_scaled)
 
 tmp=pd.DataFrame(projected)
 tmp.rename(columns={0: 'Component 1',1: 'Component 2'}, inplace=True)
+tmp.to_excel(qcp+"/pca_comp_all_samples.xlsx", index=None)
 #tmp.head()
 
 final_pca=pd.merge(df_pca.reset_index(),tmp,left_index=True,right_index=True)
