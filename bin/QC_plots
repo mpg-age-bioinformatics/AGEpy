@@ -74,7 +74,7 @@ if not os.path.exists(samples_treatment):
 os.chdir(top)
 os.getcwd()
 
-df_original=pd.read_excel(deg+"/all_res_counts.xlsx", index_col=0)
+df_original=pd.read_excel(deg+"/all_res_counts.xlsx", index_col=0, engine='openpyxl')
 print(len(df_original))
 df_original.head()
 
