@@ -80,11 +80,12 @@ df_original.head()
 
 samp_df=pd.read_csv(samples_treatment, sep="\t")
 samp_df=samp_df.rename(columns={'Unnamed: 0':'Samples'})
+group_col=samp_df.columns.tolist()[1]
 
 samples_dict={}
-conditions=list(set([s for s in samp_df['Treat'].tolist()]))
+conditions=list(set([s for s in samp_df[group_col].tolist()]))
 for c in conditions:
-    samples=samp_df.loc[samp_df['Treat'] == c , 'Samples'].tolist()
+    samples=samp_df.loc[samp_df[group_col] == c , 'Samples'].tolist()
     samples_dict[c]=samples
 
 
