@@ -24,9 +24,9 @@ pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git --user
 
 To install a specific commit use:
 ```
-$ pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git@<ash> --user
+pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git@<ash> --user
 # eg.
-$ pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git@9b10b76d021652c44f93e8dd3850a7a937e6fcee --user
+pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git@9b10b76d021652c44f93e8dd3850a7a937e6fcee --user
 ```
 
 Alternatively you can also install the package with a symlink, so that changes
