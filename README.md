@@ -18,34 +18,15 @@ Bioinformatics Core Facility of the Max Planck Institute for Biology of Ageing.
 
 ###### pip
 
-Latest pip release:
-
 ```bash
-pip install AGEpy --user
+pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git --user
 ```
 
-###### github
-
-Get the latest development version from github:
-
-```bash
-git clone https://github.com/mpg-age-bioinformatics/AGEpy
+To install a specific commit use:
 ```
-
-Install:
-
-```bash
-cd AGEpy
-python setup.py install --user
-```
-
-and then update to the latest release whenever required with:
-
-```bash
-cd AGEpy
-git pull
-python setup.py install --user --force
-
+$ pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git@<ash> --user
+# eg.
+$ pip3 install git+https://github.com/mpg-age-bioinformatics/AGEpy.git@9b10b76d021652c44f93e8dd3850a7a937e6fcee --user
 ```
 
 Alternatively you can also install the package with a symlink, so that changes
@@ -53,6 +34,7 @@ to the source files will be immediately available to users of the package on
 your system:
 
 ```bash
+git clone https://github.com/mpg-age-bioinformatics/AGEpy
 cd AGEpy
 python setup.py develop --user
 ```
