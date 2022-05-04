@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from ast import arg
 import os
 import sys
 import argparse
@@ -12,6 +13,7 @@ parser.add_argument("-o", "--output", help="/path/to/output/prefix")
 parser.add_argument("-de", "--DiffExpFolder", help="/path/to/diff_exp/folder")
 parser.add_argument("-s", "--sampleConditions", help="/path/to/sample/conditions/file")
 parser.add_argument("-t", "--topFolder", help="/path/to/top/folder/of/project")
+parser.add_argument("-sp", "--species", help="Supported values - c_albicans_sc5314,celegans,hsapiens,dmelanogaster,mmusculus,nfurzeri,scerevisiae")
 
 args = parser.parse_args()
 
@@ -55,6 +57,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 top = args.topFolder
 qcp = args.output
 deg = args.DiffExpFolder
+spec = args.species
 samples_treatment = args.sampleConditions
 
 if not os.path.exists(top):
@@ -670,7 +673,10 @@ for comp1 in conditions_new:
             
             #cols=[s for s in data.columns if comp1 in s or comp2 in s]
             #data_pca=data[cols]
-            cols_to_exclude=['ensembl_gene_id','gene_name', 'baseMean','log2FoldChange','lfcSE','pvalue','padj','gene_biotype','GO_id','GO_term']
+            if spec != "c_albicans_sc5314":
+                cols_to_exclude=['ensembl_gene_id','gene_name', 'baseMean','log2FoldChange','lfcSE','pvalue','padj','gene_biotype','GO_id','GO_term']
+            else:
+                cols_to_exclude=['ensembl_gene_id','gene_name', 'baseMean','log2FoldChange','lfcSE','pvalue','padj']
             data_pca=data.drop(cols_to_exclude, axis=1)
             data_pca=np.log10(data_pca + 1)
             data_pca=data_pca.set_index(data['ensembl_gene_id'])
