@@ -1,7 +1,12 @@
+import sys
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
-import pybedtools
+try:
+    import pybedtools
+except:
+    print("pybedtools could not be imported")
+    sys.stdout.flush()
 import csv
 
 def readGTF(infile):
