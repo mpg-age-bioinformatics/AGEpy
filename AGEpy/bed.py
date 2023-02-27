@@ -1,18 +1,23 @@
+import sys
+import os
 import pandas as pd
 import numpy as np
-import os
 #from urllib import urlopen # python2 
 #import urllib2 # python2
 import urllib.request as urllib2
 #import StringIO python2
 from io import StringIO
 import gzip
-import pybedtools
-from pybedtools import BedTool
+try:
+    import pybedtools
+    from pybedtools import BedTool
+except:
+    print("pybedtools could not be imported")
+    sys.stdout.flush()
 from .gtf import GTFtoBED
 from .gtf import readGTF
 from .gtf import retrieve_GTF_field
-import sys
+
 
 def writeBED(inBED, file_path):
     """
