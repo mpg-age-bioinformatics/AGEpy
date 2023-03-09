@@ -779,7 +779,7 @@ projected=pca.fit_transform(df_pca_scaled)
 
 tmp=pd.DataFrame(projected)
 tmp.rename(columns={0: 'Component 1',1: 'Component 2'}, inplace=True)
-tmp.to_excel(qcp+"/pca_comp_all_samples.xlsx", index=None)
+#tmp.to_excel(qcp+"/pca_comp_all_samples.xlsx", index=True, header=True)
 #tmp.head()
 
 final_pca=pd.merge(df_pca.reset_index(),tmp,left_index=True,right_index=True)
@@ -799,6 +799,7 @@ color_gen = cycle(('blue', 'red', 'green', 'pink','yellow'))
 color_gen = sns.color_palette(None, len(conditions))
 
 plot_data = final_pca[["Sample", "Component 1", "Component 2", "expt"]]
+plot_data.to_excel(qcp+"/pca_comp_all_samples.xlsx", index=None)
 
 # map group color
 plot_data['color'] = plot_data['expt'].map(dict(zip(set(plot_data["expt"]), color_gen)))
