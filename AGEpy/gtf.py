@@ -255,7 +255,7 @@ def getPromotersBed(gtf,fa,upstream=2000,downstream=200):
         bed = pybedtools.BedTool.from_dataframe(bed)
         bed=bed.sort()
         bed=bed.merge()
-        bed = pd.read_table(bed.fn, names=['chrom', 'start', 'stop', 'name', 'score', 'strand'])
+        bed = pd.read_table(bed.fn, names=['chrom', 'start', 'stop' ])
         bed["name"]=gene_id
         bed["score"]="."
         bed["strand"]=strand
