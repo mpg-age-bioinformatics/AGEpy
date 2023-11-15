@@ -29,6 +29,7 @@ def datasetsBM(host=biomart_host):
     v=v.replace("}"," ") 
     v=v.replace(": ","\t")
     print(v)
+    return v
 
 def filtersBM(dataset,host=biomart_host):
     """
@@ -52,6 +53,7 @@ def filtersBM(dataset,host=biomart_host):
     v=v.replace("}"," ") 
     v=v.replace(": ","\t")
     print(v)
+    return v
 
 def attributesBM(dataset,host=biomart_host):
     """
@@ -75,6 +77,7 @@ def attributesBM(dataset,host=biomart_host):
     v=v.replace("}"," ") 
     v=v.replace(": ","\t")
     print(v)
+    return v
 
 def queryBM(query_attributes,query_dataset,query_filter=None,query_items=None,query_dic=None,host=biomart_host):
     """
