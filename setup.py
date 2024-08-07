@@ -23,7 +23,7 @@ setup(name = 'AGEpy',
       license = 'MIT',
       packages = [ 'AGEpy' ],
       install_requires = [ 'Pandas>=0.15.2', 'numpy>=1.9.2','requests>=2.20.0', \
-      'suds', 'xlrd', 'biomart', 'matplotlib','pybedtools', \
+      'suds', 'openpyxl','xlrd', 'biomart', 'matplotlib','pybedtools', \
       'xlsxwriter','wand','paramiko','ipaddress', 'seaborn', \
       'scipy', 'scikit-learn', 'statsmodels'],
       zip_safe = False,
