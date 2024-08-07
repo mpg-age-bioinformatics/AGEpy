@@ -2,6 +2,7 @@ AGEpy
 Pandas>=0.15.2
 numpy>=1.9.2
 requests>=2.20.0
+openpyxl
 suds
 xlrd
 biomart
