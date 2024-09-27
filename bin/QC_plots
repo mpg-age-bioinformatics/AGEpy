@@ -297,7 +297,7 @@ for comp1 in conditions_new:
             i=i+1
             
         else:
-            file=[s for s in data_files if comp1 in s and comp2 in s]
+            file=[s for s in data_files if (comp1+'.' in s or comp1+'_' in s) and (comp2+'.' in s or comp2+'_' in s) ]
             lfc_comp=[s.split(".results.tsv")[0] for s in file]
             df_tmp=pd.read_csv(path+file[0], sep="\t")
             
@@ -365,7 +365,7 @@ for comp1 in conditions_new:
             i=i+1
             
         else:
-            file=[s for s in data_files if comp1 in s and comp2 in s]
+            file=[s for s in data_files if (comp1+'.' in s or comp1+'_' in s) and (comp2+'.' in s or comp2+'_' in s) ]
             lfc_comp=[s.split(".results.tsv")[0] for s in file]
             df_tmp=pd.read_csv(path+file[0], sep="\t")
             
@@ -432,7 +432,7 @@ for comp1 in conditions_new:
             i=i+1
             
         else:
-            file=[s for s in data_files if comp1 in s and comp2 in s]
+            file=[s for s in data_files if (comp1+'.' in s or comp1+'_' in s) and (comp2+'.' in s or comp2+'_' in s) ]
             df_tmp=pd.read_csv(path+file[0], sep="\t")
             
             ax = fig.add_subplot(l,w,i)
@@ -487,7 +487,7 @@ for comp1 in conditions_new:
             i=i+1
             
         else:
-            file=[s for s in data_files if comp1 in s and comp2 in s]
+            file=[s for s in data_files if (comp1+'.' in s or comp1+'_' in s) and (comp2+'.' in s or comp2+'_' in s) ]
             df_tmp=pd.read_csv(path+file[0], sep="\t")
             
             ax = fig.add_subplot(l,w,i)
@@ -570,7 +570,7 @@ for comp1 in conditions_new:
             sig_fearures=0
             df_sig.loc[comp1,comp2]=sig_fearures
         else:
-            file=[s for s in data_files if comp1 in s and comp2 in s]
+            file=[s for s in data_files if (comp1+'.' in s or comp1+'_' in s) and (comp2+'.' in s or comp2+'_' in s) ]
             tmp=pd.read_csv(path+file[0], sep="\t")
             sig_fearures=len(tmp.loc[tmp['padj'] < 0.05,])
             df_sig.loc[comp1,comp2]=sig_fearures
@@ -664,7 +664,7 @@ for comp1 in conditions_new:
             i=i+1
             
         else:
-            file=[s for s in data_files if comp1 in s and comp2 in s]
+            file=[s for s in data_files if (comp1+'.' in s or comp1+'_' in s) and (comp2+'.' in s or comp2+'_' in s) ]
             df_tmp=pd.read_csv(path+file[0], sep="\t")
             
             ax = fig.add_subplot(l,w,i)
