@@ -4,6 +4,7 @@ numpy>=1.9.2
 requests>=2.20.0
 openpyxl
 suds
+zeep
 xlrd
 biomart
 matplotlib

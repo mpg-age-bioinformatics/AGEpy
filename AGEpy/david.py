@@ -1,6 +1,8 @@
 import pandas as pd
 import sys
-from suds.client import Client as sudsclient
+# from suds.client import Client as sudsclient
+from zeep import Client as zeepclient
+import logging
 import ssl
 from .plots import *
 
@@ -44,8 +46,10 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
       ids_bg = ','.join([str(i) for i in ids_bg])
     ssl._create_default_https_context = ssl._create_unverified_context
     url = 'https://david.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl'
-    client = sudsclient(url)
-    client.wsdl.services[0].setlocation('https://david.ncifcrf.gov/webservice/services/DAVIDWebService.DAVIDWebServiceHttpSoap11Endpoint/')
+    logging.getLogger("zeep").setLevel(logging.ERROR)
+    # client = sudsclient(url)
+    # client.wsdl.services[0].setlocation('https://david.ncifcrf.gov/webservice/services/DAVIDWebService.DAVIDWebServiceHttpSoap11Endpoint/')
+    client = zeepclient(url)
     client_auth = client.service.authenticate(user)
     if verbose:
       print('User Authentication:', client_auth)
