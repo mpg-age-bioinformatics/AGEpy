@@ -374,13 +374,13 @@ for comp1 in conditions_new:
             tmp=df_tmp[df_tmp["padj"]>=0.05]
             x=tmp["log2FoldChange"].tolist()
             y=tmp["padj"].tolist()
-            y=[ -np.log10(s) for s in y ]
+            y=[ -np.log10(s+1) for s in y ]
             ax.scatter( x, y , color="k", alpha=0.5, s=1, label='NonSignificant')
 
             tmp=df_tmp[df_tmp["padj"]<0.05]
             x=tmp["log2FoldChange"].tolist()
             y=tmp["padj"].tolist()
-            y=[ -np.log10(s) for s in y ]
+            y=[ -np.log10(s+1) for s in y ]
             ax.scatter( x, y , color="r", alpha=0.5, s=1, label='Significant')
 
             ax.set_xlabel("log2FoldChange("+lfc_comp[0]+")",font_)
