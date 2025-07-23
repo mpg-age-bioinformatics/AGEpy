@@ -18,7 +18,7 @@ david_fields = [
 # 'fisher'
 # 'termName' to 'term' and 'term_name'
 
-def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2):
+def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_bg = '', verbose = False, p = 0.1, n = 2, url = 'https://davidbioinformatics.nih.gov/webservice/services/DAVIDWebService?wsdl'):
     # Modified from https://david.ncifcrf.gov/content.jsp?file=WS.html
     # by courtesy of HuangYi @ 20110424
 
@@ -45,7 +45,7 @@ def DAVIDenrich(database, categories, user, ids, ids_bg = None, name = '', name_
     if ids_bg is not None:
       ids_bg = ','.join([str(i) for i in ids_bg])
     ssl._create_default_https_context = ssl._create_unverified_context
-    url = 'https://david.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl'
+    # url = 'https://david.ncifcrf.gov/webservice/services/DAVIDWebService?wsdl'
     logging.getLogger("zeep").setLevel(logging.ERROR)
     # client = sudsclient(url)
     # client.wsdl.services[0].setlocation('https://david.ncifcrf.gov/webservice/services/DAVIDWebService.DAVIDWebServiceHttpSoap11Endpoint/')
