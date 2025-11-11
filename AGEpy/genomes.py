@@ -10,14 +10,6 @@ import numpy as np
 import pandas as pd
 
 
-def ensembl_releases(ensembl_url="ftp://ftp.ensembl.org/pub/"):
-    with urlopen(ensembl_url) as response:
-        lines = response.read().decode().splitlines()
-    names = [line.split()[-1] for line in lines]
-    releases = {x.split("/")[-1] for x in names if re.fullmatch(r"release-\d+", x.split("/")[-1])}
-    return sorted(releases, key=lambda s: int(s.split("-")[1]))
-
-
 def _is_url_file(url: str) -> bool:
     """
     Determine if a URL points to a file (HTTP/HTTPS/FTP) without relying on file extensions.
