@@ -27,5 +27,5 @@ setup(name = 'AGEpy',
       'xlsxwriter','wand','paramiko','ipaddress', 'seaborn', \
       'scipy', 'scikit-learn', 'statsmodels'],
       zip_safe = False,
-      scripts=['bin/obo2tsv','bin/aDiff','bin/abed','bin/david', 'bin/blasto', 'bin/QC_plots']
+      scripts=['bin/obo2tsv','bin/aDiff','bin/abed','bin/david', 'bin/blasto', 'bin/QC_plots', 'bin/genomes']
       )

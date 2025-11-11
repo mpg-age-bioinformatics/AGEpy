@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""
+AGEpy.genomes command-line interface.
+
+Subcommands
+-----------
+releases   -> ensembl_releases
+organisms  -> ensembl_release_organisms
+gtf        -> ensembl_gtf
+dna        -> ensembl_dna
+"""
+
+import argparse
+import json
+import sys
+
+# Import your functions from AGEpy.genomes (as you stated they live there)
+from AGEpy.genomes import (
+    ensembl_releases,
+    ensembl_release_organisms,
+    ensembl_gtf,
+    ensembl_dna,
+)
+
+def _print(obj, as_json: bool):
+    if as_json:
+        print(json.dumps(obj, indent=2, ensure_ascii=False))
+    else:
+        if isinstance(obj, (list, tuple)):
+            for item in obj:
+                print(item)
+        elif isinstance(obj, (dict,)):
+            for k, v in obj.items():
+                print(f"{k}\t{v}")
+        else:
+            print(obj)
+
+def cmd_releases(args):
+    lst = ensembl_releases(ensembl_url=args.base_url)
+    _print(lst, args.json)
+
+def cmd_organisms(args):
+    lst = ensembl_release_organisms(release=args.release, ensembl_url=args.base_url)
+    _print(lst, args.json)
+
+def cmd_gtf(args):
+    local_path, url = ensembl_gtf(
+        organism=args.organism,
+        release=args.release,
+        source=args.source,
+        dest_dir=args.dest,
+        filename=args.filename,
+    )
+    out = {"local_path": local_path, "download_url": url}
+    _print(out if args.json else f"{local_path}", args.json)
+
+def cmd_dna(args):
+    local_path, url = ensembl_dna(
+        organism=args.organism,
+        release=args.release,
+        seq_type=args.seq_type,
+        source=args.source,
+        dest_dir=args.dest,
+        filename=args.filename,
+    )
+    out = {"local_path": local_path, "download_url": url}
+    _print(out if args.json else f"{local_path}", args.json)
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="genomes",
+        description="AGEpy.genomes CLI for Ensembl releases, organisms, GTF and DNA downloads.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    p.add_argument("--json", action="store_true", help="Output JSON where applicable.")
+
+    sub = p.add_subparsers(dest="command", required=True)
+
+    # releases
+    prs = sub.add_parser("releases", help="List Ensembl releases.")
+    prs.add_argument("--base-url", default="ftp://ftp.ensembl.org/pub/", help="Ensembl base URL.")
+    prs.set_defaults(func=cmd_releases)
+
+    # organisms
+    po = sub.add_parser("organisms", help="List organisms for a given release (from GTF tree).")
+    po.add_argument("--release", default="last", help="Release number or 'last'.")
+    po.add_argument("--base-url", default="ftp://ftp.ensembl.org/pub/", help="Ensembl base URL.")
+    po.set_defaults(func=cmd_organisms)
+
+    # gtf
+    pg = sub.add_parser("gtf", help="Download a GTF file.")
+    pg.add_argument("--organism", default="homo_sapiens", help="Organism (e.g. homo_sapiens).")
+    pg.add_argument("--release", default="last", help="Release number or 'last'.")
+    pg.add_argument(
+        "--source",
+        default="ftp://ftp.ensembl.org/pub/",
+        help=(
+            "Source can be: direct file URL, directory URL, or Ensembl base URL "
+            "(http/https/ftp)."
+        ),
+    )
+    pg.add_argument("--dest", default=".", help="Destination directory.")
+    pg.add_argument("--filename", default=None, help="Optional output filename.")
+    pg.set_defaults(func=cmd_gtf)
+
+    # dna
+    pdna = sub.add_parser("dna", help="Download a DNA FASTA file.")
+    pdna.add_argument("--organism", default="homo_sapiens", help="Organism (e.g. homo_sapiens).")
+    pdna.add_argument("--release", default="last", help="Release number or 'last'.")
+    pdna.add_argument(
+        "--seq-type",
+        default="toplevel",
+        choices=["toplevel", "primary_assembly"],
+        help="Sequence set to fetch.",
+    )
+    pdna.add_argument(
+        "--source",
+        default="ftp://ftp.ensembl.org/pub/",
+        help=(
+            "Source can be: direct file URL, directory URL, or Ensembl base URL "
+            "(http/https/ftp)."
+        ),
+    )
+    pdna.add_argument("--dest", default=".", help="Destination directory.")
+    pdna.add_argument("--filename", default=None, help="Optional output filename.")
+    pdna.set_defaults(func=cmd_dna)
+
+    return p
+
+def main(argv=None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        args.func(args)
+        return 0
+    except KeyboardInterrupt:
+        print("Interrupted.", file=sys.stderr)
+        return 130
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())
