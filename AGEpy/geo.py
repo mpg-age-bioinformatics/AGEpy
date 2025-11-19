@@ -6,7 +6,7 @@ from io import StringIO
 import requests
 
 
-def geo_to_sra_samples(gse_id: str, out_prefix: str = "", email=None, api_key=None):
+def geo_to_sra_samples(gse_id: str, email=None, api_key=None):
     """
     Given a GEO series ID (e.g. 'GSE129642'), download the series matrix,
     extract sample metadata, infer SRA Experiments, detect BioProject,
@@ -16,8 +16,6 @@ def geo_to_sra_samples(gse_id: str, out_prefix: str = "", email=None, api_key=No
     ----------
     gse_id : str
         GEO Series ID (e.g. "GSE129642")
-    out_prefix : str
-        Optional prefix for saving intermediate files
     email : str, optional
         optional email passed to NCBI E-utilities
     api_key : str, optional
