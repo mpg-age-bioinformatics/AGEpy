@@ -298,7 +298,7 @@ def gsms_to_sra_samples(gsms):
         else:
             # Retrieve GSE accession and query SRA samples
             gse = gsm_to_gse(gsm)[0]
-            sra_results = geo_to_sra_samples(gse)
+            sra_results , groups_df, runinfo_df= geo_to_sra_samples(gse)
 
             # Cache all results from this GSE
             queries = pd.concat([queries, sra_results], ignore_index=True)
