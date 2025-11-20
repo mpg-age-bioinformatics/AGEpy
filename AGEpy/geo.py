@@ -221,7 +221,7 @@ def geo_to_sra_samples(gse_id: str, email=None, api_key=None):
     return merged, groups_df, runinfo_df
 
 
-def gsm_to_gse(gsm_id: str) -> list[str]:
+def gsm_to_gse(gsm_id: str):
     """
     Given a GEO Sample ID (e.g. 'GSM3717993'), return the GEO Series ID(s)
     (e.g. ['GSE123456', 'GSE789012']) that this sample belongs to.
