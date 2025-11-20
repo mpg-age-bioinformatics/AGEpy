@@ -4,7 +4,7 @@ import io
 import pandas as pd
 from io import StringIO
 import requests
-
+import re
 
 def geo_to_sra_samples(gse_id: str, email=None, api_key=None):
     """
@@ -219,3 +219,94 @@ def geo_to_sra_samples(gse_id: str, email=None, api_key=None):
     ]
 
     return merged, groups_df, runinfo_df
+
+
+def gsm_to_gse(gsm_id: str) -> list[str]:
+    """
+    Given a GEO Sample ID (e.g. 'GSM3717993'), return the GEO Series ID(s)
+    (e.g. ['GSE123456', 'GSE789012']) that this sample belongs to.
+
+    Strategy:
+      1. Ask GEO for the 'series' target of this GSM in text/brief form.
+      2. Extract all GSE accessions via regex (GSE\\d+).
+      3. If that fails, fall back to generic HTML/text and again grep for GSE\\d+.
+    """
+
+    GEO_BASE = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi"
+
+    gse_pattern = re.compile(r"\bGSE\d+\b", re.IGNORECASE)
+    series_ids: set[str] = set()
+
+    # --- 1) Preferred: series view in text form ---
+    params_series = {
+        "acc": gsm_id,
+        "targ": "series",   # show series that include this GSM
+        "form": "text",
+        "view": "brief",
+    }
+    r = requests.get(GEO_BASE, params=params_series)
+    r.raise_for_status()
+    text = r.text
+
+    for match in gse_pattern.findall(text):
+        series_ids.add(match.upper())
+
+    if series_ids:
+        return sorted(series_ids)
+
+    # --- 2) Fallback: default (HTML/text) view of GSM page and scan for GSEs ---
+    params_default = {
+        "acc": gsm_id,
+    }
+    r = requests.get(GEO_BASE, params=params_default)
+    r.raise_for_status()
+    text = r.text
+
+    for match in gse_pattern.findall(text):
+        series_ids.add(match.upper())
+
+    return sorted(series_ids)
+
+
+
+def gsms_to_sra_samples(gsms):
+    """
+    Retrieve SRA sample information for a list of GSM accessions.
+
+    This function maps GSM IDs to their corresponding GSE accession,
+    fetches SRA sample metadata for the GSE, caches previously queried samples,
+    and returns a combined DataFrame of SRA samples corresponding to the input GSMs.
+
+    Parameters
+    ----------
+    gsms : list or iterable
+        A collection of GSM accession identifiers (e.g., ["GSM12345", "GSM67890"]).
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame containing SRA sample records corresponding to the provided GSM accessions.
+        Columns and structure are determined by `geo_to_sra_samples()`.
+    """
+    queries = pd.DataFrame(columns=["sample"])
+    all_sra_samples = pd.DataFrame()
+
+    for gsm in gsms:
+        # Check if sample already cached
+        if gsm in queries["sample"].tolist():
+            sra_subset = queries[queries["sample"] == gsm]
+        else:
+            # Retrieve GSE accession and query SRA samples
+            gse = gsm_to_gse(gsm)[0]
+            sra_results = geo_to_sra_samples(gse)
+
+            # Cache all results from this GSE
+            queries = pd.concat([queries, sra_results], ignore_index=True)
+
+            # Extract only the row(s) for the current GSM
+            sra_subset = sra_results[sra_results["sample"] == gsm]
+
+        # Accumulate all matching results
+        all_sra_samples = pd.concat([all_sra_samples, sra_subset], ignore_index=True)
+
+    return all_sra_samples
