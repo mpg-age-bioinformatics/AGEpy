@@ -15,3 +15,4 @@ from .cytoscape import *
 from .blast import *
 from .genomes import *
 from .geo import *
+from .utils import *
