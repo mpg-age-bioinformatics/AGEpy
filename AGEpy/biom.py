@@ -11,7 +11,7 @@ import requests
 
 biomart_host="http://www.ensembl.org/biomart"
 
-def get_ensembl_biomart_archive_url(release):
+def get_ensembl_biomart_archive_url(release: int) -> str:
     """
     Given an Ensembl release number (e.g. 115), return the corresponding
     BioMart archive URL, e.g. 'https://sep2025.archive.ensembl.org/biomart/'.
@@ -41,12 +41,12 @@ def get_ensembl_biomart_archive_url(release):
     for m in pattern.finditer(html):
         rel = int(m.group("rel"))
         href = m.group("href")
-        release_to_host[rel] = href
+        release_to_host[str(rel)] = href
 
-    if release not in release_to_host:
+    if str(release) not in release_to_host:
         raise KeyError(f"Release {release} not found in Ensembl archive list.")
 
-    host = release_to_host[release]
+    host = release_to_host[str(release)]
 
     # Make sure we have a full URL (add https:// if only a bare host is given)
     if host.startswith("http://") or host.startswith("https://"):
