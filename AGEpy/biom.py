@@ -11,7 +11,7 @@ import requests
 
 biomart_host="http://www.ensembl.org/biomart"
 
-def get_ensembl_biomart_archive_url(release: int) -> str:
+def get_ensembl_biomart_archive_url(release):
     """
     Given an Ensembl release number (e.g. 115), return the corresponding
     BioMart archive URL, e.g. 'https://sep2025.archive.ensembl.org/biomart/'.
