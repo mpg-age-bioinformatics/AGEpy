@@ -6,8 +6,56 @@ from biomart import BiomartServer
 #from cStringIO import StringIO # python2
 from io import BytesIO as cStringIO
 from io import StringIO
+import re
+import requests
 
 biomart_host="http://www.ensembl.org/biomart"
+
+def get_ensembl_biomart_archive_url(release):
+    """
+    Given an Ensembl release number (e.g. 115), return the corresponding
+    BioMart archive URL, e.g. 'https://sep2025.archive.ensembl.org/biomart/'.
+
+    It works by fetching:
+      https://www.ensembl.org/info/website/archives/index.html
+    and extracting the archive host for the requested release.
+
+    Raises:
+        KeyError if the release is not found in the archive list.
+        requests.HTTPError for network-related issues.
+    """
+
+    archives_page = "https://www.ensembl.org/info/website/archives/index.html"
+    resp = requests.get(archives_page)
+    resp.raise_for_status()
+    html = resp.text
+
+    # Find anchor tags whose text looks like "Ensembl 115: Sep 2025"
+    # and whose href points to an *.archive.ensembl.org host.
+    pattern = re.compile(
+        r'<a[^>]+href="(?P<href>[^"]*archive\.ensembl\.org)"[^>]*>\s*Ensembl\s+(?P<rel>\d+):',
+        re.IGNORECASE,
+    )
+
+    release_to_host = {}
+    for m in pattern.finditer(html):
+        rel = int(m.group("rel"))
+        href = m.group("href")
+        release_to_host[rel] = href
+
+    if release not in release_to_host:
+        raise KeyError(f"Release {release} not found in Ensembl archive list.")
+
+    host = release_to_host[release]
+
+    # Make sure we have a full URL (add https:// if only a bare host is given)
+    if host.startswith("http://") or host.startswith("https://"):
+        base = host
+    else:
+        base = "https://" + host.lstrip("/")
+
+    return base.rstrip("/") + "/biomart/"
+
 
 def datasetsBM(host=biomart_host):
     """
