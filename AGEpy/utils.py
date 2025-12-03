@@ -14,5 +14,7 @@ def safe_filename(name, replacement="_", max_length=255):
     # Remove repeated replacement characters
     name = re.sub(r"_+", "_", name)
 
+    name = name.strip("_")
+
     # Trim to safe max filename length
     return name
