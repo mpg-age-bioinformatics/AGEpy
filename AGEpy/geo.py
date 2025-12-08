@@ -6,6 +6,77 @@ from io import StringIO
 import requests
 import re
 
+import time
+# import gzip
+# import requests
+from typing import Optional
+
+
+def download_geo_series_matrix(
+    accession: str,
+    email: Optional[str] = None,
+    max_retries: int = 5,
+    backoff_factor: float = 1.0,
+    timeout: int = 30,
+) -> str:
+    """
+    Download GEO series matrix for a given GSE accession and return the
+    decompressed text content.
+
+    Retries on transient errors (403, 5xx) with exponential backoff.
+    """
+
+    accession = accession.strip()
+    if not accession.startswith("GSE"):
+        raise ValueError(f"Expected GSE accession, got: {accession!r}")
+
+    prefix = accession[:-3] + "nnn"
+    url = (
+        f"https://ftp.ncbi.nlm.nih.gov/geo/series/"
+        f"{prefix}/{accession}/matrix/{accession}_series_matrix.txt.gz"
+    )
+
+    headers = {
+        # Put *your* contact email here – NCBI likes this
+        "User-Agent": (
+            f"python-geo-downloader/1.0 "
+            f"({email})" if email else "python-geo-downloader/1.0"
+        )
+    }
+
+    last_exc = None
+
+    for attempt in range(max_retries):
+        try:
+            resp = requests.get(url, headers=headers, timeout=timeout)
+            # Retry on 403 and 5xx; treat 404 as fatal
+            if resp.status_code == 404:
+                resp.raise_for_status()
+            if resp.status_code in (403, 500, 502, 503, 504):
+                raise requests.HTTPError(
+                    f"HTTP {resp.status_code} for {url}", response=resp
+                )
+
+            resp.raise_for_status()
+            # Successful download
+            return gzip.decompress(resp.content).decode("utf-8", errors="replace")
+
+        except requests.RequestException as exc:
+            last_exc = exc
+            if attempt == max_retries - 1:
+                # Out of retries
+                raise
+
+            sleep_for = backoff_factor * (2 ** attempt)
+            time.sleep(sleep_for)
+
+    # Shouldn’t normally reach here
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("Unknown error while downloading GEO series matrix.")
+
+
+
 def geo_to_sra_samples(gse_id: str, email=None, api_key=None):
     """
     Given a GEO series ID (e.g. 'GSE129642'), download the series matrix,
@@ -34,21 +105,23 @@ def geo_to_sra_samples(gse_id: str, email=None, api_key=None):
     # -------------------------------------------------------------
     # 1. Download GEO Series Matrix
     # -------------------------------------------------------------
-    prefix_folder = gse_id[:6] + "nnn"
-    url = (
-        f"https://ftp.ncbi.nlm.nih.gov/geo/series/"
-        f"{prefix_folder}/{gse_id}/matrix/{gse_id}_series_matrix.txt.gz"
-    )
+    # prefix_folder = gse_id[:6] + "nnn"
+    # url = (
+    #     f"https://ftp.ncbi.nlm.nih.gov/geo/series/"
+    #     f"{prefix_folder}/{gse_id}/matrix/{gse_id}_series_matrix.txt.gz"
+    # )
 
-    print(f"Downloading GEO matrix: {url}")
-    try:
-        with urllib.request.urlopen(url) as response:
-            compressed_data = response.read()
-    except Exception as e:
-        raise RuntimeError(f"Failed to download {url}: {e}")
+    # print(f"Downloading GEO matrix: {url}")
+    # try:
+    #     with urllib.request.urlopen(url) as response:
+    #         compressed_data = response.read()
+    # except Exception as e:
+    #     raise RuntimeError(f"Failed to download {url}: {e}")
 
-    with gzip.GzipFile(fileobj=io.BytesIO(compressed_data)) as gz:
-        text = gz.read().decode("utf-8", errors="replace")
+    # with gzip.GzipFile(fileobj=io.BytesIO(compressed_data)) as gz:
+    #     text = gz.read().decode("utf-8", errors="replace")
+
+    text=download_geo_series_matrix(gse_id ,email=email)
     lines = text.splitlines()
 
     # -------------------------------------------------------------
