@@ -269,7 +269,7 @@ def gsm_to_gse(gsm_id: str):
 
 
 
-def gsms_to_sra_samples(gsms):
+def gsms_to_sra_samples(gsms, email=None, api_key=None):
     """
     Retrieve SRA sample information for a list of GSM accessions.
 
@@ -298,7 +298,7 @@ def gsms_to_sra_samples(gsms):
         else:
             # Retrieve GSE accession and query SRA samples
             gse = gsm_to_gse(gsm)[0]
-            sra_results , groups_df, runinfo_df= geo_to_sra_samples(gse)
+            sra_results , groups_df, runinfo_df= geo_to_sra_samples(gse,email, api_key)
 
             # Cache all results from this GSE
             queries = pd.concat([queries, sra_results], ignore_index=True)
