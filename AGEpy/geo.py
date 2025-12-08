@@ -297,7 +297,7 @@ def gsms_to_sra_samples(gsms, email=None, api_key=None):
             print("Sample already found in cached query.")
             sra_subset = queries[queries["sample"] == gsm]
         else:
-            print("Sample already not yet found in cached query.")
+            print("Sample not yet found in cached query.")
             # Retrieve GSE accession and query SRA samples
             gse = gsm_to_gse(gsm)[0]
             sra_results , groups_df, runinfo_df= geo_to_sra_samples(gse,email, api_key)
