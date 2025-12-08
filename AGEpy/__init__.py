@@ -11,6 +11,7 @@ from .meme import *
 from .plots import *
 from .rbiom import *
 from .sam import *
+from .sra import *
 from .cytoscape import *
 from .blast import *
 from .genomes import *
